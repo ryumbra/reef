@@ -75,10 +75,10 @@ public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
       .build();
 
   /**
-   * Returns a HDInsight runtime configuration from the credentials stored in the given file.
+   * Returns an Azure Batch runtime configuration from the credentials stored in the given file.
    *
    * @param file
-   * @return a HDInsight runtime configuration from the credentials stored in the given file.
+   * @return an Azure Batch runtime configuration from the credentials stored in the given file.
    * @throws IOException if the file can't be read
    */
   public static Configuration fromTextFile(final File file) throws IOException {
