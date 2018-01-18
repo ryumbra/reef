@@ -86,11 +86,6 @@ under the License.
             <artifactId>reef-poison</artifactId>
             <version>${project.version}</version>
         </dependency>
-		<dependency>
-            <groupId>org.apache.reef</groupId>
-            <artifactId>reef-runtime-azbatch</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!-- End of REEF -->
 
         <!-- HADOOP -->
