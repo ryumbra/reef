@@ -23,9 +23,6 @@ import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
-import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
-import org.apache.reef.util.logging.LoggingSetup;
 
 /**
  * The static part of the AzureBatchRuntimeConfigurationStatic.
@@ -40,5 +37,4 @@ public class AzureBatchRuntimeConfigurationStatic extends ConfigurationModuleBui
       .bindImplementation(JobSubmissionHandler.class, AzureBatchJobSubmissionHandler.class)
       .bindImplementation(DriverConfigurationProvider.class, AzureBatchDriverConfigurationProviderImpl.class)
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
-      .build();
 }

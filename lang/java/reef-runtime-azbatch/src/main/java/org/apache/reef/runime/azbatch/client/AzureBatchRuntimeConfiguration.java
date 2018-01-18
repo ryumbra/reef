@@ -19,13 +19,12 @@
 package org.apache.reef.runime.azbatch.client;
 
 import org.apache.reef.annotations.audience.Public;
-import org.apache.reef.runime.azbatch.parameters.*;
-import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountContainerName;
-import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountKey;
-import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountName;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchPoolId;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
-
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.RequiredParameter;
@@ -40,22 +39,22 @@ import java.io.IOException;
 public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
 
   /**
-   * The Azure Batch account URI to be used by REEF.
+   * The Storage account to be used by Azure.
    */
   public static final RequiredParameter<String> AZURE_BATCH_ACCOUNT_URI = new RequiredParameter<>();
 
   /**
-   * The Azure Batch account name to be used by REEF.
+   * The Storage account to be used by Azure.
    */
   public static final RequiredParameter<String> AZURE_BATCH_ACCOUNT_NAME = new RequiredParameter<>();
 
   /**
-   * The Azure Batch account key.
+   * The Storage account to be used by Azure.
    */
   public static final RequiredParameter<String> AZURE_BATCH_ACCOUNT_KEY = new RequiredParameter<>();
 
   /**
-   * The Azure Batch Pool ID.
+   * The Storage account to be used by Azure.
    */
   public static final RequiredParameter<String> AZURE_BATCH_POOL_ID = new RequiredParameter<>();
 
@@ -63,21 +62,6 @@ public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
    * The environment variable that holds the path to the default configuration file.
    */
   public static final String AZBATCH_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE = "REEF_AZBATCH_CONF";
-
-  /**
-   * The name of the Azure Storage account.
-   */
-  public static final RequiredParameter<String> AZURE_STORAGE_ACCOUNT_NAME = new RequiredParameter<>();
-
-  /**
-   * The key of the Azure Storage account.
-   */
-  public static final RequiredParameter<String> AZURE_STORAGE_ACCOUNT_KEY = new RequiredParameter<>();
-
-  /**
-   * The name of the Azure Storage account container.
-   */
-  public static final RequiredParameter<String> AZURE_STORAGE_CONTAINER_NAME = new RequiredParameter<>();
 
   /**
    * The ConfigurationModule for the local resourcemanager.
@@ -88,16 +72,13 @@ public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(AzureBatchAccountName.class, AZURE_BATCH_ACCOUNT_NAME)
       .bindNamedParameter(AzureBatchAccountKey.class, AZURE_BATCH_ACCOUNT_KEY)
       .bindNamedParameter(AzureBatchPoolId.class, AZURE_BATCH_POOL_ID)
-      .bindNamedParameter(AzureStorageAccountName.class, AZURE_STORAGE_ACCOUNT_NAME)
-      .bindNamedParameter(AzureStorageAccountKey.class, AZURE_STORAGE_ACCOUNT_KEY)
-      .bindNamedParameter(AzureStorageAccountContainerName.class, AZURE_STORAGE_CONTAINER_NAME)
       .build();
 
   /**
-   * Returns an Azure Batch runtime configuration from the credentials stored in the given file.
+   * Returns a HDInsight runtime configuration from the credentials stored in the given file.
    *
    * @param file
-   * @return an Azure Batch runtime configuration from the credentials stored in the given file.
+   * @return a HDInsight runtime configuration from the credentials stored in the given file.
    * @throws IOException if the file can't be read
    */
   public static Configuration fromTextFile(final File file) throws IOException {
