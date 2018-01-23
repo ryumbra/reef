@@ -19,7 +19,7 @@
 package org.apache.reef.runtime.local.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
@@ -54,7 +54,7 @@ import javax.inject.Inject;
 /**
  * A resource manager that uses threads to execute containers.
  */
-@Private
+@Public
 @DriverSide
 public final class ResourceManager {
 
@@ -117,7 +117,7 @@ public final class ResourceManager {
    *
    * @param resourceRequest the resource request to be handled.
    */
-  void onResourceRequest(final ResourceRequestEvent resourceRequest) {
+  public void onResourceRequest(final ResourceRequestEvent resourceRequest) {
     synchronized (this.theContainers) {
       this.requestQueue.add(new ResourceRequest(resourceRequest));
       this.checkRequestQueue();
@@ -129,7 +129,7 @@ public final class ResourceManager {
    *
    * @param releaseRequest the release request to be processed
    */
-  void onResourceReleaseRequest(final ResourceReleaseEvent releaseRequest) {
+  public void onResourceReleaseRequest(final ResourceReleaseEvent releaseRequest) {
     synchronized (this.theContainers) {
       LOG.log(Level.FINEST, "Release container: {0}", releaseRequest.getIdentifier());
       this.theContainers.release(releaseRequest.getIdentifier());
@@ -154,7 +154,7 @@ public final class ResourceManager {
    *
    * @param launchRequest the launch request to be processed.
    */
-  void onResourceLaunchRequest(
+  public void onResourceLaunchRequest(
       final ResourceLaunchEvent launchRequest) {
 
     synchronized (this.theContainers) {

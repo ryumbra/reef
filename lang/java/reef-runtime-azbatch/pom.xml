@@ -48,6 +48,11 @@ under the License.
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-runtime-local</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -89,7 +94,7 @@ under the License.
             <version>1.10</version>
         </dependency>
         <!-- End of Microsoft Azure Batch APIs -->
-           
+
     </dependencies>
 
     <build>

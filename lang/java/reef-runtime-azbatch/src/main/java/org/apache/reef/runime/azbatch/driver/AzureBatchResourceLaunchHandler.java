@@ -18,10 +18,10 @@
  */
 package org.apache.reef.runime.azbatch.driver;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
+import org.apache.reef.runtime.local.driver.ResourceManager;
 
 import javax.inject.Inject;
 
@@ -31,12 +31,15 @@ import javax.inject.Inject;
 @Private
 public final class AzureBatchResourceLaunchHandler implements ResourceLaunchHandler {
 
+  private final ResourceManager resourceManager;
+
   @Inject
-  AzureBatchResourceLaunchHandler() {
+  AzureBatchResourceLaunchHandler(ResourceManager resourceManager) {
+    this.resourceManager = resourceManager;
   }
 
   @Override
   public void onNext(final ResourceLaunchEvent value) {
-    throw new NotImplementedException();
+    this.resourceManager.onResourceLaunchRequest(value);
   }
 }

@@ -20,6 +20,7 @@ package org.apache.reef.runime.azbatch.driver;
 
 import org.apache.reef.runtime.common.driver.api.ResourceManagerStartHandler;
 import org.apache.reef.wake.time.runtime.event.RuntimeStart;
+import org.apache.reef.runtime.local.driver.ContainerManager;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -32,12 +33,16 @@ public class AzureBatchRuntimeStartHandler implements ResourceManagerStartHandle
 
   private static final Logger LOG = Logger.getLogger(AzureBatchRuntimeStartHandler.class.getName());
 
+  private final ContainerManager containerManager;
+
   @Inject
-  AzureBatchRuntimeStartHandler() {
+  AzureBatchRuntimeStartHandler(ContainerManager containerManager) {
+    this.containerManager = containerManager;
   }
 
   @Override
   public void onNext(final RuntimeStart runtimeStart) {
     LOG.log(Level.FINE, "Azure batch runtime has been started...");
+    this.containerManager.start();
   }
 }

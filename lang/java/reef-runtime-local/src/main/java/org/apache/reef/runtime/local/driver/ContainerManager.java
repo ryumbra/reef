@@ -20,7 +20,7 @@ package org.apache.reef.runtime.local.driver;
 
 import org.apache.commons.lang.Validate;
 import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.client.FailedRuntime;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
@@ -30,11 +30,7 @@ import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.utils.Constants;
 import org.apache.reef.runtime.common.utils.RemoteManager;
-import org.apache.reef.runtime.local.client.parameters.DefaultMemorySize;
-import org.apache.reef.runtime.local.client.parameters.DefaultNumberOfCores;
-import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
-import org.apache.reef.runtime.local.client.parameters.RackNames;
-import org.apache.reef.runtime.local.client.parameters.RootFolder;
+import org.apache.reef.runtime.local.client.parameters.*;
 import org.apache.reef.runtime.local.process.ReefRunnableProcessObserver;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.CollectionUtils;
@@ -44,19 +40,18 @@ import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.RemoteMessage;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-
 /**
  * Manages a set of Containers that each reference a Thread.
  */
-@Private
+@Public
 @DriverSide
-final class ContainerManager implements AutoCloseable {
+public final class ContainerManager implements AutoCloseable {
 
   private static final Logger LOG = Logger.getLogger(ContainerManager.class.getName());
 
@@ -211,7 +206,7 @@ final class ContainerManager implements AutoCloseable {
     }
   }
 
-  synchronized void start() {
+  public synchronized void start() {
     sendNodeDescriptors();
   }
 
