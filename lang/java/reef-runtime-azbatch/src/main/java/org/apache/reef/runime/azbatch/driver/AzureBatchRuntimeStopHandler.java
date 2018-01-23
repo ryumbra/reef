@@ -19,6 +19,7 @@
 package org.apache.reef.runime.azbatch.driver;
 
 import org.apache.reef.runtime.common.driver.api.ResourceManagerStopHandler;
+import org.apache.reef.runtime.local.driver.ContainerManager;
 import org.apache.reef.wake.time.runtime.event.RuntimeStop;
 
 import javax.inject.Inject;
@@ -32,12 +33,16 @@ public class AzureBatchRuntimeStopHandler implements ResourceManagerStopHandler 
 
   private static final Logger LOG = Logger.getLogger(AzureBatchRuntimeStopHandler.class.getName());
 
+  private final ContainerManager containerManager;
+
   @Inject
-  AzureBatchRuntimeStopHandler() {
+  AzureBatchRuntimeStopHandler(ContainerManager containerManager) {
+    this.containerManager = containerManager;
   }
 
   @Override
   public void onNext(final RuntimeStop runtimeStop) {
+    this.containerManager.close();
     LOG.log(Level.FINE, "Azure batch runtime has been stopped...");
   }
 }
