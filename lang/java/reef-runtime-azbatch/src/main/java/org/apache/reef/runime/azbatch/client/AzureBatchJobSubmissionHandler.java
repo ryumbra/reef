@@ -19,8 +19,8 @@
 package org.apache.reef.runime.azbatch.client;
 
 import com.microsoft.azure.batch.protocol.models.BatchErrorException;
-import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.runime.azbatch.util.CmdBuilder;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
@@ -28,9 +28,7 @@ import org.apache.reef.runime.azbatch.parameters.AzureBatchPoolId;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
-import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.JobJarMaker;
-import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.hdinsight.client.AzureUploader;
 import org.apache.reef.runtime.hdinsight.client.yarnrest.LocalResource;
 import org.apache.reef.tang.Configuration;
@@ -40,10 +38,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,10 +53,9 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
   private final String applicationId;
 
   private final AzureUploader azureUploader;
-  private final ClasspathProvider classpathProvider;
   private final DriverConfigurationProvider driverConfigurationProvider;
   private final JobJarMaker jobJarMaker;
-  private final REEFFileNames reefFileNames;
+  private final CmdBuilder launchCommandBuilder;
 
   private final String azureBatchAccountUri;
   private final String azureBatchAccountName;
@@ -71,19 +65,17 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
   @Inject
   AzureBatchJobSubmissionHandler(
       final AzureUploader azureUploader,
-      final ClasspathProvider classpathProvider,
       final DriverConfigurationProvider driverConfigurationProvider,
       final JobJarMaker jobJarMaker,
-      final REEFFileNames reefFileNames,
+      final CmdBuilder launchCommandBuilder,
       @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
       @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
       @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey,
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId) {
     this.azureUploader = azureUploader;
-    this.classpathProvider = classpathProvider;
     this.driverConfigurationProvider = driverConfigurationProvider;
     this.jobJarMaker = jobJarMaker;
-    this.reefFileNames = reefFileNames;
+    this.launchCommandBuilder = launchCommandBuilder;
 
     this.azureBatchAccountUri = azureBatchAccountUri;
     this.azureBatchAccountName = azureBatchAccountName;
@@ -136,7 +128,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
       final LocalResource uploadedFile = this.azureUploader.uploadFile(jobSubmissionJarFile);
 
       LOG.log(Level.FINE, "Assembling application submission.");
-      final String command = getCommandString(jobSubmissionEvent);
+      final String command = this.launchCommandBuilder.build(jobSubmissionEvent);
 
       helper.submit(uploadedFile, command);
 
@@ -158,27 +150,5 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
         jobFolderURL, jobSubmissionEvent.getRemoteId(), appId, jobSubmissionEvent.getConfiguration());
   }
 
-  /**
-   * Assembles the command to execute the Driver in list form.
-   */
-  private List<String> getCommandList(
-      final JobSubmissionEvent jobSubmissionEvent) {
 
-    // Task 122137: Use JavaLaunchCommandBuilder to generate command to start REEF Driver
-    return Collections.unmodifiableList(Arrays.asList(
-        "/bin/sh -c \"",
-        "ln -sf '.' 'reef';",
-        "unzip local.jar;",
-        "java -Xmx256m -XX:PermSize=128m -XX:MaxPermSize=128m -classpath reef/local/*:reef/global/*",
-        "-Dproc_reef org.apache.reef.runtime.common.REEFLauncher reef/local/driver.conf",
-        "\""
-    ));
-  }
-
-  /**
-   * Assembles the command to execute the Driver.
-   */
-  private String getCommandString(final JobSubmissionEvent jobSubmissionEvent) {
-    return StringUtils.join(getCommandList(jobSubmissionEvent), ' ');
-  }
 }
