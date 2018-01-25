@@ -46,8 +46,9 @@ import java.util.logging.Logger;
 
 /**
  * Helper class to upload the job JAR to Azure block storage.
- * TODO: Task 122136: Investigate using Azure Batch application packages instead Storage to submit REEF application JAR to Batch.
- * TODO: If we cannot use Azure Batch application packages, then this needs to be refactored into a re-usable component.
+ * Task 122136: Investigate using Azure Batch application packages instead Storage to submit
+ * REEF application JAR to Batch.
+ * If we cannot use Azure Batch application packages, then this needs to be refactored into a re-usable component.
  */
 @ClientSide
 @Private
