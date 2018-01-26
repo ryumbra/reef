@@ -20,6 +20,7 @@ package org.apache.reef.runime.azbatch.client;
 
 import com.microsoft.azure.batch.protocol.models.BatchErrorException;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.runime.azbatch.util.AzureStorageUtil;
 import org.apache.reef.runime.azbatch.util.CmdBuilder;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
@@ -29,8 +30,6 @@ import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.JobJarMaker;
-import org.apache.reef.runtime.hdinsight.client.AzureUploader;
-import org.apache.reef.runtime.hdinsight.client.yarnrest.LocalResource;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
 
@@ -50,9 +49,11 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
 
   private static final Logger LOG = Logger.getLogger(AzureBatchJobSubmissionHandler.class.getName());
 
+  private static final String JOB_FOLDER_NAME = "apps/reef/jobs/";
+
   private final String applicationId;
 
-  private final AzureUploader azureUploader;
+  private final AzureStorageUtil azureStorageUtil;
   private final DriverConfigurationProvider driverConfigurationProvider;
   private final JobJarMaker jobJarMaker;
   private final CmdBuilder launchCommandBuilder;
@@ -64,7 +65,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
 
   @Inject
   AzureBatchJobSubmissionHandler(
-      final AzureUploader azureUploader,
+      final AzureStorageUtil azureStorageUtil,
       final DriverConfigurationProvider driverConfigurationProvider,
       final JobJarMaker jobJarMaker,
       final CmdBuilder launchCommandBuilder,
@@ -72,7 +73,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
       @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
       @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey,
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId) {
-    this.azureUploader = azureUploader;
+    this.azureStorageUtil = azureStorageUtil;
     this.driverConfigurationProvider = driverConfigurationProvider;
     this.jobJarMaker = jobJarMaker;
     this.launchCommandBuilder = launchCommandBuilder;
@@ -113,9 +114,10 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
         getApplicationId())) {
 
       final String id = jobSubmissionEvent.getIdentifier();
+      final String folderName = createJobFolderName(id);
 
-      LOG.log(Level.FINE, "Creating a job folder on Azure.");
-      final URI jobFolderURL = this.azureUploader.createJobFolder(id);
+      LOG.log(Level.FINE, "Creating a job folder on Azure at: {0}.", folderName);
+      URI jobFolderURL = this.azureStorageUtil.createFolder(folderName);
 
       LOG.log(Level.FINE, "Assembling Configuration for the Driver.");
       final Configuration driverConfiguration = makeDriverConfiguration(jobSubmissionEvent, id, jobFolderURL);
@@ -125,12 +127,12 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
           this.jobJarMaker.createJobSubmissionJAR(jobSubmissionEvent, driverConfiguration);
 
       LOG.log(Level.FINE, "Uploading Job JAR to Azure.");
-      final LocalResource uploadedFile = this.azureUploader.uploadFile(jobSubmissionJarFile);
+      final URI jobJarSasUri = this.azureStorageUtil.uploadFile(jobFolderURL, jobSubmissionJarFile);
 
       LOG.log(Level.FINE, "Assembling application submission.");
       final String command = this.launchCommandBuilder.build(jobSubmissionEvent);
 
-      helper.submit(uploadedFile, command);
+      helper.submit(jobJarSasUri, command);
 
     } catch (final IOException ex) {
       LOG.log(Level.SEVERE, "Error submitting Azure Batch request", ex);
@@ -144,11 +146,12 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
   private Configuration makeDriverConfiguration(
       final JobSubmissionEvent jobSubmissionEvent,
       final String appId,
-      final URI jobFolderURL) throws IOException {
-
+      final URI jobFolderURL) {
     return this.driverConfigurationProvider.getDriverConfiguration(
         jobFolderURL, jobSubmissionEvent.getRemoteId(), appId, jobSubmissionEvent.getConfiguration());
   }
 
-
+  private String createJobFolderName(final String jobApplicationID) {
+    return JOB_FOLDER_NAME + jobApplicationID;
+  }
 }
