@@ -37,6 +37,6 @@ public class AzureBatchResourceRequestHandler implements ResourceRequestHandler 
 
   @Override
   public void onNext(final ResourceRequestEvent value) {
-    throw new NotImplementedException();
+    // do nothing as Azure batch pool is already provisioned. So nothing left to do here.
   }
 }
