@@ -21,7 +21,7 @@ package org.apache.reef.runime.azbatch.client;
 import com.microsoft.azure.batch.protocol.models.BatchErrorException;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runime.azbatch.util.AzureStorageUtil;
-import org.apache.reef.runime.azbatch.util.CmdBuilder;
+import org.apache.reef.runime.azbatch.util.CommandBuilder;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
@@ -30,6 +30,7 @@ import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.JobJarMaker;
+import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
 
@@ -49,14 +50,13 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
 
   private static final Logger LOG = Logger.getLogger(AzureBatchJobSubmissionHandler.class.getName());
 
-  private static final String JOB_FOLDER_NAME = "apps/reef/jobs/";
-
   private final String applicationId;
 
   private final AzureStorageUtil azureStorageUtil;
   private final DriverConfigurationProvider driverConfigurationProvider;
   private final JobJarMaker jobJarMaker;
-  private final CmdBuilder launchCommandBuilder;
+  private final CommandBuilder launchCommandBuilder;
+  private final REEFFileNames reefFileNames;
 
   private final String azureBatchAccountUri;
   private final String azureBatchAccountName;
@@ -68,7 +68,8 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
       final AzureStorageUtil azureStorageUtil,
       final DriverConfigurationProvider driverConfigurationProvider,
       final JobJarMaker jobJarMaker,
-      final CmdBuilder launchCommandBuilder,
+      final CommandBuilder launchCommandBuilder,
+      final REEFFileNames reefFileNames,
       @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
       @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
       @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey,
@@ -82,6 +83,8 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
     this.azureBatchAccountName = azureBatchAccountName;
     this.azureBatchAccountKey = azureBatchAccountKey;
     this.azureBatchPoolId = azureBatchPoolId;
+
+    this.reefFileNames = reefFileNames;
 
     this.applicationId = "HelloWorldJob-"
         + this.azureBatchAccountName + "-"
@@ -152,6 +155,6 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
   }
 
   private String createJobFolderName(final String jobApplicationID) {
-    return JOB_FOLDER_NAME + jobApplicationID;
+    return this.reefFileNames.getAzbatchJobFolderPath() + jobApplicationID;
   }
 }

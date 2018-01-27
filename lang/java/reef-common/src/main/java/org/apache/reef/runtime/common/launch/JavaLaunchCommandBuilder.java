@@ -72,7 +72,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   }
 
   /**
-   * Constructor that uses the default Launcher class, {@link REEFLauncher}.
+   * Constructor that uses the specified Launcher class and command prefix list.
    * @param commandPrefixList
    */
   public JavaLaunchCommandBuilder(final Class launcherClass, final List<String> commandPrefixList) {

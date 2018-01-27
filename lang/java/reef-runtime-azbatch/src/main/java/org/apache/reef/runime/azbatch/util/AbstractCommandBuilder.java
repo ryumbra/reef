@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Abstract implementation of the OS command builder.
  */
-public abstract class AbstractCmdBuilder implements CmdBuilder {
+public abstract class AbstractCommandBuilder implements CommandBuilder {
 
   public static final String STD_OUT_FILE = "stdout.txt";
   public static final String STD_ERR_FILE = "stderr.txt";
@@ -43,7 +43,7 @@ public abstract class AbstractCmdBuilder implements CmdBuilder {
   protected final ClasspathProvider classpathProvider;
   protected final REEFFileNames reefFileNames;
 
-  AbstractCmdBuilder(
+  AbstractCommandBuilder(
       final Class launcherClass,
       final List<String> commandListPrefix,
       final char classpathSeparatorChar,
@@ -59,7 +59,12 @@ public abstract class AbstractCmdBuilder implements CmdBuilder {
     this.reefFileNames = reefFileNames;
   }
 
-  public abstract String build(JobSubmissionEvent jobSubmissionEvent);
+  /**
+   * Assembles the command to execute the Driver.
+   */
+  public String build(final JobSubmissionEvent jobSubmissionEvent) {
+    return String.format(this.osCommandFormat, StringUtils.join(getCommandList(jobSubmissionEvent), ' '));
+  }
 
   /**
    * Assembles the command to execute the Driver in list form.
@@ -75,12 +80,5 @@ public abstract class AbstractCmdBuilder implements CmdBuilder {
         .setStandardOut(STD_OUT_FILE)
         .setStandardErr(STD_ERR_FILE)
         .build();
-  }
-
-  /**
-   * Assembles the command to execute the Driver.
-   */
-  protected String getCommandString(final JobSubmissionEvent jobSubmissionEvent) {
-    return String.format(this.osCommandFormat, StringUtils.join(getCommandList(jobSubmissionEvent), ' '));
   }
 }

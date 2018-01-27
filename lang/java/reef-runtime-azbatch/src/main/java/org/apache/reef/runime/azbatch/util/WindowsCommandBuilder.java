@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Build the launch command for Java REEF processes for Azure Batch Windows pools.
  */
-public class WindowsCmdBuilder implements CmdBuilder {
+public class WindowsCommandBuilder implements CommandBuilder {
 
   private static final char CLASSPATH_SEPARATOR_CHAR = ';';
 

@@ -23,6 +23,6 @@ import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 /**
  * Build the launch command for Java REEF processes for Azure Batch.
  */
-public interface CmdBuilder {
+public interface CommandBuilder {
   String build(JobSubmissionEvent jobSubmissionEvent);
 }

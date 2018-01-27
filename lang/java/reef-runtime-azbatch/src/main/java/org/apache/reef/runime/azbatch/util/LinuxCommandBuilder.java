@@ -19,7 +19,6 @@
 package org.apache.reef.runime.azbatch.util;
 
 import org.apache.reef.runtime.common.REEFLauncher;
-import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 
@@ -31,7 +30,7 @@ import java.util.List;
 /**
  * Build the launch command for Java REEF processes for Azure Batch Linux pools.
  */
-public class LinuxCmdBuilder extends AbstractCmdBuilder {
+public class LinuxCommandBuilder extends AbstractCommandBuilder {
 
   private static final Class LAUNCHER_CLASS = REEFLauncher.class;
   private static final List<String> COMMAND_LIST_PREFIX =
@@ -40,15 +39,10 @@ public class LinuxCmdBuilder extends AbstractCmdBuilder {
   private static final String OS_COMMAND_FORMAT = "/bin/sh -c \"%s\"";
 
   @Inject
-  LinuxCmdBuilder(
+  LinuxCommandBuilder(
       final ClasspathProvider classpathProvider,
       final REEFFileNames reefFileNames) {
     super(LAUNCHER_CLASS, COMMAND_LIST_PREFIX, CLASSPATH_SEPARATOR_CHAR, OS_COMMAND_FORMAT,
         classpathProvider, reefFileNames);
-  }
-
-  @Override
-  public String build(final JobSubmissionEvent jobSubmissionEvent) {
-    return getCommandString(jobSubmissionEvent);
   }
 }
