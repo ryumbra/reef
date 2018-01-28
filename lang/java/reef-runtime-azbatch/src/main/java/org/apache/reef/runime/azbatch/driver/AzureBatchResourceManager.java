@@ -121,6 +121,8 @@ public final class AzureBatchResourceManager {
   public void onResourceRequested(ResourceRequestEvent resourceRequestEvent) {
     final String id = UUID.randomUUID().toString();
     final int memorySize = resourceRequestEvent.getMemorySize().get();
+
+    // TODO: Investigate nodeDescriptorHandler usage and remove below dummy node descriptor.
     this.nodeDescriptorHandler.onNext(NodeDescriptorEventImpl.newBuilder()
         .setIdentifier(id)
         .setHostName(this.localAddress)
