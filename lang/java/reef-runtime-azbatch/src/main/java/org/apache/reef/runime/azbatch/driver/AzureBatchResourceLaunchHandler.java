@@ -36,9 +36,8 @@ public final class AzureBatchResourceLaunchHandler implements ResourceLaunchHand
   private final AzureBatchResourceManager azureBatchResourceManager;
 
   @Inject
-  AzureBatchResourceLaunchHandler(AzureBatchResourceManager azureBatchResourceManager) {
+  AzureBatchResourceLaunchHandler(final AzureBatchResourceManager azureBatchResourceManager) {
     this.azureBatchResourceManager = azureBatchResourceManager;
-
   }
 
   @Override

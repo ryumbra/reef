@@ -24,13 +24,9 @@ import com.microsoft.azure.batch.protocol.models.JobAddParameter;
 import com.microsoft.azure.batch.protocol.models.JobManagerTask;
 import com.microsoft.azure.batch.protocol.models.PoolInformation;
 import com.microsoft.azure.batch.protocol.models.ResourceFile;
-import com.microsoft.windowsazure.storage.StorageException;
-import com.microsoft.windowsazure.storage.blob.BlobProperties;
-import com.microsoft.windowsazure.storage.blob.CloudBlockBlob;
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
@@ -43,24 +39,17 @@ import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.files.REEFFileNames;
-import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
-import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.hdinsight.client.AzureUploader;
 import org.apache.reef.runtime.hdinsight.client.yarnrest.LocalResource;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
-import org.apache.reef.util.CollectionUtils;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.joda.time.DateTime;
 
 import javax.inject.Inject;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -78,7 +67,6 @@ public final class AzureBatchResourceManager {
   private String localAddress;
   private final REEFFileNames fileNames;
   private final ConfigurationSerializer configurationSerializer;
-  private final double jvmHeapFactor;
   private final String azureBatchAccountUri;
   private final String azureBatchAccountName;
   private final String azureBatchAccountKey;
@@ -88,12 +76,13 @@ public final class AzureBatchResourceManager {
 
   @Inject
   AzureBatchResourceManager(
-      @Parameter(RuntimeParameters.ResourceAllocationHandler.class) final EventHandler<ResourceAllocationEvent> resourceAllocationHandler,
-      @Parameter(RuntimeParameters.NodeDescriptorHandler.class) final EventHandler<NodeDescriptorEvent> nodeDescriptorHandler,
+      @Parameter(RuntimeParameters.ResourceAllocationHandler.class)
+      final EventHandler<ResourceAllocationEvent> resourceAllocationHandler,
+      @Parameter(RuntimeParameters.NodeDescriptorHandler.class)
+      final EventHandler<NodeDescriptorEvent> nodeDescriptorHandler,
       final LocalAddressProvider localAddressProvider,
       final REEFFileNames fileNames,
       final ConfigurationSerializer configurationSerializer,
-      @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
       final AzureUploader azureUploader,
       @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
       @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
@@ -104,7 +93,6 @@ public final class AzureBatchResourceManager {
     this.localAddress = localAddressProvider.getLocalAddress();
     this.fileNames = fileNames;
     this.configurationSerializer = configurationSerializer;
-    this.jvmHeapFactor = 1.0 - jvmHeapSlack;
     this.azureUploader = azureUploader;
     this.azureBatchAccountKey = azureBatchAccountKey;
     this.azureBatchAccountName = azureBatchAccountName;
@@ -118,7 +106,7 @@ public final class AzureBatchResourceManager {
         .replace('.', '-');
   }
 
-  public void onResourceRequested(ResourceRequestEvent resourceRequestEvent) {
+  public void onResourceRequested(final ResourceRequestEvent resourceRequestEvent) {
     final String id = UUID.randomUUID().toString();
     final int memorySize = resourceRequestEvent.getMemorySize().get();
 
@@ -139,7 +127,7 @@ public final class AzureBatchResourceManager {
         .build());
   }
 
-  public void onResourceLaunched(ResourceLaunchEvent resourceLaunchEvent) {
+  public void onResourceLaunched(final ResourceLaunchEvent resourceLaunchEvent) {
     // Make the configuration file of the evaluator.
     final File evaluatorConfigurationFile = new File(this.fileNames.getEvaluatorConfigurationPath());
     try {
@@ -151,7 +139,7 @@ public final class AzureBatchResourceManager {
     final List<String> command = getLaunchCommand(resourceLaunchEvent);
 
     try {
-      LaunchBatchTaskWithConf(evaluatorConfigurationFile, command);
+      launchBatchTaskWithConf(evaluatorConfigurationFile, command);
     } catch (IOException ex) {
       LOG.log(Level.SEVERE, "Error submitting Azure Batch request", ex);
       throw new RuntimeException(ex);
@@ -169,9 +157,8 @@ public final class AzureBatchResourceManager {
     ));
   }
 
-  private void LaunchBatchTaskWithConf(File evaluatorConf, List<String> command) throws IOException {
+  private void launchBatchTaskWithConf(final File evaluatorConf, final List<String> command) throws IOException {
     // TODO: Reuse Job Id to submit the task and avoid using JobManagerTask
-    LOG.log(Level.INFO, "onResourceLaunched LaunchBatchTaskWithConf ", StringUtils.join(command, ' '));
     BatchSharedKeyCredentials cred = new BatchSharedKeyCredentials(
         this.azureBatchAccountUri, this.azureBatchAccountName, this.azureBatchAccountKey);
     BatchClient client = BatchClient.open(cred);

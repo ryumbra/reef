@@ -53,9 +53,10 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
             .set(AzureBatchDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
             .set(AzureBatchDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
             .set(AzureBatchDriverConfiguration.RUNTIME_NAME, RuntimeIdentifier.RUNTIME_NAME)
-             /// TODO: Make then configurable from client side driver code
-             /// This should be set in HelloReef example DriverConfiguration.
-             /// There is Injection Exception when setting this up in DriverConfiguration or expose AzureBatchDriverConfiguration to client. Fix it.
+            /// TODO: Make then configurable from client side driver code
+            /// This should be set in HelloReef example DriverConfiguration.
+            /// There is Injection Exception when setting this up in DriverConfiguration
+            /// or expose AzureBatchDriverConfiguration to client. Fix it.
             .set(AzureBatchDriverConfiguration.AZURE_BATCH_ACCOUNT_URI, "")
             .set(AzureBatchDriverConfiguration.AZURE_BATCH_ACCOUNT_NAME, "")
             .set(AzureBatchDriverConfiguration.AZURE_BATCH_ACCOUNT_KEY, "")
