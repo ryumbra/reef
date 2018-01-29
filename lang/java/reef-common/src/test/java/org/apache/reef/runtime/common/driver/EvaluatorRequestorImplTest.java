@@ -36,7 +36,6 @@ import static org.mockito.Mockito.mock;
  * Tests for EvaluatorRequestorImpl.
  */
 public class EvaluatorRequestorImplTest {
-  private final ResourceCatalog resourceCatalog = mock(ResourceCatalog.class);
   private LoggingScopeFactory loggingScopeFactory;
 
   @Before
@@ -52,7 +51,7 @@ public class EvaluatorRequestorImplTest {
     final int memory = 777;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
     final EvaluatorRequestor evaluatorRequestor =
-        new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
+        new EvaluatorRequestorImpl(requestHandler, loggingScopeFactory);
     evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).build());
     Assert.assertEquals("Memory request did not make it",
         memory, requestHandler.get().getMemorySize().get().intValue());
@@ -68,7 +67,7 @@ public class EvaluatorRequestorImplTest {
     final int count = 9;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
     final EvaluatorRequestor evaluatorRequestor =
-        new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
+        new EvaluatorRequestorImpl(requestHandler, loggingScopeFactory);
     evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setNumber(count).build());
     Assert.assertEquals("Memory request did not make it",
         memory, requestHandler.get().getMemorySize().get().intValue());
@@ -84,7 +83,7 @@ public class EvaluatorRequestorImplTest {
     final int count = 1;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
     final EvaluatorRequestor evaluatorRequestor =
-        new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
+        new EvaluatorRequestorImpl(requestHandler, loggingScopeFactory);
     evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setNumberOfCores(1).setNumber(count)
         .build());
   }
@@ -98,7 +97,7 @@ public class EvaluatorRequestorImplTest {
     final int count = 0;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
     final EvaluatorRequestor evaluatorRequestor =
-        new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
+        new EvaluatorRequestorImpl(requestHandler, loggingScopeFactory);
     evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setNumberOfCores(1).setNumber(count)
         .build());
   }

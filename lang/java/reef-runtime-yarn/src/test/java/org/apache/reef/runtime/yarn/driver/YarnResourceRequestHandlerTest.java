@@ -66,7 +66,7 @@ public final class YarnResourceRequestHandlerTest {
         Tang.Factory.getTang().newInjector().getInstance(LoggingScopeFactory.class);
 
     final EvaluatorRequestor evaluatorRequestor =
-        new EvaluatorRequestorImpl(resourceCatalog, resourceRequestHandler, loggingScopeFactory);
+        new EvaluatorRequestorImpl(resourceRequestHandler, loggingScopeFactory);
 
     final EvaluatorRequest requestOne = EvaluatorRequest.newBuilder()
         .setNumber(1)
@@ -103,7 +103,7 @@ public final class YarnResourceRequestHandlerTest {
         Tang.Factory.getTang().newInjector().getInstance(LoggingScopeFactory.class);
 
     final EvaluatorRequestor evaluatorRequestor =
-        new EvaluatorRequestorImpl(resourceCatalog, resourceRequestHandler, loggingScopeFactory);
+        new EvaluatorRequestorImpl(resourceRequestHandler, loggingScopeFactory);
 
     final EvaluatorRequest requestOne = EvaluatorRequest.newBuilder()
         .setNumber(1)

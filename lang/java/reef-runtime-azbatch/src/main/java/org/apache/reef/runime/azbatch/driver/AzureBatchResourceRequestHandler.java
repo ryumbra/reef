@@ -22,6 +22,11 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
+import org.apache.reef.runtime.common.driver.evaluator.pojos.State;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
+import org.apache.reef.runtime.yarn.driver.REEFEventHandlers;
+import org.apache.reef.runtime.yarn.driver.RuntimeIdentifier;
 
 import javax.inject.Inject;
 
@@ -31,12 +36,40 @@ import javax.inject.Inject;
 @Private
 public class AzureBatchResourceRequestHandler implements ResourceRequestHandler {
 
+    private final REEFEventHandlers reefEventHandlers;
+
   @Inject
-  AzureBatchResourceRequestHandler() {
+  AzureBatchResourceRequestHandler(final REEFEventHandlers reefEventHandlers) {
+      this.reefEventHandlers = reefEventHandlers;
   }
 
   @Override
-  public void onNext(final ResourceRequestEvent value) {
+  public void onNext(final ResourceRequestEvent resourceRequestEvent) {
     // do nothing as Azure batch pool is already provisioned. So nothing left to do here.
+
+      this.reefEventHandlers.onResourceAllocation(ResourceEventImpl.newAllocationBuilder()
+              .setIdentifier("id")
+              .setNodeId("nodeId")
+              .setResourceMemory(resourceRequestEvent.getMemorySize().get())
+              .setVirtualCores(resourceRequestEvent.getVirtualCores().get())
+              .setRackName("niceRack")
+              .setRuntimeName(RuntimeIdentifier.RUNTIME_NAME)
+              .build());
+
+      this.updateRuntimeStatus(resourceRequestEvent);
+
   }
+
+    private void updateRuntimeStatus(final ResourceRequestEvent resourceRequestEvent) {
+
+        final RuntimeStatusEventImpl.Builder builder = RuntimeStatusEventImpl.newBuilder()
+                .setName(RuntimeIdentifier.RUNTIME_NAME)
+                .setState(State.RUNNING)
+                .setOutstandingContainerRequests(resourceRequestEvent.getResourceCount());
+
+        builder.addContainerAllocation(resourceRequestEvent.toString());
+
+        this.reefEventHandlers.onRuntimeStatus(builder.build());
+    }
+
 }

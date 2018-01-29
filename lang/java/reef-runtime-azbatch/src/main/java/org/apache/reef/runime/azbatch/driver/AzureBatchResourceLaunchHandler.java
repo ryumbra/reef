@@ -24,7 +24,8 @@ import com.microsoft.azure.batch.protocol.models.JobAddParameter;
 import com.microsoft.azure.batch.protocol.models.JobManagerTask;
 import com.microsoft.azure.batch.protocol.models.PoolInformation;
 import com.microsoft.azure.batch.protocol.models.ResourceFile;
-import org.apache.commons.lang.NotImplementedException;
+import com.microsoft.azure.batch.protocol.models.BatchErrorException;
+import com.microsoft.azure.batch.protocol.models.TaskAddParameter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
@@ -88,7 +89,7 @@ public final class AzureBatchResourceLaunchHandler implements ResourceLaunchHand
       this.azureBatchAccountName = azureBatchAccountName;
       this.azureBatchAccountKey = azureBatchAccountKey;
       this.azureBatchPoolId = azureBatchPoolId;
-      this.applicationId = "HelloWorldJob";
+      this.applicationId = "MyTask";
   }
 
   @Override
@@ -116,7 +117,7 @@ public final class AzureBatchResourceLaunchHandler implements ResourceLaunchHand
           new JARFileMaker(jarFile).addChildren(localStagingFolder).close();
 
 */
-          final String command = getCommandString(resourceLaunchEvent);
+          final String command = String.join(" ", getCommandList(resourceLaunchEvent));
           submit(configurationFile, command);
   } catch (final IOException e) {
         throw new RuntimeException(e);
@@ -131,7 +132,6 @@ public final class AzureBatchResourceLaunchHandler implements ResourceLaunchHand
 
                 PoolInformation poolInfo = new PoolInformation();
         poolInfo.withPoolId(this.azureBatchPoolId);
-
 
         final LocalResource uploadedConfFile;
         try {
@@ -158,19 +158,13 @@ public final class AzureBatchResourceLaunchHandler implements ResourceLaunchHand
         resources.add(confSourceFile);
         resources.add(jarSourceFile);
 
-                JobManagerTask jobManagerTask = new JobManagerTask()
-                    .withId(this.applicationId)
-                    .withResourceFiles(resources)
-                    .withCommandLine(command);
-
-                JobAddParameter jobAddParameter = new JobAddParameter()
-                    .withId(this.applicationId)
-                    .withJobManagerTask(jobManagerTask)
-                    .withPoolInfo(poolInfo);
+        TaskAddParameter taskToAdd = new TaskAddParameter();
+        taskToAdd.withId(this.applicationId).withCommandLine(command);
+        taskToAdd.withResourceFiles(resources);
 
         try {
-            client.jobOperations().createJob(jobAddParameter);
-        } catch (IOException e) {
+            client.taskOperations().createTask("HelloWorldJob", taskToAdd);
+        } catch (Exception e) {
             throw new RuntimeException("Unable to add task to job.", e);
         }
     }
@@ -187,12 +181,4 @@ public final class AzureBatchResourceLaunchHandler implements ResourceLaunchHand
                 "\""
         ));
     }
-
-    /**
-     * Assembles the command to execute the Driver.
-     */
-    private String getCommandString(final ResourceLaunchEvent resourceLaunchEvent) {
-        return StringUtils.join(getCommandList(resourceLaunchEvent), ' ');
-    }
-
 }

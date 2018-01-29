@@ -20,8 +20,16 @@ package org.apache.reef.runime.azbatch.client;
 
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runime.azbatch.driver.*;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchPoolId;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
+import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountContainerName;
+import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountKey;
+import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountName;
+import org.apache.reef.runtime.hdinsight.parameters.AzureStorageBaseFolder;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
@@ -36,10 +44,35 @@ import java.net.URI;
 public final class AzureBatchDriverConfigurationProviderImpl implements DriverConfigurationProvider {
 
   private final double jvmSlack;
+  private final String azureBatchAccountUri;
+  private final String azureBatchAccountName;
+  private final String azureBatchAccountKey;
+  private final String azureBatchPoolId;
+  private final String azureStorageAccountName;
+  private final String azureStorageAccountKey;
+  private final String azureStorageContainerName;
+  private final String baseFolder;
 
   @Inject
-  AzureBatchDriverConfigurationProviderImpl(@Parameter(JVMHeapSlack.class) final double jvmSlack) {
+  AzureBatchDriverConfigurationProviderImpl(@Parameter(JVMHeapSlack.class) final double jvmSlack,
+  @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
+  @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
+  @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey,
+  @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId,
+  @Parameter(AzureStorageAccountName.class) final String azureStorageAccountName,
+  @Parameter(AzureStorageAccountKey.class) final String azureStorageAccountKey,
+  @Parameter(AzureStorageAccountContainerName.class) final String azureStorageContainerName,
+  @Parameter(AzureStorageBaseFolder.class) final String baseFolder
+  ) {
     this.jvmSlack = jvmSlack;
+    this.azureBatchAccountUri = azureBatchAccountUri;
+    this.azureBatchAccountName = azureBatchAccountName;
+    this.azureBatchAccountKey = azureBatchAccountKey;
+    this.azureBatchPoolId = azureBatchPoolId;
+    this.azureStorageAccountName = azureStorageAccountName;
+    this.azureStorageAccountKey = azureStorageAccountKey;
+    this.azureStorageContainerName = azureStorageContainerName;
+    this.baseFolder = baseFolder;
   }
 
   @Override
@@ -52,6 +85,14 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
             .set(AzureBatchDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
             .set(AzureBatchDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
             .set(AzureBatchDriverConfiguration.RUNTIME_NAME, RuntimeIdentifier.RUNTIME_NAME)
+            .set(AzureBatchDriverConfiguration.AZURE_BATCH_ACCOUNT_URI, this.azureBatchAccountUri)
+            .set(AzureBatchDriverConfiguration.AZURE_BATCH_ACCOUNT_NAME, this.azureBatchAccountName)
+            .set(AzureBatchDriverConfiguration.AZURE_BATCH_ACCOUNT_KEY, this.azureBatchAccountKey)
+            .set(AzureBatchDriverConfiguration.AZURE_BATCH_POOL_ID, this.azureBatchPoolId)
+            .set(AzureBatchDriverConfiguration.AZURE_STORAGE_ACCOUNT_NAME, this.azureStorageAccountName)
+            .set(AzureBatchDriverConfiguration.AZURE_STORAGE_ACCOUNT_KEY, this.azureStorageAccountKey)
+            .set(AzureBatchDriverConfiguration.AZURE_STORAGE_CONTAINER_NAME, this.azureStorageContainerName)
+            .set(AzureBatchDriverConfiguration.AZURE_STORAGE_BASE_FOLDER, this.baseFolder)
             .build(),
         applicationConfiguration);
   }

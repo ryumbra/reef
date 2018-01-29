@@ -19,15 +19,24 @@
 package org.apache.reef.runime.azbatch.driver;
 
 import org.apache.reef.runime.azbatch.AzureBatchClasspathProvider;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchPoolId;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
 import org.apache.reef.runtime.common.driver.parameters.EvaluatorTimeout;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import org.apache.reef.runtime.common.launch.parameters.LaunchID;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
+import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountContainerName;
+import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountKey;
+import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountName;
+import org.apache.reef.runtime.hdinsight.parameters.AzureStorageBaseFolder;
 import org.apache.reef.tang.formats.*;
 
 /**
@@ -56,6 +65,46 @@ public class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<String> CLIENT_REMOTE_IDENTIFIER = new OptionalParameter<>();
 
   /**
+   * The azure batch account uri.
+   */
+  public static final OptionalParameter<String> AZURE_BATCH_ACCOUNT_URI = new OptionalParameter<>();
+
+  /**
+   * The azure batch account name.
+   */
+  public static final OptionalParameter<String> AZURE_BATCH_ACCOUNT_NAME = new OptionalParameter<>();
+
+  /**
+   * The azure batch account key.
+   */
+  public static final OptionalParameter<String> AZURE_BATCH_ACCOUNT_KEY = new OptionalParameter<>();
+
+  /**
+   * The azure batch pool id.
+   */
+  public static final OptionalParameter<String> AZURE_BATCH_POOL_ID = new OptionalParameter<>();
+
+  /**
+   * The azure storage account name.
+   */
+  public static final OptionalParameter<String> AZURE_STORAGE_ACCOUNT_NAME = new OptionalParameter<>();
+
+  /**
+   * The azure storage account key.
+   */
+  public static final OptionalParameter<String> AZURE_STORAGE_ACCOUNT_KEY = new OptionalParameter<>();
+
+  /**
+   * The azure storage container name.
+   */
+  public static final OptionalParameter<String> AZURE_STORAGE_CONTAINER_NAME = new OptionalParameter<>();
+
+  /**
+   * The azure storage base folder.
+   */
+  public static final OptionalParameter<String> AZURE_STORAGE_BASE_FOLDER = new OptionalParameter<>();
+
+  /**
    * The fraction of the container memory NOT to use for the Java Heap.
    */
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
@@ -76,5 +125,17 @@ public class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
       .bindSetEntry(DefinedRuntimes.class, RUNTIME_NAME)
+
+      // Bind the fields bound in AbstractDriverRuntimeConfiguration
+      .bindNamedParameter(AzureBatchAccountName.class, AZURE_BATCH_ACCOUNT_NAME)
+      .bindNamedParameter(AzureBatchAccountUri.class, AZURE_BATCH_ACCOUNT_URI)
+      .bindNamedParameter(AzureBatchAccountKey.class, AZURE_BATCH_ACCOUNT_KEY)
+      .bindNamedParameter(AzureBatchPoolId.class, AZURE_BATCH_POOL_ID)
+
+      // Bind the fields bound in AzureUploader
+      .bindNamedParameter(AzureStorageAccountName.class, AZURE_STORAGE_ACCOUNT_NAME)
+      .bindNamedParameter(AzureStorageAccountKey.class, AZURE_STORAGE_ACCOUNT_KEY)
+      .bindNamedParameter(AzureStorageAccountContainerName.class, AZURE_STORAGE_CONTAINER_NAME)
+      .bindNamedParameter(AzureStorageBaseFolder.class, AZURE_STORAGE_BASE_FOLDER)
       .build();
 }

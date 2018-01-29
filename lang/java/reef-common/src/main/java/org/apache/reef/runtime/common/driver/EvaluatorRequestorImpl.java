@@ -41,20 +41,16 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
 
   private static final Logger LOG = Logger.getLogger(EvaluatorRequestorImpl.class.getName());
 
-  private final ResourceCatalog resourceCatalog;
   private final ResourceRequestHandler resourceRequestHandler;
   private final LoggingScopeFactory loggingScopeFactory;
 
   /**
-   * @param resourceCatalog
    * @param resourceRequestHandler
    * @param loggingScopeFactory
    */
   @Inject
-  public EvaluatorRequestorImpl(final ResourceCatalog resourceCatalog,
-                                final ResourceRequestHandler resourceRequestHandler,
+  public EvaluatorRequestorImpl(final ResourceRequestHandler resourceRequestHandler,
                                 final LoggingScopeFactory loggingScopeFactory) {
-    this.resourceCatalog = resourceCatalog;
     this.resourceRequestHandler = resourceRequestHandler;
     this.loggingScopeFactory = loggingScopeFactory;
   }
