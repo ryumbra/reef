@@ -90,12 +90,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
     this.azureBatchAccountKey = azureBatchAccountKey;
     this.azureBatchPoolId = azureBatchPoolId;
 
-    this.applicationId = "HelloWorldJob-"
-        + this.azureBatchAccountName + "-"
-        + (new Date()).toString()
-        .replace(' ', '-')
-        .replace(':', '-')
-        .replace('.', '-');
+    this.applicationId = "HelloWorldJob";
   }
 
   @Override
