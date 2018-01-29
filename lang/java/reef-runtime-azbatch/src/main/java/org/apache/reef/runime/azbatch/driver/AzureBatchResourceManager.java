@@ -20,17 +20,14 @@ package org.apache.reef.runime.azbatch.driver;
 
 import com.microsoft.azure.batch.BatchClient;
 import com.microsoft.azure.batch.auth.BatchSharedKeyCredentials;
-import com.microsoft.azure.batch.protocol.models.JobAddParameter;
-import com.microsoft.azure.batch.protocol.models.JobManagerTask;
-import com.microsoft.azure.batch.protocol.models.PoolInformation;
 import com.microsoft.azure.batch.protocol.models.ResourceFile;
+import com.microsoft.azure.batch.protocol.models.TaskAddParameter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
-import org.apache.reef.runime.azbatch.parameters.AzureBatchPoolId;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
@@ -70,9 +67,10 @@ public final class AzureBatchResourceManager {
   private final String azureBatchAccountUri;
   private final String azureBatchAccountName;
   private final String azureBatchAccountKey;
-  private final String azureBatchPoolId;
-  private final String applicationId;
+  private final String jobId;
   private final AzureUploader azureUploader;
+  private final String taskId;
+  private final String AZ_BATCH_JOB_ID_ENV = "AZ_BATCH_JOB_ID";
 
   @Inject
   AzureBatchResourceManager(
@@ -86,8 +84,7 @@ public final class AzureBatchResourceManager {
       final AzureUploader azureUploader,
       @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
       @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
-      @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey,
-      @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId) {
+      @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey) {
     this.resourceAllocationHandler = resourceAllocationHandler;
     this.nodeDescriptorHandler = nodeDescriptorHandler;
     this.localAddress = localAddressProvider.getLocalAddress();
@@ -97,8 +94,8 @@ public final class AzureBatchResourceManager {
     this.azureBatchAccountKey = azureBatchAccountKey;
     this.azureBatchAccountName = azureBatchAccountName;
     this.azureBatchAccountUri = azureBatchAccountUri;
-    this.azureBatchPoolId = azureBatchPoolId;
-    this.applicationId = "EvaluatorJob-"
+    this.jobId = System.getenv(AZ_BATCH_JOB_ID_ENV);
+    this.taskId = "EvaluatorJob-"
         + this.azureBatchAccountName + "-"
         + (new Date()).toString()
         .replace(' ', '-')
@@ -163,10 +160,6 @@ public final class AzureBatchResourceManager {
         this.azureBatchAccountUri, this.azureBatchAccountName, this.azureBatchAccountKey);
     BatchClient client = BatchClient.open(cred);
 
-    PoolInformation poolInfo = new PoolInformation();
-    poolInfo.withPoolId(this.azureBatchPoolId);
-
-
     final LocalResource uploadedConfFile = this.azureUploader.uploadFile(evaluatorConf);
     final ResourceFile confSourceFile = new ResourceFile()
         .withBlobSource(uploadedConfFile.getUrl())
@@ -182,16 +175,11 @@ public final class AzureBatchResourceManager {
     resources.add(confSourceFile);
     resources.add(jarSourceFile);
 
-    JobManagerTask jobManagerTask = new JobManagerTask()
-        .withId(this.applicationId)
+    TaskAddParameter taskAddParameter = new TaskAddParameter()
+        .withId(this.taskId)
         .withResourceFiles(resources)
         .withCommandLine(StringUtils.join(command, ' '));
 
-    JobAddParameter jobAddParameter = new JobAddParameter()
-        .withId(this.applicationId)
-        .withJobManagerTask(jobManagerTask)
-        .withPoolInfo(poolInfo);
-
-    client.jobOperations().createJob(jobAddParameter);
+    client.taskOperations().createTask(jobId, taskAddParameter);
   }
 }
