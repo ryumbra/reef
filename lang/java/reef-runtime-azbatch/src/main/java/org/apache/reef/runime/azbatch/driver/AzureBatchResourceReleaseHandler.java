@@ -34,12 +34,16 @@ public class AzureBatchResourceReleaseHandler implements ResourceReleaseHandler 
 
   private static final Logger LOG = Logger.getLogger(AzureBatchResourceLaunchHandler.class.getName());
 
+  private final AzureBatchResourceManager azureBatchResourceManager;
+
   @Inject
-  AzureBatchResourceReleaseHandler() {
+  AzureBatchResourceReleaseHandler(final AzureBatchResourceManager azureBatchResourceManager) {
+    this.azureBatchResourceManager = azureBatchResourceManager;
   }
 
   @Override
-  public void onNext(final ResourceReleaseEvent value) {
+  public void onNext(final ResourceReleaseEvent resourceReleaseEvent) {
     LOG.log(Level.FINEST, "Got ResourceReleaseEvent in AzureBatchResourceLaunchHandler");
+    this.azureBatchResourceManager.onResourceReleased(resourceReleaseEvent);
   }
 }
