@@ -21,7 +21,6 @@ package org.apache.reef.runtime.common.files;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
-import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.parameters.DeleteTempFiles;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
@@ -32,6 +31,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -93,8 +93,7 @@ public final class JobJarMaker {
   }
 
   public File createJobSubmissionJAR(
-      final JobSubmissionEvent jobSubmissionEvent,
-      final Configuration driverConfiguration) throws IOException {
+      final Configuration configuration, Set<FileResource> globalFileSet, Set<FileResource> localFileSet, String configurationFileName) throws IOException {
 
     // Copy all files to a local job submission folder
     final File jobSubmissionFolder = makejobSubmissionFolder();
@@ -103,12 +102,12 @@ public final class JobJarMaker {
     final File localFolder = new File(jobSubmissionFolder, this.fileNames.getLocalFolderName());
     final File globalFolder = new File(jobSubmissionFolder, this.fileNames.getGlobalFolderName());
 
-    copy(jobSubmissionEvent.getGlobalFileSet(), globalFolder);
-    copy(jobSubmissionEvent.getLocalFileSet(), localFolder);
+    copy(globalFileSet, globalFolder);
+    copy(localFileSet, localFolder);
 
-    // Store the Driver Configuration in the JAR file.
+    // Store the Configuration in the JAR file.
     this.configurationSerializer.toFile(
-        driverConfiguration, new File(localFolder, this.fileNames.getDriverConfigurationName()));
+        configuration, new File(localFolder, configurationFileName));
 
     // Create a JAR File for the submission
     final File jarFile = File.createTempFile(this.fileNames.getJobFolderPrefix(), this.fileNames.getJarFileSuffix());

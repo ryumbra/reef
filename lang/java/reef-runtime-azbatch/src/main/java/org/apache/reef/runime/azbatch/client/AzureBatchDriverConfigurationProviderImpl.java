@@ -22,11 +22,16 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runime.azbatch.driver.AzureBatchDriverConfiguration;
 import org.apache.reef.runime.azbatch.driver.RuntimeIdentifier;
 import org.apache.reef.runime.azbatch.parameters.*;
+import org.apache.reef.runime.azbatch.util.CommandBuilder;
+import org.apache.reef.runime.azbatch.util.LinuxCommandBuilder;
+import org.apache.reef.runime.azbatch.util.WindowsCommandBuilder;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.tang.formats.ConfigurationModule;
+import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 
 import javax.inject.Inject;
 import java.net.URI;
@@ -45,6 +50,7 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
   private final String azureStorageAccountName;
   private final String azureStorageAccountKey;
   private final String azureStorageContainerName;
+  private final CommandBuilder commandBuilder;
 
   @Inject
   AzureBatchDriverConfigurationProviderImpl(
@@ -55,7 +61,8 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId,
       @Parameter(AzureStorageAccountName.class) final String azureStorageAccountName,
       @Parameter(AzureStorageAccountKey.class) final String azureStorageAccountKey,
-      @Parameter(AzureStorageContainerName.class) final String azureStorageContainerName) {
+      @Parameter(AzureStorageContainerName.class) final String azureStorageContainerName,
+      CommandBuilder commandBuilder) {
     this.jvmSlack = jvmSlack;
     this.azureBatchAccountUri = azureBatchAccountUri;
     this.azureBatchAccountName = azureBatchAccountName;
@@ -64,6 +71,7 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
     this.azureStorageAccountName = azureStorageAccountName;
     this.azureStorageAccountKey = azureStorageAccountKey;
     this.azureStorageContainerName = azureStorageContainerName;
+    this.commandBuilder = commandBuilder;
   }
 
   @Override
@@ -71,7 +79,9 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
                                               final String clientRemoteId,
                                               final String jobId,
                                               final Configuration applicationConfiguration) {
-    return Configurations.merge(AzureBatchDriverConfiguration.CONF
+    return Configurations.merge(
+        AzureBatchDriverConfiguration.CONF.getBuilder()
+            .bindImplementation(CommandBuilder.class, this.commandBuilder.getClass()).build()
             .set(AzureBatchDriverConfiguration.JOB_IDENTIFIER, jobId)
             .set(AzureBatchDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
             .set(AzureBatchDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)

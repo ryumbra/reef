@@ -42,6 +42,5 @@ public class AzureBatchRuntimeConfigurationStatic extends ConfigurationModuleBui
       .bindImplementation(JobSubmissionHandler.class, AzureBatchJobSubmissionHandler.class)
       .bindImplementation(DriverConfigurationProvider.class, AzureBatchDriverConfigurationProviderImpl.class)
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
-      .bindImplementation(CommandBuilder.class, LinuxCommandBuilder.class)
       .build();
 }

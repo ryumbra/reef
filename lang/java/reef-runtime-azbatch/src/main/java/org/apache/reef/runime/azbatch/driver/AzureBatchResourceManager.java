@@ -22,14 +22,13 @@ import com.microsoft.azure.batch.BatchClient;
 import com.microsoft.azure.batch.auth.BatchSharedKeyCredentials;
 import com.microsoft.azure.batch.protocol.models.ResourceFile;
 import com.microsoft.azure.batch.protocol.models.TaskAddParameter;
-import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
 import org.apache.reef.runime.azbatch.util.AzureStorageUtil;
+import org.apache.reef.runime.azbatch.util.CommandBuilder;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
@@ -38,8 +37,9 @@ import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
-import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.runtime.common.files.*;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
+import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
@@ -54,8 +54,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A resource manager that uses threads to execute containers.
@@ -65,20 +63,26 @@ import java.util.regex.Pattern;
 public final class AzureBatchResourceManager {
 
   private static final Logger LOG = Logger.getLogger(AzureBatchResourceManager.class.getName());
+
   private final EventHandler<ResourceAllocationEvent> resourceAllocationHandler;
   private final EventHandler<NodeDescriptorEvent> nodeDescriptorHandler;
-  private String localAddress;
+
   private final REEFFileNames fileNames;
   private final ConfigurationSerializer configurationSerializer;
   private final String azureBatchAccountUri;
   private final String azureBatchAccountName;
   private final String azureBatchAccountKey;
   private final String jobId;
-  private final AzureStorageUtil azureStorageUtil;
   private final String taskId;
   private final String AZ_BATCH_JOB_ID_ENV = "AZ_BATCH_JOB_ID";
+
+  private final AzureStorageUtil azureStorageUtil;
   private final Map<String, ResourceRequestEvent> containers = new ConcurrentHashMap<>();
+
+  private String localAddress;
   private final double jvmHeapFactor;
+  private final JobJarMaker jobJarMaker;
+  private final CommandBuilder launchCommandBuilder;
 
   @Inject
   AzureBatchResourceManager(
@@ -88,6 +92,8 @@ public final class AzureBatchResourceManager {
       final REEFFileNames fileNames,
       final ConfigurationSerializer configurationSerializer,
       final AzureStorageUtil azureStorageUtil,
+      final JobJarMaker jobJarMaker,
+      final CommandBuilder launchCommandBuilder,
       @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
       @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
       @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey,
@@ -109,6 +115,8 @@ public final class AzureBatchResourceManager {
         .replace(':', '-')
         .replace('.', '-');
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
+    this.jobJarMaker = jobJarMaker;
+    this.launchCommandBuilder = launchCommandBuilder;
   }
 
   public void onResourceRequested(final ResourceRequestEvent resourceRequestEvent) {
@@ -150,57 +158,46 @@ public final class AzureBatchResourceManager {
     }
 
     ResourceRequestEvent container = this.containers.get(resourceLaunchEvent.getIdentifier());
-    String command = expandEnvironmentVariables(
-        StringUtils.join(getLaunchCommand(resourceLaunchEvent, container.getMemorySize().get()), ' '));
+    String command = this.launchCommandBuilder.buildEvaluatorCommand(
+        resourceLaunchEvent, container.getMemorySize().get(), this.jvmHeapFactor);
 
     try {
-      launchBatchTaskWithConf(evaluatorConfigurationFile, command);
+      File jarFile = buildEvaluatorSubmissionJar(evaluatorConfigurationFile);
+      launchBatchTaskWithConf(command, jarFile);
     } catch (IOException ex) {
       LOG.log(Level.SEVERE, "Error submitting Azure Batch request", ex);
       throw new RuntimeException(ex);
     }
   }
 
-  private List<String> getLaunchCommand(final ResourceLaunchEvent resourceLaunchEvent,
-                                        final int containerMemory) {
-    final EvaluatorProcess process = resourceLaunchEvent.getProcess()
-        .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
-        .setStandardErr(this.fileNames.getEvaluatorStderrFileName())
-        .setStandardOut(this.fileNames.getEvaluatorStdoutFileName());
+  private File buildEvaluatorSubmissionJar(File evaluatorConfigurationFile) throws IOException {
 
-    if (process.isOptionSet()) {
-      return process.getCommandLine();
-    } else {
-      return process
-          .setMemory((int) (this.jvmHeapFactor * containerMemory))
-          .getCommandLine();
-    }
-  }
+    final Configuration evaluatorConfig = this.configurationSerializer.fromFile(evaluatorConfigurationFile);
+    Set<FileResource> localFiles = new HashSet<>();
+    localFiles.add(getFileResourceFromFile(evaluatorConfigurationFile, FileType.PLAIN));
 
-  /**
-   * Replace {{ENV_VAR}} placeholders with the values of the corresponding environment variables.
-   * {{ENV_VAR}} placeholders is defined in REEF-1665.
-   * @param command An input string with {{ENV_VAR}} placeholders
-   * to be replaced with the values of the corresponding environment variables.
-   * Replace unknown/unset variables with an empty string.
-   * @return A new string with all the placeholders expanded.
-   */
-  private String expandEnvironmentVariables(final String command) {
-    final Pattern envRegex = Pattern.compile("\\{\\{(\\w+)}}");
-    final Matcher match = envRegex.matcher(command);
-    final StringBuilder res = new StringBuilder(command.length());
+    Set<FileResource> globalFiles = new HashSet<>();
 
-    int i = 0;
-    while (match.find()) {
-      final String var = System.getenv(match.group(1));
-      res.append(command.substring(i, match.start())).append(var == null ? "" : var);
-      i = match.end();
+    File globalFolder = new File(this.fileNames.getGlobalFolderPath());
+    for (final File fileEntry : globalFolder.listFiles()) {
+      globalFiles.add(getFileResourceFromFile(fileEntry, FileType.LIB));
     }
 
-    return res.append(command.substring(i, command.length())).toString();
+    return this.jobJarMaker.createJobSubmissionJAR(
+        evaluatorConfig,
+        globalFiles,
+        localFiles,
+        this.fileNames.getEvaluatorConfigurationName());
   }
 
-  private void launchBatchTaskWithConf(final File evaluatorConf, String command) throws IOException {
+  private FileResource getFileResourceFromFile(File configFile, FileType type) {
+    return FileResourceImpl.newBuilder()
+        .setName(configFile.getName())
+        .setPath(configFile.getPath())
+        .setType(type).build();
+  }
+
+  private void launchBatchTaskWithConf(String command, File jarFile) throws IOException {
     BatchSharedKeyCredentials cred = new BatchSharedKeyCredentials(
         this.azureBatchAccountUri, this.azureBatchAccountName, this.azureBatchAccountKey);
     BatchClient client = BatchClient.open(cred);
@@ -209,19 +206,17 @@ public final class AzureBatchResourceManager {
     LOG.log(Level.FINE, "Creating a job folder on Azure at: {0}.", folderName);
     URI jobFolderURL = this.azureStorageUtil.createFolder(folderName);
 
-    final URI uploadedConfFileUri = this.azureStorageUtil.uploadFile(jobFolderURL, evaluatorConf);
-    final ResourceFile confSourceFile = new ResourceFile()
-        .withBlobSource(uploadedConfFileUri.toString())
-        .withFilePath(evaluatorConf.getPath());
-
-    final File localJar = new File("local.jar");
-    final URI jarFileUri = this.azureStorageUtil.uploadFile(jobFolderURL, localJar);
+    final URI jarFileUri = this.azureStorageUtil.uploadFile(jobFolderURL, jarFile);
     final ResourceFile jarSourceFile = new ResourceFile()
         .withBlobSource(jarFileUri.toString())
-        .withFilePath(localJar.getPath());
+        .withFilePath("local.jar");
+
+    /*
+    final String evaluatorCommandPrefix = StringUtils.join(Arrays.asList("/bin/sh -c ", "\"unzip local.jar -d " + this.fileNames.getREEFFolderName() + ";"), ' ');
+    final String finalCommand = evaluatorCommandPrefix + ' ' + command + '\"';
+    */
 
     List<ResourceFile> resources = new ArrayList<>();
-    resources.add(confSourceFile);
     resources.add(jarSourceFile);
 
     TaskAddParameter taskAddParameter = new TaskAddParameter()

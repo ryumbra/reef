@@ -20,6 +20,7 @@ package org.apache.reef.runime.azbatch.driver;
 
 import org.apache.reef.runime.azbatch.AzureBatchClasspathProvider;
 import org.apache.reef.runime.azbatch.parameters.*;
+import org.apache.reef.runime.azbatch.util.CommandBuilder;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;

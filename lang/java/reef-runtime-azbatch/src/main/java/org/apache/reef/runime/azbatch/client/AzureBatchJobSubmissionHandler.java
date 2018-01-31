@@ -127,13 +127,17 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
 
       LOG.log(Level.FINE, "Making Job JAR.");
       final File jobSubmissionJarFile =
-          this.jobJarMaker.createJobSubmissionJAR(jobSubmissionEvent, driverConfiguration);
+          this.jobJarMaker.createJobSubmissionJAR(
+              driverConfiguration,
+              jobSubmissionEvent.getGlobalFileSet(),
+              jobSubmissionEvent.getLocalFileSet(),
+              this.reefFileNames.getDriverConfigurationName());
 
       LOG.log(Level.FINE, "Uploading Job JAR to Azure.");
       final URI jobJarSasUri = this.azureStorageUtil.uploadFile(jobFolderURL, jobSubmissionJarFile);
 
       LOG.log(Level.FINE, "Assembling application submission.");
-      final String command = this.launchCommandBuilder.build(jobSubmissionEvent);
+      final String command = this.launchCommandBuilder.buildDriverCommand(jobSubmissionEvent);
 
       helper.submit(jobJarSasUri, command);
 

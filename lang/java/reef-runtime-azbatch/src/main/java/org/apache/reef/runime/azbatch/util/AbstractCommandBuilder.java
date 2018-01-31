@@ -19,13 +19,20 @@
 package org.apache.reef.runime.azbatch.util;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
+import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
+import org.apache.reef.tang.annotations.Parameter;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Abstract implementation of the OS command builder.
@@ -59,17 +66,8 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
   /**
    * Assembles the command to execute the Driver.
    */
-  public String build(final JobSubmissionEvent jobSubmissionEvent) {
-    return String.format(this.osCommandFormat, StringUtils.join(getCommandList(jobSubmissionEvent), ' '));
-  }
-
-  /**
-   * Assembles the command to execute the Driver in list form.
-   */
-  private List<String> getCommandList(
-      final JobSubmissionEvent jobSubmissionEvent) {
-
-    return new JavaLaunchCommandBuilder(this.launcherClass, this.commandListPrefix)
+  public String buildDriverCommand(final JobSubmissionEvent jobSubmissionEvent) {
+    List<String> commandList = new JavaLaunchCommandBuilder(this.launcherClass, this.commandListPrefix)
         .setJavaPath("java")
         .setConfigurationFilePaths(Collections.singletonList(this.reefFileNames.getDriverConfigurationPath()))
         .setClassPath(getDriverClasspath())
@@ -77,10 +75,58 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
         .setStandardOut(STD_OUT_FILE)
         .setStandardErr(STD_ERR_FILE)
         .build();
+    return String.format(this.osCommandFormat, StringUtils.join(commandList, ' '));
+  }
+
+  /**
+   * Assembles the command to execute the Evaluator.
+   */
+  public String buildEvaluatorCommand(final ResourceLaunchEvent resourceLaunchEvent,
+                                      final int containerMemory, final double jvmHeapFactor) {
+    List<String> commandList = new ArrayList<>(this.commandListPrefix);
+    // Use EvaluatorProcess to be compatible with JVMProcess and CLRProcess
+    final EvaluatorProcess process = resourceLaunchEvent.getProcess()
+        .setConfigurationFileName(this.reefFileNames.getEvaluatorConfigurationPath())
+        .setStandardErr(this.reefFileNames.getEvaluatorStderrFileName())
+        .setStandardOut(this.reefFileNames.getEvaluatorStdoutFileName());
+
+    if (process.isOptionSet()) {
+      commandList.addAll(process.getCommandLine());
+    } else {
+      commandList.addAll(process.setMemory((int) (jvmHeapFactor * containerMemory))
+          .getCommandLine());
+    }
+
+    return expandEnvironmentVariables(String.format(this.osCommandFormat, StringUtils.join(commandList, ' ')));
+  }
+
+  /**
+   * Replace {{ENV_VAR}} placeholders with the values of the corresponding environment variables.
+   * {{ENV_VAR}} placeholders is defined in REEF-1665.
+   *
+   * @param command An input string with {{ENV_VAR}} placeholders
+   *                to be replaced with the values of the corresponding environment variables.
+   *                Replace unknown/unset variables with an empty string.
+   * @return A new string with all the placeholders expanded.
+   */
+  private String expandEnvironmentVariables(final String command) {
+    final Pattern envRegex = Pattern.compile("\\{\\{(\\w+)}}");
+    final Matcher match = envRegex.matcher(command);
+    final StringBuilder res = new StringBuilder(command.length());
+
+    int i = 0;
+    while (match.find()) {
+      final String var = System.getenv(match.group(1));
+      res.append(command.substring(i, match.start())).append(var == null ? "" : var);
+      i = match.end();
+    }
+
+    return res.append(command.substring(i, command.length())).toString();
   }
 
   /**
    * Returns the driver classpath string which is compatible with the intricacies of the OS.
+   *
    * @return classpath parameter string.
    */
   protected abstract String getDriverClasspath();

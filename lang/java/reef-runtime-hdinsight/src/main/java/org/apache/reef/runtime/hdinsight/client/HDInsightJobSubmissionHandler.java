@@ -97,7 +97,11 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
 
       LOG.log(Level.FINE, "Making Job JAR.");
       final File jobSubmissionJarFile =
-          this.jobJarMaker.createJobSubmissionJAR(jobSubmissionEvent, driverConfiguration);
+          this.jobJarMaker.createJobSubmissionJAR(
+          driverConfiguration,
+          jobSubmissionEvent.getGlobalFileSet(),
+          jobSubmissionEvent.getLocalFileSet(),
+          this.filenames.getDriverConfigurationName());
 
       LOG.log(Level.FINE, "Uploading Job JAR to Azure.");
       final LocalResource uploadedFile = this.uploader.uploadFile(jobSubmissionJarFile);

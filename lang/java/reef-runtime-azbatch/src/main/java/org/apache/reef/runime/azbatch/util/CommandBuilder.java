@@ -19,10 +19,14 @@
 package org.apache.reef.runime.azbatch.util;
 
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 
 /**
  * Build the launch command for Java REEF processes for Azure Batch.
  */
 public interface CommandBuilder {
-  String build(JobSubmissionEvent jobSubmissionEvent);
+  String buildDriverCommand(JobSubmissionEvent jobSubmissionEvent);
+
+  String buildEvaluatorCommand(final ResourceLaunchEvent resourceLaunchEvent,
+                               final int containerMemory, final double jvmHeapFactor);
 }
