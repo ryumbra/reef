@@ -23,15 +23,11 @@ import org.apache.reef.runime.azbatch.driver.AzureBatchDriverConfiguration;
 import org.apache.reef.runime.azbatch.driver.RuntimeIdentifier;
 import org.apache.reef.runime.azbatch.parameters.*;
 import org.apache.reef.runime.azbatch.util.CommandBuilder;
-import org.apache.reef.runime.azbatch.util.LinuxCommandBuilder;
-import org.apache.reef.runime.azbatch.util.WindowsCommandBuilder;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 
 import javax.inject.Inject;
 import java.net.URI;
@@ -62,7 +58,7 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
       @Parameter(AzureStorageAccountName.class) final String azureStorageAccountName,
       @Parameter(AzureStorageAccountKey.class) final String azureStorageAccountKey,
       @Parameter(AzureStorageContainerName.class) final String azureStorageContainerName,
-      CommandBuilder commandBuilder) {
+      final CommandBuilder commandBuilder) {
     this.jvmSlack = jvmSlack;
     this.azureBatchAccountUri = azureBatchAccountUri;
     this.azureBatchAccountName = azureBatchAccountName;

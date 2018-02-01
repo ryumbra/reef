@@ -77,11 +77,6 @@ public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static final RequiredParameter<String> AZURE_STORAGE_CONTAINER_NAME = new RequiredParameter<>();
 
   /**
-   * The OS name of the Azure batch pool.
-   */
-  //public static final RequiredParameter<String> AZURE_BATCH_POOL_OS_NAME = new RequiredParameter<>();
-
-  /**
    * The ConfigurationModule for the local resourcemanager.
    */
   public static final ConfigurationModule CONF = new AzureBatchRuntimeConfiguration()

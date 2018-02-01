@@ -26,14 +26,10 @@ import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.files.RuntimePathProvider;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
-import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
-import org.apache.reef.tang.annotations.Parameter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Abstract implementation of the OS command builder.
@@ -109,5 +105,5 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
    *
    * @return classpath parameter string.
    */
-   protected abstract String getDriverClasspath();
+  protected abstract String getDriverClasspath();
 }

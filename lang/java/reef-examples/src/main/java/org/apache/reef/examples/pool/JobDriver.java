@@ -109,7 +109,7 @@ public final class JobDriver {
    *
    * @param taskId Unique string ID of the task
    * @return Immutable task configuration object, ready to be submitted to REEF.
-   * @throws RuntimeException that wraps BindException if unable to buildDriverCommand the configuration.
+   * @throws RuntimeException that wraps BindException if unable to build the configuration.
    */
   private Configuration getTaskConfiguration(final String taskId) {
     try {

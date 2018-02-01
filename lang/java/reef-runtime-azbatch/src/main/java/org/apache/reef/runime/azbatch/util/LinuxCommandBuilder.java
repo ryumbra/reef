@@ -46,7 +46,7 @@ public class LinuxCommandBuilder extends AbstractCommandBuilder {
       final RuntimePathProvider runtimePathProvider,
       final REEFFileNames reefFileNames) {
     super(LAUNCHER_CLASS, COMMAND_LIST_PREFIX, OS_COMMAND_FORMAT,
-        classpathProvider, runtimePathProvider,reefFileNames);
+        classpathProvider, runtimePathProvider, reefFileNames);
   }
 
   @Override

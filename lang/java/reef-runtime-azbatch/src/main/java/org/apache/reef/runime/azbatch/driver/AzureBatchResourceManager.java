@@ -86,8 +86,10 @@ public final class AzureBatchResourceManager {
 
   @Inject
   AzureBatchResourceManager(
-      @Parameter(RuntimeParameters.ResourceAllocationHandler.class) final EventHandler<ResourceAllocationEvent> resourceAllocationHandler,
-      @Parameter(RuntimeParameters.NodeDescriptorHandler.class) final EventHandler<NodeDescriptorEvent> nodeDescriptorHandler,
+      @Parameter(RuntimeParameters.ResourceAllocationHandler.class)
+      final EventHandler<ResourceAllocationEvent> resourceAllocationHandler,
+      @Parameter(RuntimeParameters.NodeDescriptorHandler.class)
+      final EventHandler<NodeDescriptorEvent> nodeDescriptorHandler,
       final LocalAddressProvider localAddressProvider,
       final REEFFileNames fileNames,
       final ConfigurationSerializer configurationSerializer,
@@ -170,7 +172,7 @@ public final class AzureBatchResourceManager {
     }
   }
 
-  private File buildEvaluatorSubmissionJar(File evaluatorConfigurationFile) throws IOException {
+  private File buildEvaluatorSubmissionJar(final File evaluatorConfigurationFile) throws IOException {
 
     final Configuration evaluatorConfig = this.configurationSerializer.fromFile(evaluatorConfigurationFile);
     Set<FileResource> localFiles = new HashSet<>();
@@ -190,14 +192,14 @@ public final class AzureBatchResourceManager {
         this.fileNames.getEvaluatorConfigurationName());
   }
 
-  private FileResource getFileResourceFromFile(File configFile, FileType type) {
+  private FileResource getFileResourceFromFile(final File configFile, final FileType type) {
     return FileResourceImpl.newBuilder()
         .setName(configFile.getName())
         .setPath(configFile.getPath())
         .setType(type).build();
   }
 
-  private void launchBatchTaskWithConf(String command, File jarFile) throws IOException {
+  private void launchBatchTaskWithConf(final String command, final File jarFile) throws IOException {
     BatchSharedKeyCredentials cred = new BatchSharedKeyCredentials(
         this.azureBatchAccountUri, this.azureBatchAccountName, this.azureBatchAccountKey);
     BatchClient client = BatchClient.open(cred);
@@ -210,11 +212,6 @@ public final class AzureBatchResourceManager {
     final ResourceFile jarSourceFile = new ResourceFile()
         .withBlobSource(jarFileUri.toString())
         .withFilePath("local.jar");
-
-    /*
-    final String evaluatorCommandPrefix = StringUtils.join(Arrays.asList("/bin/sh -c ", "\"unzip local.jar -d " + this.fileNames.getREEFFolderName() + ";"), ' ');
-    final String finalCommand = evaluatorCommandPrefix + ' ' + command + '\"';
-    */
 
     List<ResourceFile> resources = new ArrayList<>();
     resources.add(jarSourceFile);

@@ -66,7 +66,6 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
   /**
    * Constructor that uses the default Launcher class, {@link REEFLauncher}, and default classpath separator.
-   *
    * @param commandPrefixList
    */
   public JavaLaunchCommandBuilder(final List<String> commandPrefixList) {
@@ -75,7 +74,6 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
   /**
    * Constructor that uses the specified Launcher class and command prefix list.
-   *
    * @param commandPrefixList
    */
   public JavaLaunchCommandBuilder(final Class launcherClass, final List<String> commandPrefixList) {
@@ -101,53 +99,53 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   @Override
   public List<String> build() {
     return new ArrayList<String>() {{
-      if (commandPrefixList != null) {
-        for (final String cmd : commandPrefixList) {
-          add(cmd);
+        if (commandPrefixList != null) {
+          for (final String cmd : commandPrefixList) {
+            add(cmd);
+          }
         }
-      }
 
-      if (javaPath == null || javaPath.isEmpty()) {
-        add(DEFAULT_JAVA_PATH);
-      } else {
-        add(javaPath);
-      }
-
-      if (assertionsEnabled != null && assertionsEnabled
-          || EnvironmentUtils.areAssertionsEnabled()) {
-        addOption("-ea");
-      }
-
-      for (final JVMOption jvmOption : options.values()) {
-        add(jvmOption.toString());
-      }
-
-      if (classPath != null && !classPath.isEmpty()) {
-        add("-classpath");
-        add(classPath);
-      }
-
-      propagateProperties(this, true, "proc_reef");
-      propagateProperties(this, false,
-          "java.util.logging.config.file", "java.util.logging.config.class");
-
-      add(launcherClass.getName());
-      if (evaluatorConfigurationPaths.isPresent()) {
-        for (final String configurationPath : evaluatorConfigurationPaths.get()) {
-          add(configurationPath);
+        if (javaPath == null || javaPath.isEmpty()) {
+          add(DEFAULT_JAVA_PATH);
+        } else {
+          add(javaPath);
         }
-      }
 
-      if (stdoutPath != null && !stdoutPath.isEmpty()) {
-        add("1>");
-        add(stdoutPath);
-      }
+        if (assertionsEnabled != null && assertionsEnabled
+            || EnvironmentUtils.areAssertionsEnabled()) {
+          addOption("-ea");
+        }
 
-      if (stderrPath != null && !stderrPath.isEmpty()) {
-        add("2>");
-        add(stderrPath);
-      }
-    }};
+        for (final JVMOption jvmOption : options.values()) {
+          add(jvmOption.toString());
+        }
+
+        if (classPath != null && !classPath.isEmpty()) {
+          add("-classpath");
+          add(classPath);
+        }
+
+        propagateProperties(this, true, "proc_reef");
+        propagateProperties(this, false,
+            "java.util.logging.config.file", "java.util.logging.config.class");
+
+        add(launcherClass.getName());
+        if (evaluatorConfigurationPaths.isPresent()) {
+          for (final String configurationPath : evaluatorConfigurationPaths.get()) {
+            add(configurationPath);
+          }
+        }
+
+        if (stdoutPath != null && !stdoutPath.isEmpty()) {
+          add("1>");
+          add(stdoutPath);
+        }
+
+        if (stderrPath != null && !stderrPath.isEmpty()) {
+          add("2>");
+          add(stderrPath);
+        }
+      }};
   }
 
   @Override
@@ -203,7 +201,6 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
   /**
    * Add a JVM option.
-   *
    * @param option The full option, e.g. "-XX:+PrintGCDetails"
    * @return this
    */
@@ -269,7 +266,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
     public final String separator;
 
     private JVMOption(final String option, final String value,
-                      final String separator) {
+                     final String separator) {
       this.option = option;
       this.value = value;
       this.separator = separator;
