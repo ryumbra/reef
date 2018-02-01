@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.runtime.common.files.RuntimePathProvider;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -46,14 +47,14 @@ public class WindowsCommandBuilder extends AbstractCommandBuilder {
   @Inject
   WindowsCommandBuilder(
       final ClasspathProvider classpathProvider,
+      final RuntimePathProvider runtimePathProvider,
       final REEFFileNames reefFileNames) {
     super(LAUNCHER_CLASS, COMMAND_LIST_PREFIX, OS_COMMAND_FORMAT,
-        classpathProvider, reefFileNames);
+        classpathProvider, runtimePathProvider, reefFileNames);
   }
 
   @Override
   protected String getDriverClasspath() {
-    return String.format("'%s'", StringUtils.join(
-        super.classpathProvider.getDriverClasspath(), CLASSPATH_SEPARATOR_CHAR));
+    return StringUtils.join(super.classpathProvider.getDriverClasspath(), CLASSPATH_SEPARATOR_CHAR);
   }
 }

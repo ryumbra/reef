@@ -24,6 +24,7 @@ import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.runtime.common.files.RuntimePathProvider;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.tang.annotations.Parameter;
@@ -45,6 +46,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
   private final Class launcherClass;
   private final List<String> commandListPrefix;
   private final String osCommandFormat;
+  private final RuntimePathProvider runtimePathProvider;
 
   protected final ClasspathProvider classpathProvider;
   protected final REEFFileNames reefFileNames;
@@ -54,6 +56,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
       final List<String> commandListPrefix,
       final String osCommandFormat,
       final ClasspathProvider classpathProvider,
+      final RuntimePathProvider runtimePathProvider,
       final REEFFileNames reefFileNames) {
     this.launcherClass = launcherClass;
     this.commandListPrefix = commandListPrefix;
@@ -61,6 +64,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
 
     this.classpathProvider = classpathProvider;
     this.reefFileNames = reefFileNames;
+    this.runtimePathProvider = runtimePathProvider;
   }
 
   /**
@@ -68,7 +72,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
    */
   public String buildDriverCommand(final JobSubmissionEvent jobSubmissionEvent) {
     List<String> commandList = new JavaLaunchCommandBuilder(this.launcherClass, this.commandListPrefix)
-        .setJavaPath("java")
+        .setJavaPath(runtimePathProvider.getPath())
         .setConfigurationFilePaths(Collections.singletonList(this.reefFileNames.getDriverConfigurationPath()))
         .setClassPath(getDriverClasspath())
         .setMemory(jobSubmissionEvent.getDriverMemory().get())
@@ -97,31 +101,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
           .getCommandLine());
     }
 
-    return expandEnvironmentVariables(String.format(this.osCommandFormat, StringUtils.join(commandList, ' ')));
-  }
-
-  /**
-   * Replace {{ENV_VAR}} placeholders with the values of the corresponding environment variables.
-   * {{ENV_VAR}} placeholders is defined in REEF-1665.
-   *
-   * @param command An input string with {{ENV_VAR}} placeholders
-   *                to be replaced with the values of the corresponding environment variables.
-   *                Replace unknown/unset variables with an empty string.
-   * @return A new string with all the placeholders expanded.
-   */
-  private String expandEnvironmentVariables(final String command) {
-    final Pattern envRegex = Pattern.compile("\\{\\{(\\w+)}}");
-    final Matcher match = envRegex.matcher(command);
-    final StringBuilder res = new StringBuilder(command.length());
-
-    int i = 0;
-    while (match.find()) {
-      final String var = System.getenv(match.group(1));
-      res.append(command.substring(i, match.start())).append(var == null ? "" : var);
-      i = match.end();
-    }
-
-    return res.append(command.substring(i, command.length())).toString();
+    return String.format(this.osCommandFormat, StringUtils.join(commandList, ' '));
   }
 
   /**
@@ -129,5 +109,5 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
    *
    * @return classpath parameter string.
    */
-  protected abstract String getDriverClasspath();
+   protected abstract String getDriverClasspath();
 }

@@ -19,6 +19,7 @@
 package org.apache.reef.runtime.common.launch;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.Optional;
@@ -65,6 +66,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
   /**
    * Constructor that uses the default Launcher class, {@link REEFLauncher}, and default classpath separator.
+   *
    * @param commandPrefixList
    */
   public JavaLaunchCommandBuilder(final List<String> commandPrefixList) {
@@ -73,6 +75,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
   /**
    * Constructor that uses the specified Launcher class and command prefix list.
+   *
    * @param commandPrefixList
    */
   public JavaLaunchCommandBuilder(final Class launcherClass, final List<String> commandPrefixList) {
@@ -98,53 +101,53 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   @Override
   public List<String> build() {
     return new ArrayList<String>() {{
-        if (commandPrefixList != null) {
-          for (final String cmd : commandPrefixList) {
-            add(cmd);
-          }
+      if (commandPrefixList != null) {
+        for (final String cmd : commandPrefixList) {
+          add(cmd);
         }
+      }
 
-        if (javaPath == null || javaPath.isEmpty()) {
-          add(DEFAULT_JAVA_PATH);
-        } else {
-          add(javaPath);
+      if (javaPath == null || javaPath.isEmpty()) {
+        add(DEFAULT_JAVA_PATH);
+      } else {
+        add(javaPath);
+      }
+
+      if (assertionsEnabled != null && assertionsEnabled
+          || EnvironmentUtils.areAssertionsEnabled()) {
+        addOption("-ea");
+      }
+
+      for (final JVMOption jvmOption : options.values()) {
+        add(jvmOption.toString());
+      }
+
+      if (classPath != null && !classPath.isEmpty()) {
+        add("-classpath");
+        add(classPath);
+      }
+
+      propagateProperties(this, true, "proc_reef");
+      propagateProperties(this, false,
+          "java.util.logging.config.file", "java.util.logging.config.class");
+
+      add(launcherClass.getName());
+      if (evaluatorConfigurationPaths.isPresent()) {
+        for (final String configurationPath : evaluatorConfigurationPaths.get()) {
+          add(configurationPath);
         }
+      }
 
-        if (assertionsEnabled != null && assertionsEnabled
-            || EnvironmentUtils.areAssertionsEnabled()) {
-          addOption("-ea");
-        }
+      if (stdoutPath != null && !stdoutPath.isEmpty()) {
+        add("1>");
+        add(stdoutPath);
+      }
 
-        for (final JVMOption jvmOption : options.values()) {
-          add(jvmOption.toString());
-        }
-
-        if (classPath != null && !classPath.isEmpty()) {
-          add("-classpath");
-          add(classPath);
-        }
-
-        propagateProperties(this, true, "proc_reef");
-        propagateProperties(this, false,
-            "java.util.logging.config.file", "java.util.logging.config.class");
-
-        add(launcherClass.getName());
-        if (evaluatorConfigurationPaths.isPresent()) {
-          for (final String configurationPath : evaluatorConfigurationPaths.get()) {
-            add(configurationPath);
-          }
-        }
-
-        if (stdoutPath != null && !stdoutPath.isEmpty()) {
-          add("1>");
-          add(stdoutPath);
-        }
-
-        if (stderrPath != null && !stderrPath.isEmpty()) {
-          add("2>");
-          add(stderrPath);
-        }
-      }};
+      if (stderrPath != null && !stderrPath.isEmpty()) {
+        add("2>");
+        add(stderrPath);
+      }
+    }};
   }
 
   @Override
@@ -184,16 +187,23 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
   public JavaLaunchCommandBuilder setClassPath(final String classPath) {
     this.classPath = classPath;
+    if (SystemUtils.IS_OS_WINDOWS) {
+      this.classPath = String.format("'%s'", this.classPath);
+    }
     return this;
   }
 
   public JavaLaunchCommandBuilder setClassPath(final Collection<String> classPathElements) {
     this.classPath = StringUtils.join(classPathElements, this.classpathSeparator);
+    if (SystemUtils.IS_OS_WINDOWS) {
+      this.classPath = String.format("'%s'", this.classPath);
+    }
     return this;
   }
 
   /**
    * Add a JVM option.
+   *
    * @param option The full option, e.g. "-XX:+PrintGCDetails"
    * @return this
    */
@@ -259,7 +269,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
     public final String separator;
 
     private JVMOption(final String option, final String value,
-                     final String separator) {
+                      final String separator) {
       this.option = option;
       this.value = value;
       this.separator = separator;
