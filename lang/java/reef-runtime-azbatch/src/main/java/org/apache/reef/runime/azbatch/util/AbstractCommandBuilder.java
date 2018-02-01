@@ -40,6 +40,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
   public static final String STD_ERR_FILE = "stderr.txt";
 
   private final Class launcherClass;
+  private final Class shimLauncherClass;
   private final List<String> commandListPrefix;
   private final String osCommandFormat;
   private final RuntimePathProvider runtimePathProvider;
@@ -49,12 +50,14 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
 
   AbstractCommandBuilder(
       final Class launcherClass,
+      final Class shimLauncherClass,
       final List<String> commandListPrefix,
       final String osCommandFormat,
       final ClasspathProvider classpathProvider,
       final RuntimePathProvider runtimePathProvider,
       final REEFFileNames reefFileNames) {
     this.launcherClass = launcherClass;
+    this.shimLauncherClass = shimLauncherClass;
     this.commandListPrefix = commandListPrefix;
     this.osCommandFormat = osCommandFormat;
 
@@ -79,25 +82,37 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
   }
 
   /**
+   * Asembles the command to execute the Evaluator Shim.
+   */
+  public String buildEvaluatorShimCommand(final int evaluatorShimMemory, final String configurationPath) {
+    List<String> commandList = new JavaLaunchCommandBuilder(this.shimLauncherClass, this.commandListPrefix)
+        .setJavaPath(runtimePathProvider.getPath())
+        .setConfigurationFilePaths(Collections.singletonList(configurationPath))
+        .setClassPath(getDriverClasspath())
+        .setMemory(evaluatorShimMemory)
+        .setStandardOut(STD_OUT_FILE)
+        .setStandardErr(STD_ERR_FILE)
+        .build();
+    return String.format(this.osCommandFormat, StringUtils.join(commandList, ' '));
+  }
+
+  /**
    * Assembles the command to execute the Evaluator.
    */
   public String buildEvaluatorCommand(final ResourceLaunchEvent resourceLaunchEvent,
                                       final int containerMemory, final double jvmHeapFactor) {
-    List<String> commandList = new ArrayList<>(this.commandListPrefix);
+    List<String> commandList = new ArrayList<>();
     // Use EvaluatorProcess to be compatible with JVMProcess and CLRProcess
     final EvaluatorProcess process = resourceLaunchEvent.getProcess()
-        .setConfigurationFileName(this.reefFileNames.getEvaluatorConfigurationPath())
-        .setStandardErr(this.reefFileNames.getEvaluatorStderrFileName())
-        .setStandardOut(this.reefFileNames.getEvaluatorStdoutFileName());
+        .setConfigurationFileName(this.reefFileNames.getEvaluatorConfigurationPath());
 
     if (process.isOptionSet()) {
       commandList.addAll(process.getCommandLine());
     } else {
-      commandList.addAll(process.setMemory((int) (jvmHeapFactor * containerMemory))
-          .getCommandLine());
+      commandList.addAll(process.setMemory((int) (jvmHeapFactor * containerMemory)).getCommandLine());
     }
 
-    return String.format(this.osCommandFormat, StringUtils.join(getEvaluatorLaunchCommandLine(commandList), ' '));
+    return StringUtils.join(getEvaluatorLaunchCommandLine(commandList), ' ');
   }
 
   /**

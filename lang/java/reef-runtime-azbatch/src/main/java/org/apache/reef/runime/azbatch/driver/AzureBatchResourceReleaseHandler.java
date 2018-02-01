@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runime.azbatch.driver;
 
+import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
@@ -30,7 +31,8 @@ import java.util.logging.Logger;
  * A {@link ResourceReleaseHandler} for Azure Batch.
  */
 @Private
-public class AzureBatchResourceReleaseHandler implements ResourceReleaseHandler {
+@DriverSide
+public final class AzureBatchResourceReleaseHandler implements ResourceReleaseHandler {
 
   private static final Logger LOG = Logger.getLogger(AzureBatchResourceLaunchHandler.class.getName());
 

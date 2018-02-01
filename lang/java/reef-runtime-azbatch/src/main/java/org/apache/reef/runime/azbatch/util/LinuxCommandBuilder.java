@@ -19,6 +19,7 @@
 package org.apache.reef.runime.azbatch.util;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.reef.runime.azbatch.evaluator.EvaluatorShimLauncher;
 import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
@@ -35,6 +36,7 @@ import java.util.List;
 public class LinuxCommandBuilder extends AbstractCommandBuilder {
 
   private static final Class LAUNCHER_CLASS = REEFLauncher.class;
+  private static final Class SHIM_LAUNCHER_CLASS = EvaluatorShimLauncher.class;
   private static final List<String> COMMAND_LIST_PREFIX =
       Collections.unmodifiableList(Arrays.asList("ln -sf '.' 'reef';", "unzip local.jar;"));
   private static final char CLASSPATH_SEPARATOR_CHAR = ':';
@@ -45,7 +47,7 @@ public class LinuxCommandBuilder extends AbstractCommandBuilder {
       final ClasspathProvider classpathProvider,
       final RuntimePathProvider runtimePathProvider,
       final REEFFileNames reefFileNames) {
-    super(LAUNCHER_CLASS, COMMAND_LIST_PREFIX, OS_COMMAND_FORMAT,
+    super(LAUNCHER_CLASS, SHIM_LAUNCHER_CLASS, COMMAND_LIST_PREFIX, OS_COMMAND_FORMAT,
         classpathProvider, runtimePathProvider, reefFileNames);
   }
 
