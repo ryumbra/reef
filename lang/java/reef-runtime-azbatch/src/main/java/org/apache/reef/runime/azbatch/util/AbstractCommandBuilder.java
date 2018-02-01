@@ -97,7 +97,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
           .getCommandLine());
     }
 
-    return String.format(this.osCommandFormat, StringUtils.join(commandList, ' '));
+    return String.format(this.osCommandFormat, StringUtils.join(getEvaluatorLaunchCommandLine(commandList), ' '));
   }
 
   /**
@@ -106,4 +106,11 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
    * @return classpath parameter string.
    */
   protected abstract String getDriverClasspath();
+
+  /**
+   * Returns the evaluator command string which is compatible with the intricacies of the OS.
+   *
+   * @return evaluator command.
+   */
+  protected abstract List<String> getEvaluatorLaunchCommandLine(final List<String> original);
 }

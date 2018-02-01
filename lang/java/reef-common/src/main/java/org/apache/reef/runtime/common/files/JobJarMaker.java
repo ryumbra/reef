@@ -21,6 +21,7 @@ package org.apache.reef.runtime.common.files;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
+import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.parameters.DeleteTempFiles;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
@@ -92,7 +93,20 @@ public final class JobJarMaker {
     return new File(fileProto.getPath());
   }
 
-  public File createJobSubmissionJAR(
+  public File createJobSubmissionJAR(final JobSubmissionEvent jobSubmissionEvent, final Configuration driverConfiguration) throws IOException {
+    return createJobSubmissionJARInternal(
+        driverConfiguration,
+        jobSubmissionEvent.getGlobalFileSet(),
+        jobSubmissionEvent.getLocalFileSet(),
+        this.fileNames.getDriverConfigurationName());
+  }
+
+  public File createEvaluatorSubmissionJAR(
+      final Configuration configuration, Set<FileResource> globalFileSet, Set<FileResource> localFileSet) throws IOException {
+    return createJobSubmissionJARInternal(configuration, globalFileSet, localFileSet, this.fileNames.getEvaluatorConfigurationName());
+  }
+
+  private File createJobSubmissionJARInternal(
       final Configuration configuration, Set<FileResource> globalFileSet, Set<FileResource> localFileSet, String configurationFileName) throws IOException {
 
     // Copy all files to a local job submission folder

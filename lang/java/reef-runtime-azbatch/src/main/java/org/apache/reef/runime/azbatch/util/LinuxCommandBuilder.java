@@ -53,4 +53,9 @@ public class LinuxCommandBuilder extends AbstractCommandBuilder {
   protected String getDriverClasspath() {
     return StringUtils.join(super.classpathProvider.getDriverClasspath(), CLASSPATH_SEPARATOR_CHAR);
   }
+
+  @Override
+  protected List<String> getEvaluatorLaunchCommandLine(final List<String> original) {
+    return original;
+  }
 }

@@ -79,7 +79,7 @@ public final class AzureBatchResourceManager {
   private final AzureStorageUtil azureStorageUtil;
   private final Map<String, ResourceRequestEvent> containers = new ConcurrentHashMap<>();
 
-  private String localAddress;
+  private final String localAddress;
   private final double jvmHeapFactor;
   private final JobJarMaker jobJarMaker;
   private final CommandBuilder launchCommandBuilder;
@@ -185,11 +185,10 @@ public final class AzureBatchResourceManager {
       globalFiles.add(getFileResourceFromFile(fileEntry, FileType.LIB));
     }
 
-    return this.jobJarMaker.createJobSubmissionJAR(
+    return this.jobJarMaker.createEvaluatorSubmissionJAR(
         evaluatorConfig,
         globalFiles,
-        localFiles,
-        this.fileNames.getEvaluatorConfigurationName());
+        localFiles);
   }
 
   private FileResource getFileResourceFromFile(final File configFile, final FileType type) {

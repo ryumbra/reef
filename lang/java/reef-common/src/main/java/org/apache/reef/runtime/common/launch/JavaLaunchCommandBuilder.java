@@ -19,17 +19,12 @@
 package org.apache.reef.runtime.common.launch;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
 import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.Optional;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -185,17 +180,11 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
   public JavaLaunchCommandBuilder setClassPath(final String classPath) {
     this.classPath = classPath;
-    if (SystemUtils.IS_OS_WINDOWS) {
-      this.classPath = String.format("'%s'", this.classPath);
-    }
     return this;
   }
 
   public JavaLaunchCommandBuilder setClassPath(final Collection<String> classPathElements) {
     this.classPath = StringUtils.join(classPathElements, this.classpathSeparator);
-    if (SystemUtils.IS_OS_WINDOWS) {
-      this.classPath = String.format("'%s'", this.classPath);
-    }
     return this;
   }
 
