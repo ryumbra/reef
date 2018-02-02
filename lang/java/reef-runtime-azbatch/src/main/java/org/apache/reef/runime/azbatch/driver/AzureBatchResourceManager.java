@@ -32,10 +32,7 @@ import org.apache.reef.runime.azbatch.util.CommandBuilder;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
-import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
-import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
-import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.files.*;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
@@ -43,7 +40,6 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
-import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 
 import javax.inject.Inject;
@@ -63,9 +59,7 @@ import java.util.logging.Logger;
 public final class AzureBatchResourceManager {
 
   private static final Logger LOG = Logger.getLogger(AzureBatchResourceManager.class.getName());
-
-  private final EventHandler<ResourceAllocationEvent> resourceAllocationHandler;
-  private final EventHandler<NodeDescriptorEvent> nodeDescriptorHandler;
+  private static final String AZ_BATCH_JOB_ID_ENV = "AZ_BATCH_JOB_ID";
 
   private final REEFFileNames fileNames;
   private final ConfigurationSerializer configurationSerializer;
@@ -73,10 +67,10 @@ public final class AzureBatchResourceManager {
   private final String azureBatchAccountName;
   private final String azureBatchAccountKey;
   private final String jobId;
-  private final String taskId;
-  private final String AZ_BATCH_JOB_ID_ENV = "AZ_BATCH_JOB_ID";
 
   private final AzureStorageUtil azureStorageUtil;
+  private final REEFEventHandlers reefEventHandlers;
+  private final String taskId;
   private final Map<String, ResourceRequestEvent> containers = new ConcurrentHashMap<>();
 
   private final String localAddress;
@@ -86,12 +80,9 @@ public final class AzureBatchResourceManager {
 
   @Inject
   AzureBatchResourceManager(
-      @Parameter(RuntimeParameters.ResourceAllocationHandler.class)
-      final EventHandler<ResourceAllocationEvent> resourceAllocationHandler,
-      @Parameter(RuntimeParameters.NodeDescriptorHandler.class)
-      final EventHandler<NodeDescriptorEvent> nodeDescriptorHandler,
       final LocalAddressProvider localAddressProvider,
       final REEFFileNames fileNames,
+      final REEFEventHandlers reefEventHandlers,
       final ConfigurationSerializer configurationSerializer,
       final AzureStorageUtil azureStorageUtil,
       final JobJarMaker jobJarMaker,
@@ -100,10 +91,9 @@ public final class AzureBatchResourceManager {
       @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
       @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey,
       @Parameter(JVMHeapSlack.class) final double jvmHeapSlack) {
-    this.resourceAllocationHandler = resourceAllocationHandler;
-    this.nodeDescriptorHandler = nodeDescriptorHandler;
     this.localAddress = localAddressProvider.getLocalAddress();
     this.fileNames = fileNames;
+    this.reefEventHandlers = reefEventHandlers;
     this.configurationSerializer = configurationSerializer;
     this.azureStorageUtil = azureStorageUtil;
     this.azureBatchAccountKey = azureBatchAccountKey;
@@ -126,14 +116,14 @@ public final class AzureBatchResourceManager {
     final int memorySize = resourceRequestEvent.getMemorySize().get();
 
     // TODO: Investigate nodeDescriptorHandler usage and remove below dummy node descriptor.
-    this.nodeDescriptorHandler.onNext(NodeDescriptorEventImpl.newBuilder()
+    this.reefEventHandlers.onNodeDescriptor(NodeDescriptorEventImpl.newBuilder()
         .setIdentifier(id)
         .setHostName(this.localAddress)
         .setPort(1234)
         .setMemorySize(memorySize)
         .build());
 
-    this.resourceAllocationHandler.onNext(ResourceEventImpl.newAllocationBuilder()
+    this.reefEventHandlers.onResourceAllocation(ResourceEventImpl.newAllocationBuilder()
         .setIdentifier(id)
         .setNodeId(id)
         .setResourceMemory(memorySize)
