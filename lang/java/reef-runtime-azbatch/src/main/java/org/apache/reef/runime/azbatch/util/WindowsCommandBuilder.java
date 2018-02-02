@@ -22,8 +22,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.runtime.common.files.RuntimePathProvider;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -46,14 +48,24 @@ public class WindowsCommandBuilder extends AbstractCommandBuilder {
   @Inject
   WindowsCommandBuilder(
       final ClasspathProvider classpathProvider,
+      final RuntimePathProvider runtimePathProvider,
       final REEFFileNames reefFileNames) {
     super(LAUNCHER_CLASS, COMMAND_LIST_PREFIX, OS_COMMAND_FORMAT,
-        classpathProvider, reefFileNames);
+        classpathProvider, runtimePathProvider, reefFileNames);
   }
 
   @Override
   protected String getDriverClasspath() {
     return String.format("'%s'", StringUtils.join(
         super.classpathProvider.getDriverClasspath(), CLASSPATH_SEPARATOR_CHAR));
+  }
+
+  @Override
+  protected List<String> getEvaluatorLaunchCommandLine(final List<String> original) {
+    List<String> modified = new ArrayList<>(original);
+    int classpathIndex = modified.indexOf("-classpath") + 1;
+    String classpath = String.format("'%s'", original.get(classpathIndex));
+    modified.set(classpathIndex, classpath);
+    return modified;
   }
 }

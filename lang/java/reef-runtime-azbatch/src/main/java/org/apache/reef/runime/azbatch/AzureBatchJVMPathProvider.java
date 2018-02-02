@@ -16,17 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runime.azbatch.util;
+package org.apache.reef.runime.azbatch;
 
-import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
-import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
+import org.apache.reef.runtime.common.files.RuntimePathProvider;
+
+import javax.inject.Inject;
 
 /**
- * Build the launch command for Java REEF processes for Azure Batch.
+ * Supplies the java binary's path for Azure Batch.
  */
-public interface CommandBuilder {
-  String buildDriverCommand(JobSubmissionEvent jobSubmissionEvent);
+public final class AzureBatchJVMPathProvider implements RuntimePathProvider {
+  @Inject
+  public AzureBatchJVMPathProvider() {
+  }
 
-  String buildEvaluatorCommand(final ResourceLaunchEvent resourceLaunchEvent,
-                               final int containerMemory, final double jvmHeapFactor);
+  @Override
+  public String getPath() {
+    return "java";
+  }
+
+  @Override
+  public String toString() {
+    return getPath();
+  }
 }

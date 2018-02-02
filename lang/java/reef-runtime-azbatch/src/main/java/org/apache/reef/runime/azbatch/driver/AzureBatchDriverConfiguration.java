@@ -19,6 +19,7 @@
 package org.apache.reef.runime.azbatch.driver;
 
 import org.apache.reef.runime.azbatch.AzureBatchClasspathProvider;
+import org.apache.reef.runime.azbatch.AzureBatchJVMPathProvider;
 import org.apache.reef.runime.azbatch.parameters.*;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
@@ -26,6 +27,7 @@ import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
 import org.apache.reef.runtime.common.driver.parameters.EvaluatorTimeout;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
+import org.apache.reef.runtime.common.files.RuntimePathProvider;
 import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import org.apache.reef.runtime.common.launch.parameters.LaunchID;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
@@ -123,6 +125,7 @@ public class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(ErrorHandlerRID.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
+      .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class)
       .bindSetEntry(DefinedRuntimes.class, RUNTIME_NAME)
       .build();
 }

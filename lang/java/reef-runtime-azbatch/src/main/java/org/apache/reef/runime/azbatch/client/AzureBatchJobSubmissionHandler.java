@@ -133,7 +133,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
       final URI jobJarSasUri = this.azureStorageUtil.uploadFile(jobFolderURL, jobSubmissionJarFile);
 
       LOG.log(Level.FINE, "Assembling application submission.");
-      final String command = this.launchCommandBuilder.build(jobSubmissionEvent);
+      final String command = this.launchCommandBuilder.buildDriverCommand(jobSubmissionEvent);
 
       helper.submit(jobJarSasUri, command);
 
