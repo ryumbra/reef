@@ -77,6 +77,7 @@ public final class OSUtils {
         final Process process = new ProcessBuilder()
             .command("bash", "-c", "echo $PPID")
             .start();
+        // Fix Reef-1977
         process.waitFor();
 
         final byte[] returnBytes = new byte[128];
@@ -96,6 +97,7 @@ public final class OSUtils {
             .command("powershell.exe", "-NoProfile", "-Command",
                 "wmic process where processid=$pid get parentprocessid")
             .start();
+        // Fix Reef-1977
         process.waitFor();
 
         final byte[] returnBytes = new byte[128];
