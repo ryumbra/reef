@@ -19,4 +19,4 @@
 /**
  * Unit tests for REEF Driver running under Azure Batch runtime.
  */
-package org.apache.reef.runtime.azbatch.driver;
+package org.apache.reef.runime.azbatch;
