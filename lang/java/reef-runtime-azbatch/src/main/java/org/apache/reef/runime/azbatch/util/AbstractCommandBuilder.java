@@ -19,11 +19,15 @@
 package org.apache.reef.runime.azbatch.util;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.runtime.common.files.RuntimePathProvider;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,6 +42,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
   private final Class launcherClass;
   private final List<String> commandListPrefix;
   private final String osCommandFormat;
+  private final RuntimePathProvider runtimePathProvider;
 
   protected final ClasspathProvider classpathProvider;
   protected final REEFFileNames reefFileNames;
@@ -47,6 +52,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
       final List<String> commandListPrefix,
       final String osCommandFormat,
       final ClasspathProvider classpathProvider,
+      final RuntimePathProvider runtimePathProvider,
       final REEFFileNames reefFileNames) {
     this.launcherClass = launcherClass;
     this.commandListPrefix = commandListPrefix;
@@ -54,34 +60,57 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
 
     this.classpathProvider = classpathProvider;
     this.reefFileNames = reefFileNames;
+    this.runtimePathProvider = runtimePathProvider;
   }
 
   /**
    * Assembles the command to execute the Driver.
    */
-  public String build(final JobSubmissionEvent jobSubmissionEvent) {
-    return String.format(this.osCommandFormat, StringUtils.join(getCommandList(jobSubmissionEvent), ' '));
-  }
-
-  /**
-   * Assembles the command to execute the Driver in list form.
-   */
-  private List<String> getCommandList(
-      final JobSubmissionEvent jobSubmissionEvent) {
-
-    return new JavaLaunchCommandBuilder(this.launcherClass, this.commandListPrefix)
-        .setJavaPath("java")
+  public String buildDriverCommand(final JobSubmissionEvent jobSubmissionEvent) {
+    List<String> commandList = new JavaLaunchCommandBuilder(this.launcherClass, this.commandListPrefix)
+        .setJavaPath(runtimePathProvider.getPath())
         .setConfigurationFilePaths(Collections.singletonList(this.reefFileNames.getDriverConfigurationPath()))
         .setClassPath(getDriverClasspath())
         .setMemory(jobSubmissionEvent.getDriverMemory().get())
         .setStandardOut(STD_OUT_FILE)
         .setStandardErr(STD_ERR_FILE)
         .build();
+    return String.format(this.osCommandFormat, StringUtils.join(commandList, ' '));
+  }
+
+  /**
+   * Assembles the command to execute the Evaluator.
+   */
+  public String buildEvaluatorCommand(final ResourceLaunchEvent resourceLaunchEvent,
+                                      final int containerMemory, final double jvmHeapFactor) {
+    List<String> commandList = new ArrayList<>(this.commandListPrefix);
+    // Use EvaluatorProcess to be compatible with JVMProcess and CLRProcess
+    final EvaluatorProcess process = resourceLaunchEvent.getProcess()
+        .setConfigurationFileName(this.reefFileNames.getEvaluatorConfigurationPath())
+        .setStandardErr(this.reefFileNames.getEvaluatorStderrFileName())
+        .setStandardOut(this.reefFileNames.getEvaluatorStdoutFileName());
+
+    if (process.isOptionSet()) {
+      commandList.addAll(process.getCommandLine());
+    } else {
+      commandList.addAll(process.setMemory((int) (jvmHeapFactor * containerMemory))
+          .getCommandLine());
+    }
+
+    return String.format(this.osCommandFormat, StringUtils.join(getEvaluatorLaunchCommandLine(commandList), ' '));
   }
 
   /**
    * Returns the driver classpath string which is compatible with the intricacies of the OS.
+   *
    * @return classpath parameter string.
    */
   protected abstract String getDriverClasspath();
+
+  /**
+   * Returns the evaluator command string which is compatible with the intricacies of the OS.
+   *
+   * @return evaluator command.
+   */
+  protected abstract List<String> getEvaluatorLaunchCommandLine(final List<String> original);
 }
