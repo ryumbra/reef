@@ -66,7 +66,7 @@ public final class AzureBatchResourceManager {
   }
 
   public void onResourceRequested(final ResourceRequestEvent resourceRequestEvent) {
-    LOG.log(Level.FINEST, "Got ResourceRequestEvent for Id: {0} in AzureBatchResourceManager");
+    LOG.log(Level.FINEST, "Got ResourceRequestEvent in AzureBatchResourceManager,");
     for (int r = 0; r < resourceRequestEvent.getResourceCount(); r++) {
       final String containerId = generateContainerId();
       this.containerRequests.put(containerId, resourceRequestEvent);

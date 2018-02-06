@@ -60,8 +60,10 @@ import java.util.logging.Logger;
 
 import static org.apache.reef.runime.azbatch.driver.RuntimeIdentifier.RUNTIME_NAME;
 
+
 /**
- * Evaluator Shim Manager class.
+ * The Driver's view of EvaluatorShims running in the cluster. The purpose of this class
+ * is to start the evaluator shims and manage their life-cycle.
  */
 @Private
 @DriverSide
@@ -72,13 +74,13 @@ public final class AzureBatchEvaluatorShimManager
 
   private static final String AZ_BATCH_JOB_ID_ENV = "AZ_BATCH_JOB_ID";
 
-  private static final String EVALUATOR_SHIM_CONF_FILE = "shim.config";
+  private static final String EVALUATOR_SHIM_CONF_FILE = "shim.conf";
   private static final int EVALUATOR_SHIM_MEMORY_MB = 64;
 
   private final Map<String, ResourceRequestEvent> outstandingResourceRequests;
   private final Map<String, String> activeResources;
 
-  private AutoCloseable evaluatorShimCommandChannel;
+  private final AutoCloseable evaluatorShimCommandChannel;
 
   private final AzureStorageUtil azureStorageUtil;
   private final REEFFileNames reefFileNames;
@@ -144,8 +146,14 @@ public final class AzureBatchEvaluatorShimManager
     String containerId = message.getContainerId();
     String remoteId = message.getRemoteIdentifier();
 
-    LOG.log(Level.INFO, "Got a status message from evaluator shim = {0} with containerId = {1}.",
-        new String[] {remoteId, containerId});
+    LOG.log(Level.INFO, "Got a status message from evaluator shim = {0} with containerId = {1} and status = {2}.",
+        new String[] {remoteId, containerId, message.getStatus().toString()});
+
+    if (message.getStatus() != EvaluatorShimProtocol.EvaluatorShimStatus.ONLINE) {
+      LOG.log(Level.SEVERE, "Unexpected status returned from the evaluator shim: {0}. Ignoring the message.",
+          message.getStatus().toString());
+      return;
+    }
 
     synchronized (this.outstandingResourceRequests) {
       ResourceRequestEvent resourceRequestEvent = AzureBatchEvaluatorShimManager.this
@@ -176,9 +184,9 @@ public final class AzureBatchEvaluatorShimManager
       }
 
       this.outstandingResourceRequests.remove(containerId);
+      this.activeResources.put(containerId, remoteId);
     }
 
-    this.activeResources.put(containerId, remoteId);
     this.updateRuntimeStatus();
   }
 
@@ -188,15 +196,14 @@ public final class AzureBatchEvaluatorShimManager
 
     String resourceRemoteId = this.activeResources.get(resourceLaunchEvent.getIdentifier());
 
-    EventHandler<EvaluatorShimProtocol.EvaluatorShimControlProto> handler =
-        AzureBatchEvaluatorShimManager.this.remoteManager.getHandler(resourceRemoteId,
-            EvaluatorShimProtocol.EvaluatorShimControlProto.class);
+    EventHandler<EvaluatorShimProtocol.EvaluatorShimControlProto> handler = this.remoteManager
+        .getHandler(resourceRemoteId, EvaluatorShimProtocol.EvaluatorShimControlProto.class);
 
     LOG.log(Level.INFO, "Sending a command to the Evaluator shim to start the evaluator.");
     handler.onNext(
         EvaluatorShimProtocol.EvaluatorShimControlProto
             .newBuilder()
-            .setCommand(EvaluatorShimProtocol.EvaluatorShimCommand.EVALUATOR_LAUNCH)
+            .setCommand(EvaluatorShimProtocol.EvaluatorShimCommand.LAUNCH_EVALUATOR)
             .setEvaluatorLaunchCommand(command)
             .setEvaluatorConfigString(evaluatorConfigurationString)
             .build());
@@ -212,8 +219,7 @@ public final class AzureBatchEvaluatorShimManager
         LOG.log(Level.WARNING, "Received a ResourceReleaseEvent for an unknown resource id = {0}.",
             resourceReleaseEvent.getIdentifier());
       } else {
-        EventHandler<EvaluatorShimProtocol.EvaluatorShimControlProto> handler =
-            AzureBatchEvaluatorShimManager.this.remoteManager.getHandler(remoteId,
+        EventHandler<EvaluatorShimProtocol.EvaluatorShimControlProto> handler = this.remoteManager.getHandler(remoteId,
                 EvaluatorShimProtocol.EvaluatorShimControlProto.class);
 
         LOG.log(Level.INFO, "Sending a TERMINATE command to the evaluator shim with remoteId = {0}.", remoteId);
@@ -232,7 +238,7 @@ public final class AzureBatchEvaluatorShimManager
 
   public void onClose() {
     try {
-      evaluatorShimCommandChannel.close();
+      this.evaluatorShimCommandChannel.close();
     } catch (Exception e) {
       LOG.log(Level.WARNING, "An unexpected exception while closing the Evaluator Shim Command channel: {0}", e);
       throw new RuntimeException(e);
@@ -268,7 +274,7 @@ public final class AzureBatchEvaluatorShimManager
 
   private File writeShimConfigurationFile(final String azureBatchTaskId) {
     final File shimConfigurationFile = new File(this.reefFileNames.getLocalFolderPath()
-        + "/" + EVALUATOR_SHIM_CONF_FILE);
+        + File.separatorChar + EVALUATOR_SHIM_CONF_FILE);
     try {
       this.configurationSerializer.toFile(buildShimConfiguration(azureBatchTaskId), shimConfigurationFile);
     } catch (final IOException | BindException e) {

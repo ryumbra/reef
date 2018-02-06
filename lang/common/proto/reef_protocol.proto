@@ -46,5 +46,7 @@ message REEFMessage {
     optional EvaluatorControlProto evaluatorControl = 5;
     optional EvaluatorHeartbeatProto evaluatorHeartBeat = 6;
     optional EvaluatorShimControlProto evaluatorShimCommand = 7;
+
+    // Messages from evaluator_shim.proto
     optional EvaluatorShimStatusProto evaluatorShimStatus = 8;
 }

@@ -23,11 +23,12 @@ option java_generic_services = true;
 option java_generate_equals_and_hash = true;
 
 enum EvaluatorShimStatus {
-    ONLINE = 1;
+    UNKNOWN = 1;
+    ONLINE  = 2;
 }
 
 enum EvaluatorShimCommand {
-    EVALUATOR_LAUNCH = 1;
+    LAUNCH_EVALUATOR = 1;
     TERMINATE        = 2;
 }
 

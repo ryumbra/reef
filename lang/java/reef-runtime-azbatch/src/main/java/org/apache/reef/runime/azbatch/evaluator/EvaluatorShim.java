@@ -99,28 +99,33 @@ public final class EvaluatorShim
   }
 
   public void stop() {
+    LOG.log(Level.FINEST, "Entering EvaluatorShim.stop().");
     this.onStop();
   }
 
   @Override
   public void onNext(final RemoteMessage<EvaluatorShimProtocol.EvaluatorShimControlProto> remoteMessage) {
     final EvaluatorShimProtocol.EvaluatorShimCommand command = remoteMessage.getMessage().getCommand();
-    if (command == EvaluatorShimProtocol.EvaluatorShimCommand.EVALUATOR_LAUNCH) {
+    switch (command) {
+    case LAUNCH_EVALUATOR:
       LOG.log(Level.INFO, "Received a command to launch the Evaluator.");
-      EvaluatorShim.this.onEvaluatorLaunch(remoteMessage.getMessage().getEvaluatorLaunchCommand(),
+      this.onEvaluatorLaunch(remoteMessage.getMessage().getEvaluatorLaunchCommand(),
           remoteMessage.getMessage().getEvaluatorConfigString());
-    } else if (command == EvaluatorShimProtocol.EvaluatorShimCommand.TERMINATE) {
+      break;
+
+    case TERMINATE :
       LOG.log(Level.INFO, "Received a command to terminate.");
-      EvaluatorShim.this.onStop();
-    } else {
-      LOG.log(Level.WARNING, "An unknown command was received by the EvaluatorShim: {0}.",
-          command);
+      this.onStop();
+      break;
+
+    default:
+      LOG.log(Level.WARNING, "An unknown command was received by the EvaluatorShim: {0}.", command);
       throw new IllegalArgumentException("An unknown command was received by the EvaluatorShim.");
     }
   }
 
   private void onStart() {
-    LOG.log(Level.FINEST, "Entering EvaluatorShim.onStart().");
+    LOG.log(Level.FINER, "Entering EvaluatorShim.onStart().");
 
     LOG.log(Level.INFO, "Reporting back to the driver with Shim Status = {0}",
         EvaluatorShimProtocol.EvaluatorShimStatus.ONLINE);
@@ -165,6 +170,7 @@ public final class EvaluatorShim
       this.remoteManager.close();
     } catch (Exception e) {
       LOG.log(Level.SEVERE, "Failed to close the RemoteManager with the following exception: {0}.", e);
+      throw new RuntimeException(e);
     }
 
     LOG.log(Level.INFO, "Exiting EvaluatorShim.onStop().");
@@ -173,7 +179,7 @@ public final class EvaluatorShim
   private void onEvaluatorLaunch(final String launchCommand, final String evaluatorConfigString) {
     LOG.log(Level.FINEST, "Entering EvaluatorShim.onEvaluatorLaunch().");
 
-    File evaluatorConfigurationFile = new File("local/evaluator.conf");
+    File evaluatorConfigurationFile = new File(this.fileNames.getEvaluatorConfigurationPath());
     LOG.log(Level.FINER, "Persisting evaluator config at: {0}", evaluatorConfigurationFile.getAbsolutePath());
 
     try {

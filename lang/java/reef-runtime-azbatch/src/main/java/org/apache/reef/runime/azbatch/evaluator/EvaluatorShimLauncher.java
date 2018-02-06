@@ -83,7 +83,7 @@ public final class EvaluatorShimLauncher {
 
   private static Configuration parseCommandLine(final String[] args) {
     if (args.length != 1) {
-      throw new RuntimeException("Expected one command line argument.");
+      throw new RuntimeException("Expected configuration file name as an argument.");
     }
 
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
