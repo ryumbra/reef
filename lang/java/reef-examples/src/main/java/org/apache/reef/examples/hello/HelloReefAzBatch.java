@@ -19,20 +19,16 @@
 package org.apache.reef.examples.hello;
 
 import org.apache.reef.client.DriverConfiguration;
-import org.apache.reef.client.DriverLauncher;
-import org.apache.reef.client.LauncherStatus;
+import org.apache.reef.client.REEF;
 import org.apache.reef.runime.azbatch.client.AzureBatchRuntimeConfiguration;
 import org.apache.reef.runime.azbatch.client.AzureBatchRuntimeConfigurationCreator;
 import org.apache.reef.runime.azbatch.parameters.*;
-import org.apache.reef.runime.azbatch.util.CommandBuilder;
-import org.apache.reef.runime.azbatch.util.LinuxCommandBuilder;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.EnvironmentUtils;
-import org.apache.reef.util.ThreadLogger;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -114,11 +110,10 @@ public final class HelloReefAzBatch {
         .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_CONTAINER_NAME, this.azureStorageContainerName)
         .build();
 
-    final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
-        .run(driverConfiguration, JOB_TIMEOUT);
-
-    LOG.log(Level.INFO, "REEF job completed: {0}", status);
-    ThreadLogger.logThreads(LOG, Level.FINE, "Threads running at the end of HelloREEF:");
+    try (final REEF reef = Tang.Factory.getTang().newInjector(runtimeConfiguration).getInstance(REEF.class)) {
+      reef.submit(driverConfiguration);
+    }
+    LOG.log(Level.INFO, "Job Submitted");
   }
 
   /**
