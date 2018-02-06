@@ -19,13 +19,12 @@
 package org.apache.reef.runime.azbatch.util;
 
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  * The Azure Batch task JAR name.
  */
-public class AzureBatchTaskJARFileName {
+@Private
+public final class AzureBatchTaskJARFileName {
 
   public static final String JAR_FILE_NAME = "local.jar";
 
