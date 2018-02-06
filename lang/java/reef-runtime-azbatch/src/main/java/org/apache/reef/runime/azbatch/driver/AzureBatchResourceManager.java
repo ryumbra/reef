@@ -27,6 +27,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
+import org.apache.reef.runime.azbatch.util.AzureBatchTaskJARFileName;
 import org.apache.reef.runime.azbatch.util.AzureStorageUtil;
 import org.apache.reef.runime.azbatch.util.CommandBuilder;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
@@ -200,7 +201,7 @@ public final class AzureBatchResourceManager {
     final URI jarFileUri = this.azureStorageUtil.uploadFile(jobFolderURL, jarFile);
     final ResourceFile jarSourceFile = new ResourceFile()
         .withBlobSource(jarFileUri.toString())
-        .withFilePath("local.jar");
+        .withFilePath(AzureBatchTaskJARFileName.JAR_FILE_NAME);
 
     List<ResourceFile> resources = new ArrayList<>();
     resources.add(jarSourceFile);
