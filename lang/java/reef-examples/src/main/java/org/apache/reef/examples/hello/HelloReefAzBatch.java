@@ -22,7 +22,10 @@ import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runime.azbatch.client.AzureBatchRuntimeConfiguration;
+import org.apache.reef.runime.azbatch.client.AzureBatchRuntimeConfigurationCreator;
 import org.apache.reef.runime.azbatch.parameters.*;
+import org.apache.reef.runime.azbatch.util.CommandBuilder;
+import org.apache.reef.runime.azbatch.util.LinuxCommandBuilder;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
@@ -48,6 +51,7 @@ public final class HelloReefAzBatch {
   private final String azureStorageAccountName;
   private final String azureStorageAccountKey;
   private final String azureStorageContainerName;
+  private final Boolean isWindows;
 
   private static final Logger LOG = Logger.getLogger(HelloReefAzBatch.class.getName());
 
@@ -99,7 +103,8 @@ public final class HelloReefAzBatch {
   public void launch() throws InjectionException {
     Configuration driverConfiguration = getDriverConfiguration();
 
-    final Configuration runtimeConfiguration = AzureBatchRuntimeConfiguration.CONF
+    final Configuration runtimeConfiguration = AzureBatchRuntimeConfigurationCreator
+        .GetOrCreateAzureBatchRuntimeConfiguration(this.isWindows)
         .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_NAME, this.azureBatchAccountName)
         .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_KEY, this.azureBatchAccountKey)
         .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_URI, this.azureBatchAccountUri)
@@ -117,7 +122,7 @@ public final class HelloReefAzBatch {
   }
 
   /**
-   * Empty private constructor to prohibit instantiation of utility class.
+   * Private constructor.
    */
   @Inject
   private HelloReefAzBatch(
@@ -127,7 +132,8 @@ public final class HelloReefAzBatch {
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId,
       @Parameter(AzureStorageAccountName.class) final String azureStorageAccountName,
       @Parameter(AzureStorageAccountKey.class) final String azureStorageAccountKey,
-      @Parameter(AzureStorageContainerName.class) final String azureStorageContainerName
+      @Parameter(AzureStorageContainerName.class) final String azureStorageContainerName,
+      @Parameter(IsWindows.class) final Boolean IsWindows
       ) {
     this.azureBatchAccountName = azureBatchAccountName;
     this.azureBatchAccountKey = azureBatchAccountKey;
@@ -136,5 +142,6 @@ public final class HelloReefAzBatch {
     this.azureStorageAccountName = azureStorageAccountName;
     this.azureStorageAccountKey = azureStorageAccountKey;
     this.azureStorageContainerName = azureStorageContainerName;
+    this.isWindows = IsWindows;
   }
 }

@@ -39,12 +39,10 @@ public class AzureBatchRuntimeConfigurationStatic extends ConfigurationModuleBui
     LoggingSetup.setupCommonsLogging();
   }
 
-  public static final ConfigurationModule CONF = new AzureBatchRuntimeConfigurationStatic()
+  public static final ConfigurationModuleBuilder CONF = new AzureBatchRuntimeConfigurationStatic()
       .merge(CommonRuntimeConfiguration.CONF)
       .bindImplementation(JobSubmissionHandler.class, AzureBatchJobSubmissionHandler.class)
       .bindImplementation(DriverConfigurationProvider.class, AzureBatchDriverConfigurationProviderImpl.class)
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
-      .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class)
-      .bindImplementation(CommandBuilder.class, LinuxCommandBuilder.class)
-      .build();
+      .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class);
 }
