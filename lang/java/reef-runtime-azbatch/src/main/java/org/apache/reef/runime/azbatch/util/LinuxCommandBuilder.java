@@ -38,7 +38,8 @@ public class LinuxCommandBuilder extends AbstractCommandBuilder {
   private static final Class LAUNCHER_CLASS = REEFLauncher.class;
   private static final Class SHIM_LAUNCHER_CLASS = EvaluatorShimLauncher.class;
   private static final List<String> COMMAND_LIST_PREFIX =
-      Collections.unmodifiableList(Arrays.asList("ln -sfn '.' 'reef';", "unzip local.jar;"));
+      Collections.unmodifiableList(Arrays.asList(
+          "ln -sfn '.' 'reef';", "unzip " + AzureBatchFileNames.TASK_JAR_FILE_NAME + ";"));
   private static final char CLASSPATH_SEPARATOR_CHAR = ':';
   private static final String OS_COMMAND_FORMAT = "/bin/sh -c \"%s\"";
 

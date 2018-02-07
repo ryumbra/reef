@@ -30,6 +30,7 @@ import org.apache.reef.runime.azbatch.evaluator.EvaluatorShimConfiguration;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
+import org.apache.reef.runime.azbatch.util.AzureBatchFileNames;
 import org.apache.reef.runime.azbatch.util.AzureStorageUtil;
 import org.apache.reef.runime.azbatch.util.CommandBuilder;
 import org.apache.reef.runime.azbatch.util.RemoteIdentifierParser;
@@ -326,7 +327,7 @@ public final class AzureBatchEvaluatorShimManager
     final URI jarFileUri = this.azureStorageUtil.uploadFile(jobFolderURL, jarFile);
     final ResourceFile jarSourceFile = new ResourceFile()
         .withBlobSource(jarFileUri.toString())
-        .withFilePath("local.jar");
+        .withFilePath(AzureBatchFileNames.TASK_JAR_FILE_NAME);
 
     List<ResourceFile> resources = new ArrayList<>();
     resources.add(jarSourceFile);
