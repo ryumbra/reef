@@ -16,19 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runime.azbatch.util;
+package org.apache.reef.runime.azbatch.parameters;
 
-import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
-import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Build the launch command for Java REEF processes for Azure Batch.
+ * Operating system of the Azure Batch virtual machines.
  */
-public interface CommandBuilder {
-  String buildDriverCommand(JobSubmissionEvent jobSubmissionEvent);
-
-  String buildEvaluatorShimCommand(int evaluatorShimMemory, String configurationPath);
-
-  String buildEvaluatorCommand(final ResourceLaunchEvent resourceLaunchEvent,
-                               final int containerMemory, final double jvmHeapFactor);
+@NamedParameter(doc = "Are the Azure Batch VMs linux or Windows based")
+public class IsWindows implements Name<Boolean> {
 }

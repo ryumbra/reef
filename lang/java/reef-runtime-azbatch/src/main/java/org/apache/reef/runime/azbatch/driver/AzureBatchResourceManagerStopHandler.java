@@ -18,6 +18,8 @@
  */
 package org.apache.reef.runime.azbatch.driver;
 
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.api.ResourceManagerStopHandler;
 import org.apache.reef.wake.time.runtime.event.RuntimeStop;
 
@@ -28,16 +30,22 @@ import java.util.logging.Logger;
 /**
  * Handler of RuntimeStop for the Azure Batch Runtime.
  */
-public class AzureBatchResourceManagerStopHandler implements ResourceManagerStopHandler {
+@Private
+@DriverSide
+public final class AzureBatchResourceManagerStopHandler implements ResourceManagerStopHandler {
 
   private static final Logger LOG = Logger.getLogger(AzureBatchResourceManagerStopHandler.class.getName());
 
+  private final AzureBatchEvaluatorShimManager azureBatchEvaluatorShimManager;
+
   @Inject
-  AzureBatchResourceManagerStopHandler() {
+  AzureBatchResourceManagerStopHandler(final AzureBatchEvaluatorShimManager azureBatchEvaluatorShimManager) {
+    this.azureBatchEvaluatorShimManager = azureBatchEvaluatorShimManager;
   }
 
   @Override
   public void onNext(final RuntimeStop runtimeStop) {
     LOG.log(Level.FINE, "Azure batch runtime has been stopped...");
+    this.azureBatchEvaluatorShimManager.onClose();
   }
 }

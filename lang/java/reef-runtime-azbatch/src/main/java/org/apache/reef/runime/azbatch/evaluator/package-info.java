@@ -16,19 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runime.azbatch.util;
-
-import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
-import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
-
 /**
- * Build the launch command for Java REEF processes for Azure Batch.
+ * Client for the REEF runtime for Azure Batch.
  */
-public interface CommandBuilder {
-  String buildDriverCommand(JobSubmissionEvent jobSubmissionEvent);
-
-  String buildEvaluatorShimCommand(int evaluatorShimMemory, String configurationPath);
-
-  String buildEvaluatorCommand(final ResourceLaunchEvent resourceLaunchEvent,
-                               final int containerMemory, final double jvmHeapFactor);
-}
+package org.apache.reef.runime.azbatch.evaluator;
