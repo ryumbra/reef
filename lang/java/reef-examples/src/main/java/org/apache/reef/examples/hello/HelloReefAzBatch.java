@@ -24,8 +24,6 @@ import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runime.azbatch.client.AzureBatchRuntimeConfiguration;
 import org.apache.reef.runime.azbatch.client.AzureBatchRuntimeConfigurationCreator;
 import org.apache.reef.runime.azbatch.parameters.*;
-import org.apache.reef.runime.azbatch.util.CommandBuilder;
-import org.apache.reef.runime.azbatch.util.LinuxCommandBuilder;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
@@ -104,7 +102,7 @@ public final class HelloReefAzBatch {
     Configuration driverConfiguration = getDriverConfiguration();
 
     final Configuration runtimeConfiguration = AzureBatchRuntimeConfigurationCreator
-        .GetOrCreateAzureBatchRuntimeConfiguration(this.isWindows)
+        .getOrCreateAzureBatchRuntimeConfiguration(this.isWindows)
         .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_NAME, this.azureBatchAccountName)
         .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_KEY, this.azureBatchAccountKey)
         .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_URI, this.azureBatchAccountUri)
