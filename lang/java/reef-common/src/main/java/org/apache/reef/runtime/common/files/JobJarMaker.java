@@ -93,7 +93,9 @@ public final class JobJarMaker {
     return new File(fileProto.getPath());
   }
 
-  public File createJobSubmissionJAR(final JobSubmissionEvent jobSubmissionEvent, final Configuration driverConfiguration) throws IOException {
+  public File createJobSubmissionJAR(
+      final JobSubmissionEvent jobSubmissionEvent,
+      final Configuration driverConfiguration) throws IOException {
     return createJobSubmissionJARInternal(
         driverConfiguration,
         jobSubmissionEvent.getGlobalFileSet(),
@@ -102,12 +104,18 @@ public final class JobJarMaker {
   }
 
   public File createEvaluatorSubmissionJAR(
-      final Configuration configuration, Set<FileResource> globalFileSet, Set<FileResource> localFileSet) throws IOException {
-    return createJobSubmissionJARInternal(configuration, globalFileSet, localFileSet, this.fileNames.getEvaluatorConfigurationName());
+      final Configuration configuration,
+      final Set<FileResource> globalFileSet,
+      final Set<FileResource> localFileSet) throws IOException {
+    return createJobSubmissionJARInternal(configuration, globalFileSet, localFileSet,
+        this.fileNames.getEvaluatorConfigurationName());
   }
 
   private File createJobSubmissionJARInternal(
-      final Configuration configuration, Set<FileResource> globalFileSet, Set<FileResource> localFileSet, String configurationFileName) throws IOException {
+      final Configuration configuration,
+      final Set<FileResource> globalFileSet,
+      final Set<FileResource> localFileSet,
+      final String configurationFileName) throws IOException {
 
     // Copy all files to a local job submission folder
     final File jobSubmissionFolder = makejobSubmissionFolder();
