@@ -41,7 +41,8 @@ public class WindowsCommandBuilder extends AbstractCommandBuilder {
   private static final List<String> COMMAND_LIST_PREFIX = Collections.unmodifiableList(
       Arrays.asList(
           "Add-Type -AssemblyName System.IO.Compression.FileSystem; ",
-          "[System.IO.Compression.ZipFile]::ExtractToDirectory(\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\local.jar\\\", " +
+          "[System.IO.Compression.ZipFile]::ExtractToDirectory(\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\" +
+              AzureBatchFileNames.TASK_JAR_FILE_NAME + "\\\", " +
               "\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\reef\\\"); ")
   );
   private static final char CLASSPATH_SEPARATOR_CHAR = ';';
