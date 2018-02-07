@@ -21,6 +21,7 @@ package org.apache.reef.runime.azbatch.client;
 import com.microsoft.azure.batch.BatchClient;
 import com.microsoft.azure.batch.auth.BatchSharedKeyCredentials;
 import com.microsoft.azure.batch.protocol.models.*;
+import org.apache.reef.runime.azbatch.util.AzureBatchFileNames;
 
 import java.io.IOException;
 import java.net.URI;
@@ -66,7 +67,7 @@ public class AzureBatchJobSubmissionHelper implements AutoCloseable {
 
     ResourceFile jarResourceFile = new ResourceFile()
         .withBlobSource(jobJarSasUri.toString())
-        .withFilePath("local.jar");
+        .withFilePath(AzureBatchFileNames.TASK_JAR_FILE_NAME);
 
     JobManagerTask jobManagerTask = new JobManagerTask()
         .withId(applicationId)
