@@ -19,11 +19,9 @@
 package org.apache.reef.runime.azbatch.client;
 
 import org.apache.reef.annotations.audience.Public;
-import org.apache.reef.runime.azbatch.parameters.*;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 
-import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.RequiredParameter;
 
@@ -75,20 +73,6 @@ public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
    * The name of the Azure Storage account container.
    */
   public static final RequiredParameter<String> AZURE_STORAGE_CONTAINER_NAME = new RequiredParameter<>();
-
-  /**
-   * The ConfigurationModule for the local resourcemanager.
-   */
-  public static final ConfigurationModule CONF = new AzureBatchRuntimeConfiguration()
-      .merge(AzureBatchRuntimeConfigurationStatic.CONF)
-      .bindNamedParameter(AzureBatchAccountUri.class, AZURE_BATCH_ACCOUNT_URI)
-      .bindNamedParameter(AzureBatchAccountName.class, AZURE_BATCH_ACCOUNT_NAME)
-      .bindNamedParameter(AzureBatchAccountKey.class, AZURE_BATCH_ACCOUNT_KEY)
-      .bindNamedParameter(AzureBatchPoolId.class, AZURE_BATCH_POOL_ID)
-      .bindNamedParameter(AzureStorageAccountName.class, AZURE_STORAGE_ACCOUNT_NAME)
-      .bindNamedParameter(AzureStorageAccountKey.class, AZURE_STORAGE_ACCOUNT_KEY)
-      .bindNamedParameter(AzureStorageContainerName.class, AZURE_STORAGE_CONTAINER_NAME)
-      .build();
 
   /**
    * Returns an Azure Batch runtime configuration from the credentials stored in the given file.

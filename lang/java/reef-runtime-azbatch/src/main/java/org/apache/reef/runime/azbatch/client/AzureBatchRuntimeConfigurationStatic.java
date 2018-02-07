@@ -20,6 +20,8 @@ package org.apache.reef.runime.azbatch.client;
 
 import org.apache.reef.runime.azbatch.AzureBatchClasspathProvider;
 import org.apache.reef.runime.azbatch.AzureBatchJVMPathProvider;
+import org.apache.reef.runime.azbatch.util.CommandBuilder;
+import org.apache.reef.runime.azbatch.util.LinuxCommandBuilder;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
@@ -37,11 +39,10 @@ public class AzureBatchRuntimeConfigurationStatic extends ConfigurationModuleBui
     LoggingSetup.setupCommonsLogging();
   }
 
-  public static final ConfigurationModule CONF = new AzureBatchRuntimeConfigurationStatic()
+  public static final ConfigurationModuleBuilder CONF = new AzureBatchRuntimeConfigurationStatic()
       .merge(CommonRuntimeConfiguration.CONF)
       .bindImplementation(JobSubmissionHandler.class, AzureBatchJobSubmissionHandler.class)
       .bindImplementation(DriverConfigurationProvider.class, AzureBatchDriverConfigurationProviderImpl.class)
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
-      .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class)
-      .build();
+      .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class);
 }
