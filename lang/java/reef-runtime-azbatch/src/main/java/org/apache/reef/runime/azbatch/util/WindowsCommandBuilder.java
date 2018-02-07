@@ -40,7 +40,7 @@ public class WindowsCommandBuilder extends AbstractCommandBuilder {
       Arrays.asList(
           "Add-Type -AssemblyName System.IO.Compression.FileSystem; ",
           "[System.IO.Compression.ZipFile]::ExtractToDirectory(\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\" +
-              AzureBatchTaskJARFileName.JAR_FILE_NAME + "\\\", " +
+              AzureBatchFileNames.TASK_JAR_FILE_NAME + "\\\", " +
               "\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\reef\\\"); ")
   );
   private static final char CLASSPATH_SEPARATOR_CHAR = ';';

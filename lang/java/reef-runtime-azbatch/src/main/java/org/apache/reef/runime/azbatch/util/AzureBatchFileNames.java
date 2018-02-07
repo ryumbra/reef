@@ -24,11 +24,11 @@ import org.apache.reef.annotations.audience.Private;
  * The Azure Batch task JAR name.
  */
 @Private
-public final class AzureBatchTaskJARFileName {
+public final class AzureBatchFileNames {
 
-  public static final String JAR_FILE_NAME = "local.jar";
+  public static final String TASK_JAR_FILE_NAME = "local.jar";
 
-  private AzureBatchTaskJARFileName() {
+  private AzureBatchFileNames() {
   }
 }
 
