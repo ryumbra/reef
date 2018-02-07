@@ -20,14 +20,11 @@ package org.apache.reef.runime.azbatch.client;
 
 import org.apache.reef.runime.azbatch.AzureBatchClasspathProvider;
 import org.apache.reef.runime.azbatch.AzureBatchJVMPathProvider;
-import org.apache.reef.runime.azbatch.util.CommandBuilder;
-import org.apache.reef.runime.azbatch.util.LinuxCommandBuilder;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.files.RuntimePathProvider;
-import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.util.logging.LoggingSetup;
 
