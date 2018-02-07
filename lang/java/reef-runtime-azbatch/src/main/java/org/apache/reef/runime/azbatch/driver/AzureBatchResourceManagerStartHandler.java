@@ -18,6 +18,8 @@
  */
 package org.apache.reef.runime.azbatch.driver;
 
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.api.ResourceManagerStartHandler;
 import org.apache.reef.wake.time.runtime.event.RuntimeStart;
 
@@ -28,7 +30,9 @@ import java.util.logging.Logger;
 /**
  * Handler of RuntimeStart for the Azure Batch Runtime.
  */
-public class AzureBatchResourceManagerStartHandler implements ResourceManagerStartHandler {
+@Private
+@DriverSide
+public final class AzureBatchResourceManagerStartHandler implements ResourceManagerStartHandler {
 
   private static final Logger LOG = Logger.getLogger(AzureBatchResourceManagerStartHandler.class.getName());
 

@@ -37,7 +37,7 @@ import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
 
 /**
- * ConfigurationModule to create YARN Driver configurations.
+ * ConfigurationModule to create Azure Batch Driver configurations.
  */
 public class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
 

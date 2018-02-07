@@ -18,17 +18,24 @@
  */
 package org.apache.reef.runime.azbatch.util;
 
-import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
-import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
-
 /**
- * Build the launch command for Java REEF processes for Azure Batch.
+ * Utility class to parse IP and port information from Azure Batch Node ID.
  */
-public interface CommandBuilder {
-  String buildDriverCommand(JobSubmissionEvent jobSubmissionEvent);
+public final class RemoteIdentifierParser {
 
-  String buildEvaluatorShimCommand(int evaluatorShimMemory, String configurationPath);
+  private static final String PROTOCOL = "socket://";
 
-  String buildEvaluatorCommand(final ResourceLaunchEvent resourceLaunchEvent,
-                               final int containerMemory, final double jvmHeapFactor);
+  private RemoteIdentifierParser() {}
+
+  public static String parseIp(final String remoteIdentifier) {
+    return remoteIdentifier.substring(PROTOCOL.length(), remoteIdentifier.lastIndexOf(':'));
+  }
+
+  public static int parsePort(final String remoteIdentifier) {
+    return Integer.parseInt(remoteIdentifier.substring(remoteIdentifier.lastIndexOf(':') + 1));
+  }
+
+  public static String parseNodeId(final String remoteIdentifier) {
+    return remoteIdentifier.substring(PROTOCOL.length());
+  }
 }
