@@ -82,13 +82,13 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
   }
 
   /**
-   * Asembles the command to execute the Evaluator Shim.
+   * Assembles the command to execute the Evaluator Shim.
    */
   public String buildEvaluatorShimCommand(final int evaluatorShimMemory, final String configurationPath) {
     List<String> commandList = new JavaLaunchCommandBuilder(this.shimLauncherClass, this.commandListPrefix)
         .setJavaPath(runtimePathProvider.getPath())
         .setConfigurationFilePaths(Collections.singletonList(configurationPath))
-        .setClassPath(getDriverClasspath())
+        .setClassPath(getEvaluatorShimClasspath())
         .setMemory(evaluatorShimMemory)
         .setStandardOut(STD_OUT_FILE)
         .setStandardErr(STD_ERR_FILE)
@@ -102,6 +102,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
   public String buildEvaluatorCommand(final ResourceLaunchEvent resourceLaunchEvent,
                                       final int containerMemory, final double jvmHeapFactor) {
     List<String> commandList = new ArrayList<>();
+
     // Use EvaluatorProcess to be compatible with JVMProcess and CLRProcess
     final EvaluatorProcess process = resourceLaunchEvent.getProcess()
         .setConfigurationFileName(this.reefFileNames.getEvaluatorConfigurationPath());
@@ -112,7 +113,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
       commandList.addAll(process.setMemory((int) (jvmHeapFactor * containerMemory)).getCommandLine());
     }
 
-    return StringUtils.join(getEvaluatorLaunchCommandLine(commandList), ' ');
+    return StringUtils.join(commandList, ' ');
   }
 
   /**
@@ -123,9 +124,9 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
   protected abstract String getDriverClasspath();
 
   /**
-   * Returns the evaluator command string which is compatible with the intricacies of the OS.
+   * Returns the evaluator shim classpath string which is compatible with the intricacies of the OS.
    *
-   * @return evaluator command.
+   * @return classpath parameter string.
    */
-  protected abstract List<String> getEvaluatorLaunchCommandLine(final List<String> original);
+  protected abstract String getEvaluatorShimClasspath();
 }
