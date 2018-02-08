@@ -59,6 +59,6 @@ public class LinuxCommandBuilder extends AbstractCommandBuilder {
 
   @Override
   protected String getEvaluatorShimClasspath() {
-    return StringUtils.join(super.classpathProvider.getDriverClasspath(), CLASSPATH_SEPARATOR_CHAR);
+    return StringUtils.join(super.classpathProvider.getEvaluatorClasspath(), CLASSPATH_SEPARATOR_CHAR);
   }
 }
