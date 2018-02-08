@@ -19,6 +19,7 @@
 package org.apache.reef.runtime.azbatch.driver;
 
 import com.microsoft.azure.batch.protocol.models.CloudTask;
+import org.apache.reef.runtime.azbatch.parameters.AzureBatchTaskStatusCheckPeriod;
 import org.apache.reef.runtime.azbatch.util.AzureBatchHelper;
 import org.apache.reef.runtime.azbatch.util.TaskStatusMapper;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;

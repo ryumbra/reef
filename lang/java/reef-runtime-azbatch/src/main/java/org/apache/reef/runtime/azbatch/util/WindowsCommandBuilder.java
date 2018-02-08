@@ -41,7 +41,7 @@ public class WindowsCommandBuilder extends AbstractCommandBuilder {
       Arrays.asList(
           "Add-Type -AssemblyName System.IO.Compression.FileSystem; ",
           "[System.IO.Compression.ZipFile]::ExtractToDirectory(\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\" +
-              AzureBatchFileNames.TASK_JAR_FILE_NAME + "\\\", " +
+              AzureBatchFileNames.getTaskJarFileName() + "\\\", " +
               "\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\reef\\\"); ")
   );
   private static final char CLASSPATH_SEPARATOR_CHAR = ';';
@@ -51,9 +51,10 @@ public class WindowsCommandBuilder extends AbstractCommandBuilder {
   WindowsCommandBuilder(
       final ClasspathProvider classpathProvider,
       final RuntimePathProvider runtimePathProvider,
-      final REEFFileNames reefFileNames) {
+      final REEFFileNames reefFileNames,
+      final AzureBatchFileNames azureBatchFileNames) {
     super(LAUNCHER_CLASS, SHIM_LAUNCHER_CLASS, COMMAND_LIST_PREFIX, OS_COMMAND_FORMAT,
-        classpathProvider, runtimePathProvider, reefFileNames);
+        classpathProvider, runtimePathProvider, reefFileNames, azureBatchFileNames);
   }
 
   @Override

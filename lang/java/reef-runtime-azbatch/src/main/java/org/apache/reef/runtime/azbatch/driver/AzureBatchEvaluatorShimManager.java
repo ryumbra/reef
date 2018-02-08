@@ -16,21 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.reef.runtime.azbatch.driver;
 
-import com.microsoft.azure.batch.BatchClient;
-import com.microsoft.azure.batch.auth.BatchSharedKeyCredentials;
-import com.microsoft.azure.batch.protocol.models.ResourceFile;
-import com.microsoft.azure.batch.protocol.models.TaskAddParameter;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.proto.EvaluatorShimProtocol;
-import org.apache.reef.runtime.azbatch.evaluator.EvaluatorShimConfiguration;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountKey;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountName;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountUri;
 import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
+import org.apache.reef.runtime.azbatch.util.AzureBatchHelper;
 import org.apache.reef.runtime.azbatch.util.AzureStorageUtil;
 import org.apache.reef.runtime.azbatch.util.CommandBuilder;
 import org.apache.reef.runtime.azbatch.util.RemoteIdentifierParser;
@@ -43,9 +35,6 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.common.files.*;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.tang.exceptions.BindException;
-import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.wake.remote.RemoteMessage;
@@ -61,7 +50,6 @@ import java.util.logging.Logger;
 
 import static org.apache.reef.runtime.azbatch.driver.RuntimeIdentifier.RUNTIME_NAME;
 
-
 /**
  * The Driver's view of EvaluatorShims running in the cluster. The purpose of this class
  * is to start the evaluator shims and manage their life-cycle.
@@ -74,8 +62,6 @@ public final class AzureBatchEvaluatorShimManager
   private static final Logger LOG = Logger.getLogger(AzureBatchEvaluatorShimManager.class.getName());
 
   private static final String AZ_BATCH_JOB_ID_ENV = "AZ_BATCH_JOB_ID";
-
-  private static final String EVALUATOR_SHIM_CONF_FILE = "shim.conf";
   private static final int EVALUATOR_SHIM_MEMORY_MB = 64;
 
   private final Map<String, ResourceRequestEvent> outstandingResourceRequests;
@@ -85,43 +71,40 @@ public final class AzureBatchEvaluatorShimManager
 
   private final AzureStorageUtil azureStorageUtil;
   private final REEFFileNames reefFileNames;
+  private final AzureBatchFileNames azureBatchFileNames;
   private final RemoteManager remoteManager;
-
+  private final AzureBatchHelper azureBatchHelper;
+  private final AzureBatchEvaluatorShimConfigurationProvider evaluatorShimConfigurationProvider;
+  
   private final JobJarMaker jobJarMaker;
   private final CommandBuilder launchCommandBuilder;
 
   private final REEFEventHandlers reefEventHandlers;
-  private final ConfigurationSerializer configurationSerializer;
-
-  private final String azureBatchAccountUri;
-  private final String azureBatchAccountName;
-  private final String azureBatchAccountKey;
 
   @Inject
   AzureBatchEvaluatorShimManager(
       final AzureStorageUtil azureStorageUtil,
       final REEFFileNames reefFileNames,
+      final AzureBatchFileNames azureBatchFileNames,
       final RemoteManager remoteManager,
       final REEFEventHandlers reefEventHandlers,
-      final ConfigurationSerializer configurationSerializer,
-      final JobJarMaker jobJarMaker,
       final CommandBuilder launchCommandBuilder,
-      @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
-      @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
-      @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey) {
+      final AzureBatchHelper azureBatchHelper,
+      final JobJarMaker jobJarMaker,
+      final AzureBatchEvaluatorShimConfigurationProvider evaluatorShimConfigurationProvider) {
     this.azureStorageUtil = azureStorageUtil;
     this.reefFileNames = reefFileNames;
+    this.azureBatchFileNames = azureBatchFileNames;
     this.remoteManager = remoteManager;
 
     this.reefEventHandlers = reefEventHandlers;
-    this.configurationSerializer = configurationSerializer;
 
-    this.jobJarMaker = jobJarMaker;
     this.launchCommandBuilder = launchCommandBuilder;
 
-    this.azureBatchAccountKey = azureBatchAccountKey;
-    this.azureBatchAccountName = azureBatchAccountName;
-    this.azureBatchAccountUri = azureBatchAccountUri;
+    this.azureBatchHelper = azureBatchHelper;
+    this.jobJarMaker = jobJarMaker;
+
+    this.evaluatorShimConfigurationProvider = evaluatorShimConfigurationProvider;
 
     this.outstandingResourceRequests = new ConcurrentHashMap<>();
     this.activeResources = new ConcurrentHashMap<>();
@@ -254,7 +237,7 @@ public final class AzureBatchEvaluatorShimManager
 
   private String getEvaluatorShimLaunchCommand() {
     return this.launchCommandBuilder.buildEvaluatorShimCommand(EVALUATOR_SHIM_MEMORY_MB,
-        this.reefFileNames.getLocalFolderPath() + "/" + EVALUATOR_SHIM_CONF_FILE);
+        this.azureBatchFileNames.getEvaluatorShimConfigurationPath());
   }
 
   private FileResource getFileResourceFromFile(final File configFile, final FileType type) {
@@ -264,31 +247,26 @@ public final class AzureBatchEvaluatorShimManager
         .setType(type).build();
   }
 
-  private Configuration buildShimConfiguration(final String azureBatchTaskId) {
-    return EvaluatorShimConfiguration.CONF
-        .set(EvaluatorShimConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteManager.getMyIdentifier())
-        .set(EvaluatorShimConfiguration.CONTAINER_IDENTIFIER, azureBatchTaskId)
-        .build();
+  private void createAzureBatchTask(final String taskId) throws IOException {
+
+    final File jarFile = writeShimJarFile(taskId);
+
+    final String folderName = this.azureBatchFileNames.getStorageJobFolder() + this.getAzureBatchJobId();
+    LOG.log(Level.FINE, "Creating a job folder on Azure at: {0}.", folderName);
+    URI jobFolderURL = this.azureStorageUtil.createFolder(folderName);
+
+    LOG.log(Level.FINE, "Uploading {0} to {0}.", new Object[] {folderName, jobFolderURL});
+    final URI jarFileUri = this.azureStorageUtil.uploadFile(jobFolderURL, jarFile);
+
+    final String command = getEvaluatorShimLaunchCommand();
+    this.azureBatchHelper.submitTask(getAzureBatchJobId(), taskId, jarFileUri, command);
   }
 
-  private File writeShimConfigurationFile(final String azureBatchTaskId) {
-    final File shimConfigurationFile = new File(this.reefFileNames.getLocalFolderPath()
-        + File.separatorChar + EVALUATOR_SHIM_CONF_FILE);
+  private File writeShimJarFile(final String azureBatchTaskId) {
     try {
-      this.configurationSerializer.toFile(buildShimConfiguration(azureBatchTaskId), shimConfigurationFile);
-    } catch (final IOException | BindException e) {
-      throw new RuntimeException("Unable to write shim configuration.", e);
-    }
+      final Configuration shimConfig = this.evaluatorShimConfigurationProvider.getConfiguration(azureBatchTaskId);
 
-    return shimConfigurationFile;
-  }
-
-  private File writeShimJarFile(final File shimConfigFile) {
-    try {
-      final Configuration shimConfig = this.configurationSerializer.fromFile(shimConfigFile);
       Set<FileResource> localFiles = new HashSet<>();
-      localFiles.add(getFileResourceFromFile(shimConfigFile, FileType.PLAIN));
-
       Set<FileResource> globalFiles = new HashSet<>();
 
       final File globalFolder = new File(this.reefFileNames.getGlobalFolderPath());
@@ -298,44 +276,15 @@ public final class AzureBatchEvaluatorShimManager
         globalFiles.add(getFileResourceFromFile(fileEntry, FileType.LIB));
       }
 
-      return this.jobJarMaker.createEvaluatorSubmissionJAR(
+      return this.jobJarMaker.createJAR(
           shimConfig,
           globalFiles,
-          localFiles);
+          localFiles,
+          this.azureBatchFileNames.getEvaluatorShimConfigurationName());
     } catch (IOException ex) {
       LOG.log(Level.SEVERE, "Failed to build JAR file", ex);
       throw new RuntimeException(ex);
     }
-  }
-
-  private void createAzureBatchTask(final String azureBatchTaskId) throws IOException {
-    final BatchSharedKeyCredentials cred = new BatchSharedKeyCredentials(
-        this.azureBatchAccountUri, this.azureBatchAccountName, this.azureBatchAccountKey);
-    final BatchClient client = BatchClient.open(cred);
-
-    final File shimConfigFile = writeShimConfigurationFile(azureBatchTaskId);
-    final File jarFile = writeShimJarFile(shimConfigFile);
-
-    String command = getEvaluatorShimLaunchCommand();
-
-    final String folderName = this.reefFileNames.getAzbatchJobFolderPath() + this.getAzureBatchJobId();
-    LOG.log(Level.FINE, "Creating a job folder on Azure at: {0}.", folderName);
-    URI jobFolderURL = this.azureStorageUtil.createFolder(folderName);
-
-    final URI jarFileUri = this.azureStorageUtil.uploadFile(jobFolderURL, jarFile);
-    final ResourceFile jarSourceFile = new ResourceFile()
-        .withBlobSource(jarFileUri.toString())
-        .withFilePath(AzureBatchFileNames.TASK_JAR_FILE_NAME);
-
-    List<ResourceFile> resources = new ArrayList<>();
-    resources.add(jarSourceFile);
-
-    TaskAddParameter taskAddParameter = new TaskAddParameter()
-        .withId(azureBatchTaskId)
-        .withResourceFiles(resources)
-        .withCommandLine(command);
-
-    client.taskOperations().createTask(getAzureBatchJobId(), taskAddParameter);
   }
 
   private String getAzureBatchJobId() {

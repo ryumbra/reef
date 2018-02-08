@@ -36,9 +36,6 @@ import java.util.List;
  */
 public abstract class AbstractCommandBuilder implements CommandBuilder {
 
-  public static final String STD_OUT_FILE = "stdout.txt";
-  public static final String STD_ERR_FILE = "stderr.txt";
-
   private final Class launcherClass;
   private final Class shimLauncherClass;
   private final List<String> commandListPrefix;
@@ -47,6 +44,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
 
   protected final ClasspathProvider classpathProvider;
   protected final REEFFileNames reefFileNames;
+  protected final AzureBatchFileNames azureBatchFileNames;
 
   AbstractCommandBuilder(
       final Class launcherClass,
@@ -55,7 +53,8 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
       final String osCommandFormat,
       final ClasspathProvider classpathProvider,
       final RuntimePathProvider runtimePathProvider,
-      final REEFFileNames reefFileNames) {
+      final REEFFileNames reefFileNames,
+      final AzureBatchFileNames azureBatchFileNames) {
     this.launcherClass = launcherClass;
     this.shimLauncherClass = shimLauncherClass;
     this.commandListPrefix = commandListPrefix;
@@ -63,6 +62,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
 
     this.classpathProvider = classpathProvider;
     this.reefFileNames = reefFileNames;
+    this.azureBatchFileNames = azureBatchFileNames;
     this.runtimePathProvider = runtimePathProvider;
   }
 
@@ -75,8 +75,8 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
         .setConfigurationFilePaths(Collections.singletonList(this.reefFileNames.getDriverConfigurationPath()))
         .setClassPath(getDriverClasspath())
         .setMemory(jobSubmissionEvent.getDriverMemory().get())
-        .setStandardOut(STD_OUT_FILE)
-        .setStandardErr(STD_ERR_FILE)
+        .setStandardOut(this.azureBatchFileNames.getDriverStdOutFilename())
+        .setStandardErr(this.azureBatchFileNames.getDriverStdErrFilename())
         .build();
     return String.format(this.osCommandFormat, StringUtils.join(commandList, ' '));
   }
@@ -90,8 +90,8 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
         .setConfigurationFilePaths(Collections.singletonList(configurationPath))
         .setClassPath(getEvaluatorShimClasspath())
         .setMemory(evaluatorShimMemory)
-        .setStandardOut(STD_OUT_FILE)
-        .setStandardErr(STD_ERR_FILE)
+        .setStandardOut(this.azureBatchFileNames.getEvaluatorShimStdoutFilename())
+        .setStandardErr(this.azureBatchFileNames.getEvaluatorShimStderrFilename())
         .build();
     return String.format(this.osCommandFormat, StringUtils.join(commandList, ' '));
   }

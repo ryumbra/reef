@@ -19,6 +19,9 @@
 package org.apache.reef.runtime.azbatch.util;
 
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.runtime.common.files.REEFFileNames;
+
+import javax.inject.Inject;
 
 /**
  * The Azure Batch task JAR name.
@@ -26,9 +29,62 @@ import org.apache.reef.annotations.audience.Private;
 @Private
 public final class AzureBatchFileNames {
 
-  public static final String TASK_JAR_FILE_NAME = "local.jar";
+  private static final String STORAGE_JOB_FOLDER_PATH = "apps/reef/jobs/";
+  private static final String TASK_JAR_FILE_NAME = "local.jar";
 
-  private AzureBatchFileNames() {
+  private static final String EVALUATOR_SHIM_STDOUT_FILENAME = "shim.stdout.txt";
+  private static final String EVALUATOR_SHIM_STDERR_FILENAME = "shim.stderr.txt";
+
+  private static final String EVALUATOR_SHIM_CONFIGURATION_NAME = "shim.conf";
+
+  private static final String TEXTFILE_EXTENSION = ".txt";
+
+  private final REEFFileNames reefFileNames;
+
+  @Inject
+  private AzureBatchFileNames(final REEFFileNames reefFileNames) {
+    this.reefFileNames = reefFileNames;
   }
+
+  public String getStorageJobFolder() {
+    return STORAGE_JOB_FOLDER_PATH;
+  }
+
+  public String getEvaluatorShimStdoutFilename() {
+    return EVALUATOR_SHIM_STDOUT_FILENAME;
+  }
+
+  public String getEvaluatorShimStderrFilename() {
+    return EVALUATOR_SHIM_STDERR_FILENAME;
+  }
+
+  public String getEvaluatorStdErrFilename() {
+    return this.reefFileNames.getEvaluatorStderrFileName() + TEXTFILE_EXTENSION;
+  }
+
+  public String getEvaluatorStdOutFilename() {
+    return this.reefFileNames.getEvaluatorStdoutFileName() + TEXTFILE_EXTENSION;
+  }
+
+  public String getDriverStdErrFilename() {
+    return this.reefFileNames.getDriverStderrFileName() + TEXTFILE_EXTENSION;
+  }
+
+  public String getDriverStdOutFilename() {
+    return this.reefFileNames.getDriverStdoutFileName() + TEXTFILE_EXTENSION;
+  }
+
+  public String getEvaluatorShimConfigurationPath() {
+    return this.reefFileNames.getLocalFolderPath() + "/" + EVALUATOR_SHIM_CONFIGURATION_NAME;
+  }
+
+  public String getEvaluatorShimConfigurationName() {
+    return EVALUATOR_SHIM_CONFIGURATION_NAME;
+  }
+
+  public static String getTaskJarFileName() {
+    return TASK_JAR_FILE_NAME;
+  }
+
 }
 
