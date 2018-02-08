@@ -26,7 +26,6 @@ import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.files.RuntimePathProvider;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -64,11 +63,8 @@ public class WindowsCommandBuilder extends AbstractCommandBuilder {
   }
 
   @Override
-  protected List<String> getEvaluatorLaunchCommandLine(final List<String> original) {
-    List<String> modified = new ArrayList<>(original);
-    int classpathIndex = modified.indexOf("-classpath") + 1;
-    String classpath = String.format("'%s'", original.get(classpathIndex));
-    modified.set(classpathIndex, classpath);
-    return modified;
+  protected String getEvaluatorShimClasspath() {
+    return String.format("'%s'", StringUtils.join(
+        super.classpathProvider.getEvaluatorClasspath(), CLASSPATH_SEPARATOR_CHAR));
   }
 }
