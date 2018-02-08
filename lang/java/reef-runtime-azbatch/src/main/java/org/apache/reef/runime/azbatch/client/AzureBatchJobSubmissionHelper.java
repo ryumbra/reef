@@ -70,6 +70,7 @@ public class AzureBatchJobSubmissionHelper implements AutoCloseable {
         .withFilePath(AzureBatchFileNames.TASK_JAR_FILE_NAME);
 
     JobManagerTask jobManagerTask = new JobManagerTask()
+        .withRunExclusive(false)
         .withId(applicationId)
         .withResourceFiles(Collections.singletonList(jarResourceFile))
         .withCommandLine(command);
