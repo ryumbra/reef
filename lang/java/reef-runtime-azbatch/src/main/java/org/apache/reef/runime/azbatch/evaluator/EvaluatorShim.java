@@ -199,17 +199,15 @@ public final class EvaluatorShim
 
     try {
       final List<String> command = Arrays.asList(launchCommand.split(" "));
-      EvaluatorShim.this.evaluatorProcess = new ProcessBuilder()
+      this.evaluatorProcess = new ProcessBuilder()
           .command(command)
           .redirectError(new File(fileNames.getEvaluatorStderrFileName() + ".txt"))
           .redirectOutput(new File(fileNames.getEvaluatorStdoutFileName() + ".txt"))
           .start();
 
       // This will block the current thread until the Evaluator process completes.
-      EvaluatorShim.this.evaluatorProcessExitValue = EvaluatorShim.this.evaluatorProcess.waitFor();
-      LOG.log(Level.INFO, "Evaluator process completed with exit value: {0}.",
-          EvaluatorShim.this.evaluatorProcessExitValue);
-
+      this.evaluatorProcessExitValue = EvaluatorShim.this.evaluatorProcess.waitFor();
+      LOG.log(Level.INFO, "Evaluator process completed with exit value: {0}.", this.evaluatorProcessExitValue);
     } catch (IOException | InterruptedException e) {
       throw new RuntimeException(e);
     }
