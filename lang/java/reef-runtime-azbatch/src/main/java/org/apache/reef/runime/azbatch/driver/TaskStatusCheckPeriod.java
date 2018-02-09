@@ -16,36 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.examples.hello;
+package org.apache.reef.runime.azbatch.driver;
 
-import org.apache.reef.task.Task;
-
-import javax.inject.Inject;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * A 'hello REEF' Task.
+ * The period to check for task status from Azure batch in ms.
  */
-public final class HelloTask implements Task {
-
-  @Inject
-  private HelloTask() {
-  }
-
-  @Override
-  public byte[] call(final byte[] memento) {
-    try {
-      Thread.sleep(120000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    System.out.println("Hello, REEF!");
-    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    Date date = new Date();
-    System.out.println(dateFormat.format(date));
-    return null;
+@NamedParameter(doc = "The evaluator heartbeat period in ms.", default_value = "1000")
+public final class TaskStatusCheckPeriod implements Name<Integer> {
+  private TaskStatusCheckPeriod() {
   }
 }

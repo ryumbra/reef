@@ -18,21 +18,16 @@
  */
 package org.apache.reef.runime.azbatch.client;
 
-import com.microsoft.azure.batch.protocol.models.BatchErrorException;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.runime.azbatch.util.AzureBatchHelper;
 import org.apache.reef.runime.azbatch.util.AzureStorageUtil;
 import org.apache.reef.runime.azbatch.util.CommandBuilder;
-import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
-import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
-import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
-import org.apache.reef.runime.azbatch.parameters.AzureBatchPoolId;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.JobJarMaker;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -57,11 +52,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
   private final JobJarMaker jobJarMaker;
   private final CommandBuilder launchCommandBuilder;
   private final REEFFileNames reefFileNames;
-
-  private final String azureBatchAccountUri;
-  private final String azureBatchAccountName;
-  private final String azureBatchAccountKey;
-  private final String azureBatchPoolId;
+  private final AzureBatchHelper azureBatchHelper;
 
   @Inject
   AzureBatchJobSubmissionHandler(
@@ -70,24 +61,16 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
       final JobJarMaker jobJarMaker,
       final CommandBuilder launchCommandBuilder,
       final REEFFileNames reefFileNames,
-      @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
-      @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
-      @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey,
-      @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId) {
+      final AzureBatchHelper azureBatchHelper) {
     this.azureStorageUtil = azureStorageUtil;
     this.driverConfigurationProvider = driverConfigurationProvider;
     this.jobJarMaker = jobJarMaker;
     this.launchCommandBuilder = launchCommandBuilder;
-
-    this.azureBatchAccountUri = azureBatchAccountUri;
-    this.azureBatchAccountName = azureBatchAccountName;
-    this.azureBatchAccountKey = azureBatchAccountKey;
-    this.azureBatchPoolId = azureBatchPoolId;
+    this.azureBatchHelper = azureBatchHelper;
 
     this.reefFileNames = reefFileNames;
 
     this.applicationId = "HelloWorldJob-"
-        + this.azureBatchAccountName + "-"
         + (new Date()).toString()
         .replace(' ', '-')
         .replace(':', '-')
@@ -106,16 +89,9 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
 
   @Override
   public void onNext(final JobSubmissionEvent jobSubmissionEvent) {
-
     LOG.log(Level.FINEST, "Submitting job: {0}", jobSubmissionEvent);
 
-    try (final AzureBatchJobSubmissionHelper helper = new AzureBatchJobSubmissionHelper(
-        this.azureBatchAccountUri,
-        this.azureBatchAccountName,
-        this.azureBatchAccountKey,
-        this.azureBatchPoolId,
-        getApplicationId())) {
-
+    try {
       final String id = jobSubmissionEvent.getIdentifier();
       final String folderName = createJobFolderName(id);
 
@@ -135,14 +111,11 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
       LOG.log(Level.FINE, "Assembling application submission.");
       final String command = this.launchCommandBuilder.buildDriverCommand(jobSubmissionEvent);
 
-      helper.submit(jobJarSasUri, command);
+      this.azureBatchHelper.submitJob(getApplicationId(), jobJarSasUri, command);
 
     } catch (final IOException ex) {
       LOG.log(Level.SEVERE, "Error submitting Azure Batch request", ex);
       throw new RuntimeException(ex);
-    } catch (final BatchErrorException ex) {
-      LOG.log(Level.SEVERE, "An error occurred while calling Azure Batch", ex);
-      throw ex;
     }
   }
 
