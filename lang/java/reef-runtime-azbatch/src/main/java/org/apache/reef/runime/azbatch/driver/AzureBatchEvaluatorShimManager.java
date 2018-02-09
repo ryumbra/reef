@@ -157,9 +157,7 @@ public final class AzureBatchEvaluatorShimManager
     }
 
     synchronized (this.outstandingResourceRequests) {
-      ResourceRequestEvent resourceRequestEvent = AzureBatchEvaluatorShimManager.this
-          .outstandingResourceRequests
-          .get(containerId);
+      ResourceRequestEvent resourceRequestEvent = this.outstandingResourceRequests.get(containerId);
 
       if (resourceRequestEvent == null) {
         LOG.log(Level.WARNING, "Received an evaluator shim status message from an unknown "

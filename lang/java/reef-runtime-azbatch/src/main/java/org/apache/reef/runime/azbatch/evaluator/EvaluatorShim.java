@@ -64,7 +64,7 @@ public final class EvaluatorShim
   private final EventHandler<EvaluatorShimProtocol.EvaluatorShimStatusProto> evaluatorShimStatusChannel;
   private final AutoCloseable evaluatorShimCommandChannel;
 
-  private final ExecutorService evaluatorLaunchExecutorService;
+  private final ExecutorService threadPool;
 
   private Process evaluatorProcess;
   private Integer evaluatorProcessExitValue;
@@ -90,7 +90,7 @@ public final class EvaluatorShim
     this.evaluatorShimCommandChannel = this.remoteManager
         .registerHandler(EvaluatorShimProtocol.EvaluatorShimControlProto.class, this);
 
-    this.evaluatorLaunchExecutorService = Executors.newSingleThreadExecutor();
+    this.threadPool = Executors.newCachedThreadPool();
   }
 
   public void run() {
@@ -109,13 +109,23 @@ public final class EvaluatorShim
     switch (command) {
     case LAUNCH_EVALUATOR:
       LOG.log(Level.INFO, "Received a command to launch the Evaluator.");
-      this.onEvaluatorLaunch(remoteMessage.getMessage().getEvaluatorLaunchCommand(),
-          remoteMessage.getMessage().getEvaluatorConfigString());
+      this.threadPool.submit(new Runnable() {
+        @Override
+        public void run() {
+          EvaluatorShim.this.onEvaluatorLaunch(remoteMessage.getMessage().getEvaluatorLaunchCommand(),
+              remoteMessage.getMessage().getEvaluatorConfigString());
+        }
+      });
       break;
 
     case TERMINATE :
-      LOG.log(Level.INFO, "Received a command to terminate.");
-      this.onStop();
+      LOG.log(Level.INFO, "Received a command to terminate the EvaluatorShim.");
+      this.threadPool.submit(new Runnable() {
+        @Override
+        public void run() {
+          EvaluatorShim.this.onStop();
+        }
+      });
       break;
 
     default:
@@ -125,7 +135,7 @@ public final class EvaluatorShim
   }
 
   private void onStart() {
-    LOG.log(Level.FINER, "Entering EvaluatorShim.onStart().");
+    LOG.log(Level.FINEST, "Entering EvaluatorShim.onStart().");
 
     LOG.log(Level.INFO, "Reporting back to the driver with Shim Status = {0}",
         EvaluatorShimProtocol.EvaluatorShimStatus.ONLINE);
@@ -136,25 +146,12 @@ public final class EvaluatorShim
             .setContainerId(this.containerId)
             .setStatus(EvaluatorShimProtocol.EvaluatorShimStatus.ONLINE)
             .build());
+
+    LOG.log(Level.FINEST, "Exiting EvaluatorShim.onStart().");
   }
 
   private void onStop() {
-    LOG.log(Level.FINER, "Entering EvaluatorShim.onStop().");
-
-    if (this.evaluatorProcess != null) {
-      try {
-        LOG.log(Level.INFO, "Waiting for the evaluator process to exit.");
-        this.evaluatorProcess.waitFor();
-
-        LOG.log(Level.INFO, "Destroying the Evaluator Process.");
-        this.evaluatorProcess.destroy();
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    LOG.log(Level.INFO, "Shutting down the evaluatorLaunchExecutorService.");
-    this.evaluatorLaunchExecutorService.shutdown();
+    LOG.log(Level.FINEST, "Entering EvaluatorShim.onStop().");
 
     try {
       LOG.log(Level.INFO, "Closing EvaluatorShim Control channel.");
@@ -173,7 +170,10 @@ public final class EvaluatorShim
       throw new RuntimeException(e);
     }
 
-    LOG.log(Level.INFO, "Exiting EvaluatorShim.onStop().");
+    LOG.log(Level.INFO, "Shutting down the thread pool.");
+    this.threadPool.shutdown();
+
+    LOG.log(Level.FINEST, "Exiting EvaluatorShim.onStop().");
   }
 
   private void onEvaluatorLaunch(final String launchCommand, final String evaluatorConfigString) {
@@ -184,7 +184,7 @@ public final class EvaluatorShim
 
     try {
       boolean newFileCreated = evaluatorConfigurationFile.createNewFile();
-      LOG.log(Level.FINE,
+      LOG.log(Level.FINEST,
           newFileCreated ? "Created a new file for persisting evaluator configuration at {0}."
               : "Using existing file for persisting evaluator configuration at {0}.",
           evaluatorConfigurationFile.getAbsolutePath());
@@ -199,23 +199,21 @@ public final class EvaluatorShim
 
     LOG.log(Level.INFO, "Launching the evaluator by invoking the following command: " + launchCommand);
 
-    this.evaluatorLaunchExecutorService.submit(new Thread() {
-      public void run() {
-        try {
-          final List<String> command = Arrays.asList(launchCommand.split(" "));
-          EvaluatorShim.this.evaluatorProcess = new ProcessBuilder()
-              .command(command)
-              .redirectError(new File(fileNames.getEvaluatorStderrFileName() + ".txt"))
-              .redirectOutput(new File(fileNames.getEvaluatorStdoutFileName() + ".txt"))
-              .start();
+    try {
+      final List<String> command = Arrays.asList(launchCommand.split(" "));
+      this.evaluatorProcess = new ProcessBuilder()
+          .command(command)
+          .redirectError(new File(fileNames.getEvaluatorStderrFileName() + ".txt"))
+          .redirectOutput(new File(fileNames.getEvaluatorStdoutFileName() + ".txt"))
+          .start();
 
-          EvaluatorShim.this.evaluatorProcessExitValue = EvaluatorShim.this.evaluatorProcess.waitFor();
-          LOG.log(Level.INFO, "Evaluator process completed with exit value: {0}.",
-              EvaluatorShim.this.evaluatorProcessExitValue);
-        } catch (IOException | InterruptedException e) {
-          throw new RuntimeException(e);
-        }
-      }
-    });
+      // This will block the current thread until the Evaluator process completes.
+      this.evaluatorProcessExitValue = EvaluatorShim.this.evaluatorProcess.waitFor();
+      LOG.log(Level.INFO, "Evaluator process completed with exit value: {0}.", this.evaluatorProcessExitValue);
+    } catch (IOException | InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+
+    LOG.log(Level.FINEST, "Exiting EvaluatorShim.onEvaluatorLaunch().");
   }
 }

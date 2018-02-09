@@ -56,7 +56,7 @@ public final class EvaluatorShimLauncher {
 
   public void launch() throws Exception {
     final Injector injector = Tang.Factory.getTang().newInjector(readConfigurationFromDisk(this.configurationFilePath));
-    EvaluatorShim evaluatorShim = injector.getInstance(EvaluatorShim.class);
+    final EvaluatorShim evaluatorShim = injector.getInstance(EvaluatorShim.class);
     evaluatorShim.run();
   }
 
