@@ -124,7 +124,6 @@ public final class EvaluatorShim
         @Override
         public void run() {
           EvaluatorShim.this.onStop();
-          EvaluatorShim.this.threadPool.shutdown();
         }
       });
       break;
@@ -170,6 +169,9 @@ public final class EvaluatorShim
       LOG.log(Level.SEVERE, "Failed to close the RemoteManager with the following exception: {0}.", e);
       throw new RuntimeException(e);
     }
+
+    LOG.log(Level.INFO, "Shutting down the thread pool.");
+    this.threadPool.shutdown();
 
     LOG.log(Level.FINEST, "Exiting EvaluatorShim.onStop().");
   }
