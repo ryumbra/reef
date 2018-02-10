@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 /**
  * A {@link AzureBatchHelper} for Azure Batch.
  */
-public class AzureBatchHelper implements AutoCloseable {
+public class AzureBatchHelper {
 
   private static final Logger LOG = Logger.getLogger(AzureBatchJobSubmissionHandler.class.getName());
 
@@ -100,20 +100,16 @@ public class AzureBatchHelper implements AutoCloseable {
     List<CloudTask> tasks = null;
     try {
       tasks = client.taskOperations().listTasks(jobId);
-    } catch (IOException ex) {
-      LOG.log(Level.SEVERE, "Exception when Task status for job: {0}", jobId);
+      LOG.log(Level.INFO, "Task status for job: {0} returned {1} tasks", new Object[]{jobId, tasks.size()});
+    } catch (IOException | BatchErrorException ex) {
+      LOG.log(Level.SEVERE, "Exception when fetching Task status for job: {0}. Exception [{1}]:[2]",
+          new Object[] {jobId, ex.getMessage(), ex.getStackTrace()});
     }
 
-    LOG.log(Level.INFO, "Task status for job: {0} returned {1} tasks", new Object[]{jobId, tasks.size()});
     return tasks;
   }
 
   public String getAzureBatchJobId() {
     return System.getenv(AZ_BATCH_JOB_ID_ENV);
-  }
-
-  @Override
-  public void close() {
-
   }
 }

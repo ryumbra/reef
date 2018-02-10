@@ -23,8 +23,6 @@ import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
 import org.apache.reef.runtime.common.driver.resourcemanager.*;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.Clock;
-import org.apache.reef.wake.time.event.Alarm;
 
 import javax.inject.Inject;
 import java.util.logging.Logger;
@@ -33,15 +31,12 @@ import java.util.logging.Logger;
  * Helper that represents the REEF layer to the Azure Batch runtime.
  */
 @Private
-public final class REEFEventHandlers implements AutoCloseable {
+public final class REEFEventHandlers {
   private final EventHandler<ResourceAllocationEvent> resourceAllocationHandler;
   private final EventHandler<ResourceStatusEvent> resourceStatusHandler;
   private final EventHandler<RuntimeStatusEvent> runtimeStatusHandler;
   private final EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler;
-  private final EventHandler<Alarm> taskStatusAlarmHandler;
   private static final Logger LOG = Logger.getLogger(REEFEventHandlers.class.getName());
-  private final Clock clock;
-  private final int taskStatusCheckPeriod;
 
   @Inject
   REEFEventHandlers(@Parameter(RuntimeParameters.NodeDescriptorHandler.class)
@@ -51,20 +46,11 @@ public final class REEFEventHandlers implements AutoCloseable {
                     @Parameter(RuntimeParameters.ResourceAllocationHandler.class)
                     final EventHandler<ResourceAllocationEvent> resourceAllocationHandler,
                     @Parameter(RuntimeParameters.ResourceStatusHandler.class)
-                    final EventHandler<ResourceStatusEvent> resourceStatusHandler,
-                    @Parameter(TaskStatusCheckPeriod.class) final int taskStatusCheckPeriod,
-                    final TaskStatusAlarmHandler taskStatusAlarmHandler,
-                    final Clock clock
-  ) {
+                    final EventHandler<ResourceStatusEvent> resourceStatusHandler) {
     this.resourceAllocationHandler = resourceAllocationHandler;
     this.resourceStatusHandler = resourceStatusHandler;
     this.runtimeStatusHandler = runtimeStatusProtoEventHandler;
     this.nodeDescriptorEventHandler = nodeDescriptorEventHandler;
-    this.clock = clock;
-    this.taskStatusCheckPeriod = taskStatusCheckPeriod;
-    this.taskStatusAlarmHandler = taskStatusAlarmHandler;
-
-    this.scheduleAlarm();
   }
 
   /**
@@ -103,14 +89,5 @@ public final class REEFEventHandlers implements AutoCloseable {
    */
   void onResourceStatus(final ResourceStatusEvent resourceStatusEvent) {
     this.resourceStatusHandler.onNext(resourceStatusEvent);
-  }
-
-  @Override
-  public void close() throws Exception {
-    // Empty, but here for a future where we need to close a threadpool
-  }
-
-  public void scheduleAlarm() {
-    this.clock.scheduleAlarm(this.taskStatusCheckPeriod, this.taskStatusAlarmHandler);
   }
 }

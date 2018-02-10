@@ -21,9 +21,6 @@ package org.apache.reef.examples.hello;
 import org.apache.reef.task.Task;
 
 import javax.inject.Inject;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * A 'hello REEF' Task.
@@ -36,16 +33,7 @@ public final class HelloTask implements Task {
 
   @Override
   public byte[] call(final byte[] memento) {
-    try {
-      Thread.sleep(120000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
     System.out.println("Hello, REEF!");
-    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    Date date = new Date();
-    System.out.println(dateFormat.format(date));
     return null;
   }
 }

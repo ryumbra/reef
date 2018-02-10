@@ -29,10 +29,9 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,26 +45,30 @@ public final class AzureBatchResourceManager {
   private static final Logger LOG = Logger.getLogger(AzureBatchResourceManager.class.getName());
 
   private final Map<String, ResourceRequestEvent> containerRequests;
-
-  private final ArrayList<String> activeContainerIds;
+  private final Set<String> activeContainerIds;
   private final ConfigurationSerializer configurationSerializer;
   private final AzureBatchEvaluatorShimManager evaluatorShimManager;
+  private final AzureBatchTaskStatusAlarmHandler azureBatchTaskStatusAlarmHandler;
 
   private final double jvmHeapFactor;
   private final CommandBuilder launchCommandBuilder;
+  private final AtomicInteger containerCount;
 
   @Inject
   AzureBatchResourceManager(
       final ConfigurationSerializer configurationSerializer,
       final CommandBuilder launchCommandBuilder,
       final AzureBatchEvaluatorShimManager evaluatorShimManager,
+      final AzureBatchTaskStatusAlarmHandler azureBatchTaskStatusAlarmHandler,
       @Parameter(JVMHeapSlack.class) final double jvmHeapSlack) {
     this.configurationSerializer = configurationSerializer;
     this.evaluatorShimManager = evaluatorShimManager;
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
     this.launchCommandBuilder = launchCommandBuilder;
     this.containerRequests = new ConcurrentHashMap<>();
-    this.activeContainerIds = new ArrayList<>();
+    this.activeContainerIds = Collections.synchronizedSet(new HashSet<String>());
+    this.containerCount = new AtomicInteger(0);
+    this.azureBatchTaskStatusAlarmHandler = azureBatchTaskStatusAlarmHandler;
   }
 
   public void onResourceRequested(final ResourceRequestEvent resourceRequestEvent) {
@@ -73,6 +76,8 @@ public final class AzureBatchResourceManager {
     for (int r = 0; r < resourceRequestEvent.getResourceCount(); r++) {
       final String containerId = generateContainerId();
       this.containerRequests.put(containerId, resourceRequestEvent);
+      this.containerCount.incrementAndGet();
+      this.azureBatchTaskStatusAlarmHandler.enableAlarm();
       this.evaluatorShimManager.onResourceRequested(containerId, resourceRequestEvent);
     }
   }
@@ -86,12 +91,15 @@ public final class AzureBatchResourceManager {
           resourceReleaseEvent.getIdentifier());
     }
 
-    if (this.containerRequests.containsKey(resourceReleaseEvent.getIdentifier())) {
-      this.containerRequests.remove(resourceReleaseEvent.getIdentifier());
-    } else {
+    ResourceRequestEvent removedEvent = this.containerRequests.remove(resourceReleaseEvent.getIdentifier());
+    if (removedEvent == null) {
       LOG.log(Level.WARNING,
           "Ignoring attempt to remove non-existent container request for Id: {0} in AzureBatchResourceManager",
           resourceReleaseEvent.getIdentifier());
+    }
+    int currentContainerCount = this.containerCount.decrementAndGet();
+    if (currentContainerCount <= 0) {
+      this.azureBatchTaskStatusAlarmHandler.disableAlarm();
     }
     this.evaluatorShimManager.onResourceReleased(resourceReleaseEvent);
   }
@@ -119,7 +127,7 @@ public final class AzureBatchResourceManager {
   }
 
   public int containerRequestCount() {
-    return this.containerRequests.size();
+    return this.containerCount.get();
   }
 
   private String generateContainerId() {

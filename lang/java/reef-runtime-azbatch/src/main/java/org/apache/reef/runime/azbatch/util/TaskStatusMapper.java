@@ -20,7 +20,6 @@ package org.apache.reef.runime.azbatch.util;
 
 import com.microsoft.azure.batch.protocol.models.CloudTask;
 import com.microsoft.azure.batch.protocol.models.TaskExecutionResult;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.reef.runtime.common.driver.evaluator.pojos.State;
 
 /**
@@ -46,7 +45,7 @@ public final class TaskStatusMapper {
     case PREPARING:
       return State.RUNNING;
     default:
-      throw new NotImplementedException("Azure batch cloud task has unknown state: " + task.state());
+      throw new IllegalArgumentException("Azure batch cloud task has unknown state: " + task.state());
     }
   }
 }

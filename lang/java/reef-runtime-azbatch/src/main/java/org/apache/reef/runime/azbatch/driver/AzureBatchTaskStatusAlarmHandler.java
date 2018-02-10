@@ -24,7 +24,9 @@ import org.apache.reef.runime.azbatch.util.TaskStatusMapper;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.tang.InjectionFuture;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.time.Clock;
 import org.apache.reef.wake.time.event.Alarm;
 import org.apache.reef.runtime.common.driver.evaluator.pojos.State;
 
@@ -37,25 +39,41 @@ import java.util.logging.Logger;
  * Class that gets that status of the tasks from Azure Batch for the job that is currently in progress
  * and notifies REEF of the status.
  */
-final class TaskStatusAlarmHandler implements EventHandler<Alarm>, AutoCloseable {
+final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
 
   private final AzureBatchHelper azureBatchHelper;
+  private final InjectionFuture<AzureBatchResourceManagerStartHandler> azureBatchResourceManagerStartHandler;
   private final InjectionFuture<AzureBatchResourceManager> azureBatchResourceManager;
   private final InjectionFuture<REEFEventHandlers> reefEventHandlers;
+  private final int taskStatusCheckPeriod;
+  private boolean isAlarmScheduled;
+  private Clock clock;
 
   private static final Logger LOG = Logger.getLogger(AzureBatchResourceLaunchHandler.class.getName());
+
+  @Inject
+  private AzureBatchTaskStatusAlarmHandler(
+      final InjectionFuture<REEFEventHandlers> reefEventHandlers,
+      final AzureBatchHelper azureBatchHelper,
+      final InjectionFuture<AzureBatchResourceManager> azureBatchResourceManager,
+      final InjectionFuture<AzureBatchResourceManagerStartHandler> azureBatchResourceManagerStartHandler,
+      @Parameter(AzureBatchTaskStatusCheckPeriod.class) final int taskStatusCheckPeriod,
+      final Clock clock) {
+    this.reefEventHandlers = reefEventHandlers;
+    this.azureBatchHelper = azureBatchHelper;
+    this.azureBatchResourceManager = azureBatchResourceManager;
+    this.azureBatchResourceManagerStartHandler = azureBatchResourceManagerStartHandler;
+    this.clock = clock;
+    this.taskStatusCheckPeriod = taskStatusCheckPeriod;
+  }
 
   @Override
   public void onNext(final Alarm alarm) {
     String jobId = this.azureBatchHelper.getAzureBatchJobId();
     List<CloudTask> allTasks = this.azureBatchHelper.getTaskStatusForJob(jobId);
 
-    // Reschedule alarm again if there are container requests.
-    if (this.azureBatchResourceManager.get().containerRequestCount() > 0) {
-      LOG.log(Level.FINEST, "Reschedule timer since there are container requests", jobId);
-      this.reefEventHandlers.get().scheduleAlarm();
-    } else {
-      LOG.log(Level.INFO, "Not rescheduling timer since there are no container requests", jobId);
+    if (this.isAlarmScheduled) {
+      this.scheduleAlarm();
     }
 
     // Report status if the task has an associated active container.
@@ -81,19 +99,16 @@ final class TaskStatusAlarmHandler implements EventHandler<Alarm>, AutoCloseable
     }
   }
 
-  @Inject
-  private TaskStatusAlarmHandler(
-      final InjectionFuture<REEFEventHandlers> reefEventHandlers,
-      final AzureBatchHelper azureBatchHelper,
-      final InjectionFuture<AzureBatchResourceManager> azureBatchResourceManager) {
-    this.reefEventHandlers = reefEventHandlers;
-    this.azureBatchHelper = azureBatchHelper;
-    this.azureBatchResourceManager = azureBatchResourceManager;
+  public void enableAlarm() {
+    this.isAlarmScheduled = true;
+    this.scheduleAlarm();
   }
 
-  @Override
-  public void close() throws Exception {
-    this.azureBatchHelper.close();
-    this.reefEventHandlers.get().close();
+  public void disableAlarm() {
+    this.isAlarmScheduled = false;
+  }
+
+  private void scheduleAlarm() {
+    this.clock.scheduleAlarm(this.taskStatusCheckPeriod, this);
   }
 }
