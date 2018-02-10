@@ -56,6 +56,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -80,6 +81,7 @@ public final class AzureBatchEvaluatorShimManager
 
   private final Map<String, ResourceRequestEvent> outstandingResourceRequests;
   private final Map<String, String> activeResources;
+  private final AtomicInteger outstandingResourceRequestCount;
 
   private final AutoCloseable evaluatorShimCommandChannel;
 
@@ -125,6 +127,7 @@ public final class AzureBatchEvaluatorShimManager
 
     this.outstandingResourceRequests = new ConcurrentHashMap<>();
     this.activeResources = new ConcurrentHashMap<>();
+    this.outstandingResourceRequestCount = new AtomicInteger();
 
     this.evaluatorShimCommandChannel = remoteManager
         .registerHandler(EvaluatorShimProtocol.EvaluatorShimStatusProto.class, this);
@@ -134,6 +137,7 @@ public final class AzureBatchEvaluatorShimManager
     try {
       createAzureBatchTask(containerId);
       this.outstandingResourceRequests.put(containerId, resourceRequestEvent);
+      this.outstandingResourceRequestCount.incrementAndGet();
       this.updateRuntimeStatus();
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -156,34 +160,32 @@ public final class AzureBatchEvaluatorShimManager
       return;
     }
 
-    synchronized (this.outstandingResourceRequests) {
-      ResourceRequestEvent resourceRequestEvent = this.outstandingResourceRequests.get(containerId);
+    ResourceRequestEvent resourceRequestEvent = this.outstandingResourceRequests.remove(containerId);
 
-      if (resourceRequestEvent == null) {
-        LOG.log(Level.WARNING, "Received an evaluator shim status message from an unknown "
-            + "evaluator shim. Container id = {0}, remote id = {1}.", new String[] {containerId, remoteId});
-      } else {
-        LOG.log(Level.FINEST, "Notifying REEF of a new node: {0}", remoteId);
-        this.reefEventHandlers.onNodeDescriptor(NodeDescriptorEventImpl.newBuilder()
-            .setIdentifier(RemoteIdentifierParser.parseNodeId(remoteId))
-            .setHostName(RemoteIdentifierParser.parseIp(remoteId))
-            .setPort(RemoteIdentifierParser.parsePort(remoteId))
-            .setMemorySize(resourceRequestEvent.getMemorySize().get())
-            .build());
-
-        LOG.log(Level.FINEST, "Firing a new ResourceAllocationEvent for remoteId = {0}.", remoteId);
-        this.reefEventHandlers.onResourceAllocation(
-            ResourceEventImpl.newAllocationBuilder()
-                .setIdentifier(containerId)
-                .setNodeId(RemoteIdentifierParser.parseNodeId(remoteId))
-                .setResourceMemory(resourceRequestEvent.getMemorySize().get())
-                .setVirtualCores(resourceRequestEvent.getVirtualCores().get())
-                .setRuntimeName(RuntimeIdentifier.RUNTIME_NAME)
-                .build());
-      }
-
-      this.outstandingResourceRequests.remove(containerId);
+    if (resourceRequestEvent == null) {
+      LOG.log(Level.WARNING, "Received an evaluator shim status message from an unknown "
+          + "evaluator shim. Container id = {0}, remote id = {1}.", new String[] {containerId, remoteId});
+    } else {
+      this.outstandingResourceRequestCount.decrementAndGet();
       this.activeResources.put(containerId, remoteId);
+
+      LOG.log(Level.FINEST, "Notifying REEF of a new node: {0}", remoteId);
+      this.reefEventHandlers.onNodeDescriptor(NodeDescriptorEventImpl.newBuilder()
+          .setIdentifier(RemoteIdentifierParser.parseNodeId(remoteId))
+          .setHostName(RemoteIdentifierParser.parseIp(remoteId))
+          .setPort(RemoteIdentifierParser.parsePort(remoteId))
+          .setMemorySize(resourceRequestEvent.getMemorySize().get())
+          .build());
+
+      LOG.log(Level.FINEST, "Firing a new ResourceAllocationEvent for remoteId = {0}.", remoteId);
+      this.reefEventHandlers.onResourceAllocation(
+          ResourceEventImpl.newAllocationBuilder()
+              .setIdentifier(containerId)
+              .setNodeId(RemoteIdentifierParser.parseNodeId(remoteId))
+              .setResourceMemory(resourceRequestEvent.getMemorySize().get())
+              .setVirtualCores(resourceRequestEvent.getVirtualCores().get())
+              .setRuntimeName(RuntimeIdentifier.RUNTIME_NAME)
+              .build());
     }
 
     this.updateRuntimeStatus();
@@ -211,25 +213,20 @@ public final class AzureBatchEvaluatorShimManager
 
   public void onResourceReleased(final ResourceReleaseEvent resourceReleaseEvent) {
 
-    synchronized (this.activeResources) {
-      String remoteId = this.activeResources.get(resourceReleaseEvent.getIdentifier());
+    String remoteId = this.activeResources.remove(resourceReleaseEvent.getIdentifier());
+    if (remoteId == null) {
+      LOG.log(Level.WARNING, "Received a ResourceReleaseEvent for an unknown resource id = {0}.",
+          resourceReleaseEvent.getIdentifier());
+    } else {
+      EventHandler<EvaluatorShimProtocol.EvaluatorShimControlProto> handler = this.remoteManager.getHandler(remoteId,
+          EvaluatorShimProtocol.EvaluatorShimControlProto.class);
 
-      if (!this.activeResources.containsKey(resourceReleaseEvent.getIdentifier())) {
-        LOG.log(Level.WARNING, "Received a ResourceReleaseEvent for an unknown resource id = {0}.",
-            resourceReleaseEvent.getIdentifier());
-      } else {
-        EventHandler<EvaluatorShimProtocol.EvaluatorShimControlProto> handler = this.remoteManager.getHandler(remoteId,
-                EvaluatorShimProtocol.EvaluatorShimControlProto.class);
-
-        LOG.log(Level.INFO, "Sending a TERMINATE command to the evaluator shim with remoteId = {0}.", remoteId);
-        handler.onNext(
-            EvaluatorShimProtocol.EvaluatorShimControlProto
-                .newBuilder()
-                .setCommand(EvaluatorShimProtocol.EvaluatorShimCommand.TERMINATE)
-                .build());
-      }
-
-      this.activeResources.remove(resourceReleaseEvent.getIdentifier());
+      LOG.log(Level.INFO, "Sending a TERMINATE command to the evaluator shim with remoteId = {0}.", remoteId);
+      handler.onNext(
+          EvaluatorShimProtocol.EvaluatorShimControlProto
+              .newBuilder()
+              .setCommand(EvaluatorShimProtocol.EvaluatorShimCommand.TERMINATE)
+              .build());
     }
 
     this.updateRuntimeStatus();
@@ -248,7 +245,7 @@ public final class AzureBatchEvaluatorShimManager
     this.reefEventHandlers.onRuntimeStatus(RuntimeStatusEventImpl.newBuilder()
         .setName(RUNTIME_NAME)
         .setState(State.RUNNING)
-        .setOutstandingContainerRequests(this.outstandingResourceRequests.size())
+        .setOutstandingContainerRequests(this.outstandingResourceRequestCount.get())
         .build());
   }
 
