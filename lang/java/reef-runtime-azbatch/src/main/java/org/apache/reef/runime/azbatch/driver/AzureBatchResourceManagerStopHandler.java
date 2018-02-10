@@ -39,8 +39,7 @@ public final class AzureBatchResourceManagerStopHandler implements ResourceManag
   private final AzureBatchEvaluatorShimManager azureBatchEvaluatorShimManager;
 
   @Inject
-  AzureBatchResourceManagerStopHandler(
-      final AzureBatchEvaluatorShimManager azureBatchEvaluatorShimManager) {
+  AzureBatchResourceManagerStopHandler(final AzureBatchEvaluatorShimManager azureBatchEvaluatorShimManager) {
     this.azureBatchEvaluatorShimManager = azureBatchEvaluatorShimManager;
   }
 

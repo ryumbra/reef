@@ -83,19 +83,17 @@ public final class AzureBatchResourceManager {
   }
 
   public void onResourceReleased(final ResourceReleaseEvent resourceReleaseEvent) {
-    LOG.log(Level.FINEST, "Got ResourceReleasedEvent for Id: {0} in AzureBatchResourceManager",
-        resourceReleaseEvent.getIdentifier());
-    if (!this.activeContainerIds.remove(resourceReleaseEvent.getIdentifier())) {
+    String id = resourceReleaseEvent.getIdentifier();
+    LOG.log(Level.FINEST, "Got ResourceReleasedEvent for Id: {0} in AzureBatchResourceManager", id);
+    if (!this.activeContainerIds.remove(id)) {
       LOG.log(Level.WARNING,
-          "Attempting to remove non-existent activeContainer for Id: {0} in AzureBatchResourceManager",
-          resourceReleaseEvent.getIdentifier());
+          "Attempting to remove non-existent activeContainer for Id: {0} in AzureBatchResourceManager", id);
     }
 
-    ResourceRequestEvent removedEvent = this.containerRequests.remove(resourceReleaseEvent.getIdentifier());
+    ResourceRequestEvent removedEvent = this.containerRequests.remove(id);
     if (removedEvent == null) {
       LOG.log(Level.WARNING,
-          "Ignoring attempt to remove non-existent container request for Id: {0} in AzureBatchResourceManager",
-          resourceReleaseEvent.getIdentifier());
+          "Ignoring attempt to remove non-existent containerRequest for Id: {0} in AzureBatchResourceManager", id);
     }
     int currentContainerCount = this.containerCount.decrementAndGet();
     if (currentContainerCount <= 0) {
@@ -105,13 +103,13 @@ public final class AzureBatchResourceManager {
   }
 
   public void onResourceLaunched(final ResourceLaunchEvent resourceLaunchEvent) {
-    LOG.log(Level.FINEST, "Got ResourceLaunchEvent for Id: {0} in AzureBatchResourceManager",
-        resourceLaunchEvent.getIdentifier());
-    final int evaluatorMemory = this.containerRequests.get(resourceLaunchEvent.getIdentifier()).getMemorySize().get();
+    String id = resourceLaunchEvent.getIdentifier();
+    LOG.log(Level.FINEST, "Got ResourceLaunchEvent for Id: {0} in AzureBatchResourceManager", id);
+    final int evaluatorMemory = this.containerRequests.get(id).getMemorySize().get();
     String launchCommand = this.launchCommandBuilder.buildEvaluatorCommand(resourceLaunchEvent,
         evaluatorMemory, this.jvmHeapFactor);
     String evaluatorConfigurationString = this.configurationSerializer.toString(resourceLaunchEvent.getEvaluatorConf());
-    this.activeContainerIds.add(resourceLaunchEvent.getIdentifier());
+    this.activeContainerIds.add(id);
     // TODO[At this point we are only sending the evaluator config and launch command to the shim. AllocatedEvaluator]
     // TODO[object also has "addFile" and "addLibrary" methods, so maybe we'll need to package the JAR for the]
     // TODO[evaluator, too, and not assume that both Evaluator and Shim can share the same JAR.]
