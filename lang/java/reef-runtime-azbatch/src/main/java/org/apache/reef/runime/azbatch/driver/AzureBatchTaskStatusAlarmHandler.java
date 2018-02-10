@@ -37,25 +37,41 @@ import java.util.logging.Logger;
  * Class that gets that status of the tasks from Azure Batch for the job that is currently in progress
  * and notifies REEF of the status.
  */
-final class TaskStatusAlarmHandler implements EventHandler<Alarm>, AutoCloseable {
+final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
 
   private final AzureBatchHelper azureBatchHelper;
+  private final InjectionFuture<AzureBatchResourceManagerStartHandler> azureBatchResourceManagerStartHandler;
   private final InjectionFuture<AzureBatchResourceManager> azureBatchResourceManager;
   private final InjectionFuture<REEFEventHandlers> reefEventHandlers;
+  private boolean isCanceled;
 
   private static final Logger LOG = Logger.getLogger(AzureBatchResourceLaunchHandler.class.getName());
+
+  @Inject
+  private AzureBatchTaskStatusAlarmHandler(
+      final InjectionFuture<REEFEventHandlers> reefEventHandlers,
+      final AzureBatchHelper azureBatchHelper,
+      final InjectionFuture<AzureBatchResourceManager> azureBatchResourceManager,
+      final InjectionFuture<AzureBatchResourceManagerStartHandler> azureBatchResourceManagerStartHandler) {
+    this.reefEventHandlers = reefEventHandlers;
+    this.azureBatchHelper = azureBatchHelper;
+    this.azureBatchResourceManager = azureBatchResourceManager;
+    this.azureBatchResourceManagerStartHandler = azureBatchResourceManagerStartHandler;
+    this.isCanceled = false;
+  }
 
   @Override
   public void onNext(final Alarm alarm) {
     String jobId = this.azureBatchHelper.getAzureBatchJobId();
     List<CloudTask> allTasks = this.azureBatchHelper.getTaskStatusForJob(jobId);
 
-    // Reschedule alarm again if there are container requests.
-    if (this.azureBatchResourceManager.get().containerRequestCount() > 0) {
-      LOG.log(Level.FINEST, "Reschedule timer since there are container requests", jobId);
-      this.reefEventHandlers.get().scheduleAlarm();
-    } else {
-      LOG.log(Level.INFO, "Not rescheduling timer since there are no container requests", jobId);
+    synchronized (this) {
+      if (!isCanceled) {
+        this.azureBatchResourceManagerStartHandler.get().scheduleAlarm();
+      }
+      else {
+        return;
+      }
     }
 
     // Report status if the task has an associated active container.
@@ -81,19 +97,7 @@ final class TaskStatusAlarmHandler implements EventHandler<Alarm>, AutoCloseable
     }
   }
 
-  @Inject
-  private TaskStatusAlarmHandler(
-      final InjectionFuture<REEFEventHandlers> reefEventHandlers,
-      final AzureBatchHelper azureBatchHelper,
-      final InjectionFuture<AzureBatchResourceManager> azureBatchResourceManager) {
-    this.reefEventHandlers = reefEventHandlers;
-    this.azureBatchHelper = azureBatchHelper;
-    this.azureBatchResourceManager = azureBatchResourceManager;
-  }
-
-  @Override
-  public void close() throws Exception {
-    this.azureBatchHelper.close();
-    this.reefEventHandlers.get().close();
+  public synchronized void close() {
+    this.isCanceled = true;
   }
 }

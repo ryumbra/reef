@@ -29,9 +29,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,8 +44,7 @@ public final class AzureBatchResourceManager {
   private static final Logger LOG = Logger.getLogger(AzureBatchResourceManager.class.getName());
 
   private final Map<String, ResourceRequestEvent> containerRequests;
-
-  private final ArrayList<String> activeContainerIds;
+  private final Set<String> activeContainerIds;
   private final ConfigurationSerializer configurationSerializer;
   private final AzureBatchEvaluatorShimManager evaluatorShimManager;
 
@@ -65,7 +62,7 @@ public final class AzureBatchResourceManager {
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
     this.launchCommandBuilder = launchCommandBuilder;
     this.containerRequests = new ConcurrentHashMap<>();
-    this.activeContainerIds = new ArrayList<>();
+    this.activeContainerIds = Collections.synchronizedSet(new HashSet<String>());
   }
 
   public void onResourceRequested(final ResourceRequestEvent resourceRequestEvent) {
@@ -86,13 +83,13 @@ public final class AzureBatchResourceManager {
           resourceReleaseEvent.getIdentifier());
     }
 
-    if (this.containerRequests.containsKey(resourceReleaseEvent.getIdentifier())) {
-      this.containerRequests.remove(resourceReleaseEvent.getIdentifier());
-    } else {
+    ResourceRequestEvent removedEvent = this.containerRequests.remove(resourceReleaseEvent.getIdentifier());
+    if (removedEvent == null) {
       LOG.log(Level.WARNING,
           "Ignoring attempt to remove non-existent container request for Id: {0} in AzureBatchResourceManager",
           resourceReleaseEvent.getIdentifier());
     }
+
     this.evaluatorShimManager.onResourceReleased(resourceReleaseEvent);
   }
 
