@@ -94,11 +94,13 @@ public final class AzureBatchResourceManager {
     if (removedEvent == null) {
       LOG.log(Level.WARNING,
           "Ignoring attempt to remove non-existent containerRequest for Id: {0} in AzureBatchResourceManager", id);
+    } else {
+      int currentContainerCount = this.containerCount.decrementAndGet();
+      if (currentContainerCount <= 0) {
+        this.azureBatchTaskStatusAlarmHandler.disableAlarm();
+      }
     }
-    int currentContainerCount = this.containerCount.decrementAndGet();
-    if (currentContainerCount <= 0) {
-      this.azureBatchTaskStatusAlarmHandler.disableAlarm();
-    }
+
     this.evaluatorShimManager.onResourceReleased(resourceReleaseEvent);
   }
 
@@ -118,14 +120,6 @@ public final class AzureBatchResourceManager {
 
   public Boolean isContainerActive(final String containerId) {
     return this.activeContainerIds.contains(containerId);
-  }
-
-  public String activeContainerList() {
-    return String.join(", ", this.activeContainerIds);
-  }
-
-  public int containerRequestCount() {
-    return this.containerCount.get();
   }
 
   private String generateContainerId() {

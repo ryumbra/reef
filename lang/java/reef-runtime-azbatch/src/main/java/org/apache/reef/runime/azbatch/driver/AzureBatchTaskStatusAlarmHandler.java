@@ -72,14 +72,12 @@ final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
     String jobId = this.azureBatchHelper.getAzureBatchJobId();
     List<CloudTask> allTasks = this.azureBatchHelper.getTaskStatusForJob(jobId);
 
-    if (this.isAlarmScheduled) {
+    if (this.isAlarmScheduled()) {
       this.scheduleAlarm();
     }
 
     // Report status if the task has an associated active container.
     LOG.log(Level.FINER, "Found {0} tasks from job id {1}", new Object[]{allTasks.size(), jobId});
-    LOG.log(Level.FINEST, "active container list: {0}",
-        this.azureBatchResourceManager.get().activeContainerList());
     for (CloudTask task : allTasks) {
       State reefTaskState = TaskStatusMapper.getReefTaskState(task);
       LOG.log(Level.FINEST, "status for Task Id: {0} is [Azure Batch Status]:{1}, [REEF status]:{2}",
@@ -99,13 +97,17 @@ final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
     }
   }
 
-  public void enableAlarm() {
+  public synchronized void enableAlarm() {
     this.isAlarmScheduled = true;
     this.scheduleAlarm();
   }
 
-  public void disableAlarm() {
+  public synchronized void disableAlarm() {
     this.isAlarmScheduled = false;
+  }
+
+  private synchronized boolean isAlarmScheduled() {
+    return this.isAlarmScheduled;
   }
 
   private void scheduleAlarm() {
