@@ -18,8 +18,8 @@
  */
 package org.apache.reef.tests;
 
-import org.apache.reef.runime.azbatch.client.AzureBatchRuntimeConfiguration;
-import org.apache.reef.runime.azbatch.driver.RuntimeIdentifier;
+import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfiguration;
+import org.apache.reef.runtime.azbatch.driver.RuntimeIdentifier;
 import org.apache.reef.tang.Configuration;
 
 import java.io.IOException;
