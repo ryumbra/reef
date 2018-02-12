@@ -20,24 +20,23 @@ package org.apache.reef.runime.azbatch.driver;
 
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
-import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
-import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
-import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
-import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.*;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.logging.Logger;
 
 /**
  * Helper that represents the REEF layer to the Azure Batch runtime.
  */
 @Private
-public final class REEFEventHandlers implements AutoCloseable {
+public final class REEFEventHandlers {
   private final EventHandler<ResourceAllocationEvent> resourceAllocationHandler;
   private final EventHandler<ResourceStatusEvent> resourceStatusHandler;
   private final EventHandler<RuntimeStatusEvent> runtimeStatusHandler;
   private final EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler;
+  private static final Logger LOG = Logger.getLogger(REEFEventHandlers.class.getName());
 
   @Inject
   REEFEventHandlers(@Parameter(RuntimeParameters.NodeDescriptorHandler.class)
@@ -90,10 +89,5 @@ public final class REEFEventHandlers implements AutoCloseable {
    */
   void onResourceStatus(final ResourceStatusEvent resourceStatusEvent) {
     this.resourceStatusHandler.onNext(resourceStatusEvent);
-  }
-
-  @Override
-  public void close() throws Exception {
-    // Empty, but here for a future where we need to close a threadpool
   }
 }

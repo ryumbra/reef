@@ -38,7 +38,8 @@ public final class AzureBatchResourceRequestHandler implements ResourceRequestHa
   private final AzureBatchResourceManager azureBatchResourceManager;
 
   @Inject
-  AzureBatchResourceRequestHandler(final AzureBatchResourceManager azureBatchResourceManager) {
+  AzureBatchResourceRequestHandler(
+      final AzureBatchResourceManager azureBatchResourceManager) {
     this.azureBatchResourceManager = azureBatchResourceManager;
   }
 
