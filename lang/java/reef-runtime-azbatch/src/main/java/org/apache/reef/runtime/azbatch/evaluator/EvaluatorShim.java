@@ -22,6 +22,7 @@ import org.apache.reef.annotations.audience.EvaluatorSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.proto.EvaluatorShimProtocol;
 import org.apache.reef.runtime.azbatch.parameters.ContainerIdentifier;
+import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
 import org.apache.reef.runtime.common.evaluator.parameters.DriverRemoteIdentifier;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.utils.RemoteManager;
@@ -55,7 +56,8 @@ public final class EvaluatorShim
   private static final Logger LOG = Logger.getLogger(EvaluatorShim.class.getName());
 
   private final RemoteManager remoteManager;
-  private final REEFFileNames fileNames;
+  private final REEFFileNames reefFileNames;
+  private final AzureBatchFileNames azureBatchFileNames;
   private final ConfigurationSerializer configurationSerializer;
 
   private final String driverRemoteId;
@@ -70,14 +72,16 @@ public final class EvaluatorShim
   private Integer evaluatorProcessExitValue;
 
   @Inject
-  EvaluatorShim(final REEFFileNames fileNames,
+  EvaluatorShim(final REEFFileNames reefFileNames,
+                final AzureBatchFileNames azureBatchFileNames,
                 final ConfigurationSerializer configurationSerializer,
                 final RemoteManager remoteManager,
                 @Parameter(DriverRemoteIdentifier.class)
                 final String driverRemoteId,
                 @Parameter(ContainerIdentifier.class)
                 final String containerId) {
-    this.fileNames = fileNames;
+    this.reefFileNames = reefFileNames;
+    this.azureBatchFileNames = azureBatchFileNames;
     this.configurationSerializer = configurationSerializer;
 
     this.driverRemoteId = driverRemoteId;
@@ -179,7 +183,7 @@ public final class EvaluatorShim
   private void onEvaluatorLaunch(final String launchCommand, final String evaluatorConfigString) {
     LOG.log(Level.FINEST, "Entering EvaluatorShim.onEvaluatorLaunch().");
 
-    File evaluatorConfigurationFile = new File(this.fileNames.getEvaluatorConfigurationPath());
+    File evaluatorConfigurationFile = new File(this.reefFileNames.getEvaluatorConfigurationPath());
     LOG.log(Level.FINER, "Persisting evaluator config at: {0}", evaluatorConfigurationFile.getAbsolutePath());
 
     try {
@@ -203,8 +207,8 @@ public final class EvaluatorShim
       final List<String> command = Arrays.asList(launchCommand.split(" "));
       this.evaluatorProcess = new ProcessBuilder()
           .command(command)
-          .redirectError(new File(fileNames.getEvaluatorStderrFileName() + ".txt"))
-          .redirectOutput(new File(fileNames.getEvaluatorStdoutFileName() + ".txt"))
+          .redirectError(new File(this.azureBatchFileNames.getEvaluatorStdErrFilename()))
+          .redirectOutput(new File(this.azureBatchFileNames.getEvaluatorStdOutFilename()))
           .start();
 
       // This will block the current thread until the Evaluator process completes.

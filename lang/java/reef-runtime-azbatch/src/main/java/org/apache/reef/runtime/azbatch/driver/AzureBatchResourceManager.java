@@ -118,7 +118,7 @@ public final class AzureBatchResourceManager {
     this.evaluatorShimManager.onResourceLaunched(resourceLaunchEvent, launchCommand, evaluatorConfigurationString);
   }
 
-  public Boolean isContainerActive(final String containerId) {
+  public boolean isContainerActive(final String containerId) {
     return this.activeContainerIds.contains(containerId);
   }
 

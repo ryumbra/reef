@@ -96,22 +96,14 @@ public final class JobJarMaker {
   public File createJobSubmissionJAR(
       final JobSubmissionEvent jobSubmissionEvent,
       final Configuration driverConfiguration) throws IOException {
-    return createJobSubmissionJARInternal(
+    return createJAR(
         driverConfiguration,
         jobSubmissionEvent.getGlobalFileSet(),
         jobSubmissionEvent.getLocalFileSet(),
         this.fileNames.getDriverConfigurationName());
   }
 
-  public File createEvaluatorSubmissionJAR(
-      final Configuration configuration,
-      final Set<FileResource> globalFileSet,
-      final Set<FileResource> localFileSet) throws IOException {
-    return createJobSubmissionJARInternal(configuration, globalFileSet, localFileSet,
-        this.fileNames.getEvaluatorConfigurationName());
-  }
-
-  private File createJobSubmissionJARInternal(
+  public File createJAR(
       final Configuration configuration,
       final Set<FileResource> globalFileSet,
       final Set<FileResource> localFileSet,
