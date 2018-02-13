@@ -44,6 +44,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
 
   protected final ClasspathProvider classpathProvider;
   protected final REEFFileNames reefFileNames;
+  protected final AzureBatchFileNames azureBatchFileNames;
 
   AbstractCommandBuilder(
       final Class launcherClass,
@@ -52,7 +53,8 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
       final String osCommandFormat,
       final ClasspathProvider classpathProvider,
       final RuntimePathProvider runtimePathProvider,
-      final REEFFileNames reefFileNames) {
+      final REEFFileNames reefFileNames,
+      final AzureBatchFileNames azureBatchFileNames) {
     this.launcherClass = launcherClass;
     this.shimLauncherClass = shimLauncherClass;
     this.commandListPrefix = commandListPrefix;
@@ -60,6 +62,7 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
 
     this.classpathProvider = classpathProvider;
     this.reefFileNames = reefFileNames;
+    this.azureBatchFileNames = azureBatchFileNames;
     this.runtimePathProvider = runtimePathProvider;
   }
 

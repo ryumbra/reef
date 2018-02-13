@@ -32,6 +32,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -43,6 +44,8 @@ import java.util.logging.Logger;
 public class AzureBatchHelper {
 
   private static final Logger LOG = Logger.getLogger(AzureBatchJobSubmissionHandler.class.getName());
+
+  private final AzureBatchFileNames azureBatchFileNames;
 
   /*
    * Environment variable that contains the Azure Batch jobId.
@@ -58,10 +61,12 @@ public class AzureBatchHelper {
 
   @Inject
   public AzureBatchHelper(
+      final AzureBatchFileNames azureBatchFileNames,
       @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
       @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
       @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey,
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId) {
+    this.azureBatchFileNames = azureBatchFileNames;
     this.azureBatchAccountUri = azureBatchAccountUri;
     this.azureBatchAccountName = azureBatchAccountName;
     this.azureBatchAccountKey = azureBatchAccountKey;
@@ -78,7 +83,7 @@ public class AzureBatchHelper {
   public void submitJob(final String applicationId, final URI jobJarSasUri, final String command) throws IOException {
     ResourceFile jarResourceFile = new ResourceFile()
         .withBlobSource(jobJarSasUri.toString())
-        .withFilePath(AzureBatchFileNames.TASK_JAR_FILE_NAME);
+        .withFilePath(this.azureBatchFileNames.getTaskJarFileName());
 
     JobManagerTask jobManagerTask = new JobManagerTask()
         .withRunExclusive(false)
@@ -94,6 +99,26 @@ public class AzureBatchHelper {
         .withPoolInfo(poolInfo);
 
     client.jobOperations().createJob(jobAddParameter);
+  }
+
+  public void submitTask(final String jobId, final String taskId, final URI jobJarSasUri, final String command)
+      throws IOException {
+
+    final ResourceFile jarSourceFile = new ResourceFile()
+        .withBlobSource(jobJarSasUri.toString())
+        .withFilePath(this.azureBatchFileNames.getTaskJarFileName());
+
+    final List<ResourceFile> resources = new ArrayList<>();
+    resources.add(jarSourceFile);
+
+    LOG.log(Level.INFO, "Evaluator task command: " + command);
+
+    final TaskAddParameter taskAddParameter = new TaskAddParameter()
+        .withId(taskId)
+        .withResourceFiles(resources)
+        .withCommandLine(command);
+
+    this.client.taskOperations().createTask(jobId, taskAddParameter);
   }
 
   public List<CloudTask> getTaskStatusForJob(final String jobId) {

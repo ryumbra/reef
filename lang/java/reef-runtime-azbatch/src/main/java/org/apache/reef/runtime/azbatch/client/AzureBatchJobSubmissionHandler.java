@@ -19,6 +19,7 @@
 package org.apache.reef.runtime.azbatch.client;
 
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
 import org.apache.reef.runtime.azbatch.util.AzureBatchHelper;
 import org.apache.reef.runtime.azbatch.util.AzureStorageUtil;
 import org.apache.reef.runtime.azbatch.util.CommandBuilder;
@@ -26,7 +27,6 @@ import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.JobJarMaker;
-import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.tang.Configuration;
 
 import javax.inject.Inject;
@@ -51,7 +51,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
   private final DriverConfigurationProvider driverConfigurationProvider;
   private final JobJarMaker jobJarMaker;
   private final CommandBuilder launchCommandBuilder;
-  private final REEFFileNames reefFileNames;
+  private final AzureBatchFileNames azureBatchFileNames;
   private final AzureBatchHelper azureBatchHelper;
 
   @Inject
@@ -60,7 +60,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
       final DriverConfigurationProvider driverConfigurationProvider,
       final JobJarMaker jobJarMaker,
       final CommandBuilder launchCommandBuilder,
-      final REEFFileNames reefFileNames,
+      final AzureBatchFileNames azureBatchFileNames,
       final AzureBatchHelper azureBatchHelper) {
     this.azureStorageUtil = azureStorageUtil;
     this.driverConfigurationProvider = driverConfigurationProvider;
@@ -68,7 +68,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
     this.launchCommandBuilder = launchCommandBuilder;
     this.azureBatchHelper = azureBatchHelper;
 
-    this.reefFileNames = reefFileNames;
+    this.azureBatchFileNames = azureBatchFileNames;
 
     this.applicationId = "HelloWorldJob-"
         + (new Date()).toString()
@@ -113,9 +113,9 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
 
       this.azureBatchHelper.submitJob(getApplicationId(), jobJarSasUri, command);
 
-    } catch (final IOException ex) {
-      LOG.log(Level.SEVERE, "Error submitting Azure Batch request", ex);
-      throw new RuntimeException(ex);
+    } catch (final IOException e) {
+      LOG.log(Level.SEVERE, "Error submitting Azure Batch request: {0}", e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -128,6 +128,6 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
   }
 
   private String createJobFolderName(final String jobApplicationID) {
-    return this.reefFileNames.getAzbatchJobFolderPath() + jobApplicationID;
+    return this.azureBatchFileNames.getStorageJobFolder() + jobApplicationID;
   }
 }
