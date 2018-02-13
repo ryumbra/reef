@@ -75,8 +75,6 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
         .setConfigurationFilePaths(Collections.singletonList(this.reefFileNames.getDriverConfigurationPath()))
         .setClassPath(getDriverClasspath())
         .setMemory(jobSubmissionEvent.getDriverMemory().get())
-        .setStandardOut(this.azureBatchFileNames.getDriverStdOutFilename())
-        .setStandardErr(this.azureBatchFileNames.getDriverStdErrFilename())
         .build();
     return String.format(this.osCommandFormat, StringUtils.join(commandList, ' '));
   }
@@ -90,8 +88,6 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
         .setConfigurationFilePaths(Collections.singletonList(configurationPath))
         .setClassPath(getEvaluatorShimClasspath())
         .setMemory(evaluatorShimMemory)
-        .setStandardOut(this.azureBatchFileNames.getEvaluatorShimStdoutFilename())
-        .setStandardErr(this.azureBatchFileNames.getEvaluatorShimStderrFilename())
         .build();
     return String.format(this.osCommandFormat, StringUtils.join(commandList, ' '));
   }
