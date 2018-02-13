@@ -36,9 +36,6 @@ import java.util.List;
  */
 public abstract class AbstractCommandBuilder implements CommandBuilder {
 
-  public static final String STD_OUT_FILE = "stdout.txt";
-  public static final String STD_ERR_FILE = "stderr.txt";
-
   private final Class launcherClass;
   private final Class shimLauncherClass;
   private final List<String> commandListPrefix;
@@ -75,8 +72,6 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
         .setConfigurationFilePaths(Collections.singletonList(this.reefFileNames.getDriverConfigurationPath()))
         .setClassPath(getDriverClasspath())
         .setMemory(jobSubmissionEvent.getDriverMemory().get())
-        .setStandardOut(STD_OUT_FILE)
-        .setStandardErr(STD_ERR_FILE)
         .build();
     return String.format(this.osCommandFormat, StringUtils.join(commandList, ' '));
   }
@@ -90,8 +85,6 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
         .setConfigurationFilePaths(Collections.singletonList(configurationPath))
         .setClassPath(getEvaluatorShimClasspath())
         .setMemory(evaluatorShimMemory)
-        .setStandardOut(STD_OUT_FILE)
-        .setStandardErr(STD_ERR_FILE)
         .build();
     return String.format(this.osCommandFormat, StringUtils.join(commandList, ' '));
   }
