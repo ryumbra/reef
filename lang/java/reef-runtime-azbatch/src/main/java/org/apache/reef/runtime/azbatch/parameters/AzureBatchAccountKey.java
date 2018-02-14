@@ -24,6 +24,6 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * The Azure Batch account key.
  */
-@NamedParameter(doc = "The Azure Batch account key")
+@NamedParameter(doc = "The Azure Batch account key.")
 public class AzureBatchAccountKey implements Name<String> {
 }

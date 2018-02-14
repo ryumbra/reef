@@ -24,6 +24,6 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * The Azure Storage account key.
  */
-@NamedParameter(doc = "The Azure Storage account key")
+@NamedParameter(doc = "The Azure Storage account key.")
 public class AzureStorageAccountKey implements Name<String> {
 }

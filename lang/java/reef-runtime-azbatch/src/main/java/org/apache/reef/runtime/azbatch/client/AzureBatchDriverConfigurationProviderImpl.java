@@ -76,6 +76,11 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
     this.commandBuilder = commandBuilder;
   }
 
+  /**
+   * Assembles the Driver configuration.
+   *
+   * @return the Driver configuration.
+   */
   @Override
   public Configuration getDriverConfiguration(final URI jobFolder,
                                               final String clientRemoteId,

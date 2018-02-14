@@ -24,6 +24,6 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * The Azure Storage container name.
  */
-@NamedParameter(doc = "The Azure Storage container name")
+@NamedParameter(doc = "The Azure Storage container name.")
 public class AzureStorageContainerName implements Name<String> {
 }

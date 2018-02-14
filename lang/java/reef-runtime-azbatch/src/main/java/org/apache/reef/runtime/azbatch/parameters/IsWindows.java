@@ -22,8 +22,8 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Operating system of the Azure Batch virtual machines.
+ * Whether or not the Azure Batch VMs are Windows based.
  */
-@NamedParameter(doc = "Are the Azure Batch VMs linux or Windows based")
+@NamedParameter(doc = "Whether or not the Azure Batch VMs are Windows based.")
 public class IsWindows implements Name<Boolean> {
 }

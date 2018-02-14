@@ -44,7 +44,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Evaluator shim class.
  * This class sends a message back to the driver upon starting and listens for
  * commands to launch an evaluator. Once the evaluator completes, it will listen
  * for a command to terminate.

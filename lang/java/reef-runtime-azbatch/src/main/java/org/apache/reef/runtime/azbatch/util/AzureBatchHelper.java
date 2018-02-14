@@ -39,7 +39,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A {@link AzureBatchHelper} for Azure Batch.
+ * A helper class for Azure Batch.
  */
 public class AzureBatchHelper {
 
@@ -80,9 +80,17 @@ public class AzureBatchHelper {
     poolInfo.withPoolId(this.azureBatchPoolId);
   }
 
-  public void submitJob(final String applicationId, final URI jobJarSasUri, final String command) throws IOException {
+  /**
+   * Create a job on Azure Batch.
+   *
+   * @param applicationId the ID of the application.
+   * @param jobJarUri the publicly accessible uri to the job jar directory.
+   * @param command the commandline argument to execute the job.
+   * @throws IOException
+   */
+  public void submitJob(final String applicationId, final URI jobJarUri, final String command) throws IOException {
     ResourceFile jarResourceFile = new ResourceFile()
-        .withBlobSource(jobJarSasUri.toString())
+        .withBlobSource(jobJarUri.toString())
         .withFilePath(this.azureBatchFileNames.getTaskJarFileName());
 
     JobManagerTask jobManagerTask = new JobManagerTask()
@@ -101,11 +109,20 @@ public class AzureBatchHelper {
     client.jobOperations().createJob(jobAddParameter);
   }
 
-  public void submitTask(final String jobId, final String taskId, final URI jobJarSasUri, final String command)
+  /**
+   * Adds a single task to a job on Azure Batch.
+   *
+   * @param jobId the ID of the job.
+   * @param taskId the ID of the task.
+   * @param jobJarUri the publicly accessible uri to the job jar directory.
+   * @param command the commandline argument to execute the job.
+   * @throws IOException
+   */
+  public void submitTask(final String jobId, final String taskId, final URI jobJarUri, final String command)
       throws IOException {
 
     final ResourceFile jarSourceFile = new ResourceFile()
-        .withBlobSource(jobJarSasUri.toString())
+        .withBlobSource(jobJarUri.toString())
         .withFilePath(this.azureBatchFileNames.getTaskJarFileName());
 
     final List<ResourceFile> resources = new ArrayList<>();
@@ -121,6 +138,12 @@ public class AzureBatchHelper {
     this.client.taskOperations().createTask(jobId, taskAddParameter);
   }
 
+  /**
+   * List the tasks of the specified job.
+   *
+   * @param jobId the ID of the job.
+   * @return A list of CloudTask objects.
+   */
   public List<CloudTask> getTaskStatusForJob(final String jobId) {
     List<CloudTask> tasks = null;
     try {
@@ -134,6 +157,9 @@ public class AzureBatchHelper {
     return tasks;
   }
 
+  /**
+   * @return the job ID specified in the current system environment.
+   */
   public String getAzureBatchJobId() {
     return System.getenv(AZ_BATCH_JOB_ID_ENV);
   }

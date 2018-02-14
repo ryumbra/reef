@@ -27,14 +27,32 @@ public final class RemoteIdentifierParser {
 
   private RemoteIdentifierParser() {}
 
+  /**
+   * Get the IP address from the remote identifier.
+   *
+   * @param remoteIdentifier the remote identifier.
+   * @return the IP address.
+   */
   public static String parseIp(final String remoteIdentifier) {
     return remoteIdentifier.substring(PROTOCOL.length(), remoteIdentifier.lastIndexOf(':'));
   }
 
+  /**
+   * Get the port from the remote identifier.
+   *
+   * @param remoteIdentifier the remote identifier.
+   * @return the port.
+   */
   public static int parsePort(final String remoteIdentifier) {
     return Integer.parseInt(remoteIdentifier.substring(remoteIdentifier.lastIndexOf(':') + 1));
   }
 
+  /**
+   * Get the node ID from the remote identifier.
+   *
+   * @param remoteIdentifier the remote identifier.
+   * @return the node ID.
+   */
   public static String parseNodeId(final String remoteIdentifier) {
     return remoteIdentifier.substring(PROTOCOL.length());
   }

@@ -25,10 +25,32 @@ import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
  * Build the launch command for Java REEF processes for Azure Batch.
  */
 public interface CommandBuilder {
+
+  /**
+   * Assembles the command to execute the Driver.
+   *
+   * @param jobSubmissionEvent the submission event for which to build the command.
+   * @return the command string.
+   */
   String buildDriverCommand(JobSubmissionEvent jobSubmissionEvent);
 
+  /**
+   * Assembles the command to execute the Evaluator Shim.
+   *
+   * @param evaluatorShimMemory the maximum size in, in bytes, of the memory allocation pool.
+   * @param configurationPath   the relative path to the configuration file.
+   * @return the command string.
+   */
   String buildEvaluatorShimCommand(int evaluatorShimMemory, String configurationPath);
 
+  /**
+   * Assembles the command to execute the Evaluator.
+   *
+   * @param resourceLaunchEvent the launch event for which to build the command.
+   * @param containerMemory the maximum size in, in bytes, of the memory allocation pool.
+   * @param jvmHeapFactor a multiplicative factor to increase the container memory.
+   * @return the command string.
+   */
   String buildEvaluatorCommand(final ResourceLaunchEvent resourceLaunchEvent,
                                final int containerMemory, final double jvmHeapFactor);
 }
