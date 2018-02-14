@@ -93,7 +93,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
 
     try {
       final String id = jobSubmissionEvent.getIdentifier();
-      final String folderName = createJobFolderName(id);
+      final String folderName = this.azureBatchFileNames.getStorageJobFolder(id);
 
       LOG.log(Level.FINE, "Creating a job folder on Azure at: {0}.", folderName);
       URI jobFolderURL = this.azureStorageUtil.createFolder(folderName);
@@ -125,9 +125,5 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
       final URI jobFolderURL) {
     return this.driverConfigurationProvider.getDriverConfiguration(
         jobFolderURL, jobSubmissionEvent.getRemoteId(), appId, jobSubmissionEvent.getConfiguration());
-  }
-
-  private String createJobFolderName(final String jobApplicationID) {
-    return this.azureBatchFileNames.getStorageJobFolder() + jobApplicationID;
   }
 }

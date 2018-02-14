@@ -18,6 +18,10 @@
  */
 package org.apache.reef.runtime.azbatch.evaluator;
 
+import com.microsoft.windowsazure.storage.StorageException;
+import com.microsoft.windowsazure.storage.blob.CloudBlob;
+import com.microsoft.windowsazure.storage.blob.CloudBlockBlob;
+import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.EvaluatorSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.proto.EvaluatorShimProtocol;
@@ -35,13 +39,21 @@ import org.apache.reef.wake.remote.RemoteMessage;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * This class sends a message back to the driver upon starting and listens for
@@ -119,7 +131,8 @@ public final class EvaluatorShim
         @Override
         public void run() {
           EvaluatorShim.this.onEvaluatorLaunch(remoteMessage.getMessage().getEvaluatorLaunchCommand(),
-              remoteMessage.getMessage().getEvaluatorConfigString());
+              remoteMessage.getMessage().getEvaluatorConfigString(),
+              remoteMessage.getMessage().getEvaluatorFileResourcesUrl());
         }
       });
       break;
@@ -182,8 +195,23 @@ public final class EvaluatorShim
     LOG.log(Level.FINEST, "Exiting EvaluatorShim.onStop().");
   }
 
-  private void onEvaluatorLaunch(final String launchCommand, final String evaluatorConfigString) {
+  private void onEvaluatorLaunch(final String launchCommand, final String evaluatorConfigString,
+                                 final String fileResourcesUrl) {
     LOG.log(Level.FINEST, "Entering EvaluatorShim.onEvaluatorLaunch().");
+
+    if (StringUtils.isNotBlank(fileResourcesUrl)) {
+      LOG.log(Level.FINER, "Downloading evaluator resource file archive from {0}.", fileResourcesUrl);
+      try {
+        File tmpFile = downloadFile(fileResourcesUrl);
+        extractFiles(tmpFile);
+      } catch (StorageException | IOException e) {
+        LOG.log(Level.SEVERE, "Failed to download evaluator file resources: {0}. {1}",
+            new Object[] {fileResourcesUrl, e});
+        throw new RuntimeException(e);
+      }
+    } else {
+      LOG.log(Level.FINER, "No file resources URL given.");
+    }
 
     File evaluatorConfigurationFile = new File(this.reefFileNames.getEvaluatorConfigurationPath());
     LOG.log(Level.FINER, "Persisting evaluator config at: {0}", evaluatorConfigurationFile.getAbsolutePath());
@@ -221,5 +249,36 @@ public final class EvaluatorShim
     }
 
     LOG.log(Level.FINEST, "Exiting EvaluatorShim.onEvaluatorLaunch().");
+  }
+
+  private File downloadFile(final String url) throws IOException, StorageException {
+    URI fileUri = URI.create(url);
+    File downloadedFile = new File(this.azureBatchFileNames.getEvaluatorResourceFilesJarName());
+    LOG.log(Level.FINE, "Downloading evaluator file resources to {0}.", downloadedFile.getAbsolutePath());
+
+    try (FileOutputStream fileStream = new FileOutputStream(downloadedFile)) {
+      CloudBlob blob = new CloudBlockBlob(fileUri);
+      blob.download(fileStream);
+    }
+
+    return downloadedFile;
+  }
+
+  private void extractFiles(final File zipFile) throws IOException {
+    try (ZipFile zipFileHandle = new ZipFile(zipFile)) {
+      Enumeration<? extends ZipEntry> zipEntries = zipFileHandle.entries();
+      while (zipEntries.hasMoreElements()) {
+        ZipEntry zipEntry = zipEntries.nextElement();
+
+        if ((new File(zipEntry.getName())).exists()) {
+          LOG.log(Level.INFO, "Skipping entry {0} because the file already exists.", zipEntry.getName());
+        } else {
+          try (InputStream inputStream = zipFileHandle.getInputStream(zipEntry)) {
+            LOG.log(Level.INFO, "Extracting {0}.", zipEntry.getName());
+            Files.copy(inputStream, Paths.get(zipEntry.getName()));
+          }
+        }
+      }
+    }
   }
 }
