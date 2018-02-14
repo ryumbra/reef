@@ -27,6 +27,10 @@ import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,7 +82,25 @@ public final class HelloDriver {
           .set(TaskConfiguration.IDENTIFIER, "HelloREEFTask")
           .set(TaskConfiguration.TASK, HelloTask.class)
           .build();
+
+      try {
+        allocatedEvaluator.addFile(createTempFile());
+        allocatedEvaluator.addLibrary(createTempFile());
+      } catch (IOException e) {
+        LOG.log(Level.SEVERE, "Failed to write evaluator resource file.");
+        throw new RuntimeException(e);
+      }
+
       allocatedEvaluator.submitTask(taskConfiguration);
     }
+  }
+
+  private File createTempFile() throws IOException {
+    File outFile = File.createTempFile("driver-test-file", ".txt");
+    try (OutputStreamWriter fileWriter = new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8")) {
+      fileWriter.write("Hello world from the driver...");
+    }
+
+    return outFile;
   }
 }

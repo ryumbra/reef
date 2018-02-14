@@ -42,8 +42,8 @@ public final class AzureBatchFileNames {
     this.reefFileNames = reefFileNames;
   }
 
-  public String getStorageJobFolder() {
-    return STORAGE_JOB_FOLDER_PATH;
+  public String getStorageJobFolder(final String jobId) {
+    return STORAGE_JOB_FOLDER_PATH + jobId;
   }
 
   public String getEvaluatorStdErrFilename() {

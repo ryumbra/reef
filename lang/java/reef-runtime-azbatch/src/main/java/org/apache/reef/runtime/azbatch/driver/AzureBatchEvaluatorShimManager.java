@@ -75,7 +75,7 @@ public final class AzureBatchEvaluatorShimManager
   private final RemoteManager remoteManager;
   private final AzureBatchHelper azureBatchHelper;
   private final AzureBatchEvaluatorShimConfigurationProvider evaluatorShimConfigurationProvider;
-  
+
   private final JobJarMaker jobJarMaker;
   private final CommandBuilder launchCommandBuilder;
 
@@ -181,14 +181,30 @@ public final class AzureBatchEvaluatorShimManager
     EventHandler<EvaluatorShimProtocol.EvaluatorShimControlProto> handler = this.remoteManager
         .getHandler(resourceRemoteId, EvaluatorShimProtocol.EvaluatorShimControlProto.class);
 
+    Set<FileResource> fileResources = resourceLaunchEvent.getFileSet();
+    String fileUrl = "";
+    if (!fileResources.isEmpty()) {
+      try {
+        File jarFile = writeFileResourcesJarFile(fileResources);
+        fileUrl = uploadFile(jarFile).toString();
+        LOG.log(Level.INFO, "Uploaded file resources to Azure Storage at {0}.", fileUrl);
+      } catch (IOException e) {
+        LOG.log(Level.SEVERE, "Failed to generate zip archive with evaluator file resources: {0}.", e);
+        throw new RuntimeException(e);
+      }
+    } else {
+      LOG.log(Level.INFO, "No file resources found in ResourceLaunchEvent.");
+    }
+
     LOG.log(Level.INFO, "Sending a command to the Evaluator shim to start the evaluator.");
-    handler.onNext(
-        EvaluatorShimProtocol.EvaluatorShimControlProto
-            .newBuilder()
-            .setCommand(EvaluatorShimProtocol.EvaluatorShimCommand.LAUNCH_EVALUATOR)
-            .setEvaluatorLaunchCommand(command)
-            .setEvaluatorConfigString(evaluatorConfigurationString)
-            .build());
+    handler.onNext(EvaluatorShimProtocol.EvaluatorShimControlProto
+        .newBuilder()
+        .setCommand(EvaluatorShimProtocol.EvaluatorShimCommand.LAUNCH_EVALUATOR)
+        .setEvaluatorLaunchCommand(command)
+        .setEvaluatorConfigString(evaluatorConfigurationString)
+        .setEvaluatorFileResourcesUrl(fileUrl)
+        .build());
+
     this.updateRuntimeStatus();
   }
 
@@ -248,17 +264,10 @@ public final class AzureBatchEvaluatorShimManager
   }
 
   private void createAzureBatchTask(final String taskId) throws IOException {
-
     final File jarFile = writeShimJarFile(taskId);
-
-    final String folderName = this.azureBatchFileNames.getStorageJobFolder() + this.getAzureBatchJobId();
-    LOG.log(Level.FINE, "Creating a job folder on Azure at: {0}.", folderName);
-    URI jobFolderURL = this.azureStorageUtil.createFolder(folderName);
-
-    LOG.log(Level.FINE, "Uploading {0} to {0}.", new Object[] {folderName, jobFolderURL});
-    final URI jarFileUri = this.azureStorageUtil.uploadFile(jobFolderURL, jarFile);
-
+    final URI jarFileUri = uploadFile(jarFile);
     final String command = getEvaluatorShimLaunchCommand();
+
     this.azureBatchHelper.submitTask(getAzureBatchJobId(), taskId, jarFileUri, command);
   }
 
@@ -276,15 +285,26 @@ public final class AzureBatchEvaluatorShimManager
         globalFiles.add(getFileResourceFromFile(fileEntry, FileType.LIB));
       }
 
-      return this.jobJarMaker.createJAR(
-          shimConfig,
-          globalFiles,
-          localFiles,
-          this.azureBatchFileNames.getEvaluatorShimConfigurationName());
+      return this.jobJarMaker.newBuilder()
+          .withConfiguration(shimConfig)
+          .withGlobalFileSet(globalFiles)
+          .withLocalFileSet(localFiles)
+          .withConfigurationFileName(this.azureBatchFileNames.getEvaluatorShimConfigurationName())
+          .build();
     } catch (IOException ex) {
       LOG.log(Level.SEVERE, "Failed to build JAR file", ex);
       throw new RuntimeException(ex);
     }
+  }
+
+  private File writeFileResourcesJarFile(final Set<FileResource> fileResourceSet) throws IOException {
+    return this.jobJarMaker.newBuilder().withLocalFileSet(fileResourceSet).build();
+  }
+
+  private URI uploadFile(final File jarFile) throws IOException {
+    final String folderName = this.azureBatchFileNames.getStorageJobFolder(this.getAzureBatchJobId());
+    LOG.log(Level.FINE, "Uploading {0} to {0}.", new Object[] {jarFile.getAbsolutePath(), folderName});
+    return this.azureStorageUtil.uploadFile(folderName, jarFile);
   }
 
   private String getAzureBatchJobId() {
