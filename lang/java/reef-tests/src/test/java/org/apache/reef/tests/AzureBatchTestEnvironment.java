@@ -50,9 +50,7 @@ public final class AzureBatchTestEnvironment extends TestEnvironmentBase impleme
       final AzureBatchRuntimeConfigurationProvider runtimeConfigurationProvider =
           injector.getInstance(AzureBatchRuntimeConfigurationProvider.class);
       return runtimeConfigurationProvider.getAzureBatchRuntimeConfiguration();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    } catch (InjectionException e) {
+    } catch (IOException | InjectionException e) {
       throw new RuntimeException(e);
     }
   }
