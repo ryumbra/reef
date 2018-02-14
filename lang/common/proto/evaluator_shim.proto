@@ -33,9 +33,10 @@ enum EvaluatorShimCommand {
 }
 
 message EvaluatorShimControlProto {
-    required EvaluatorShimCommand command  = 1;
-    optional string evaluatorConfigString  = 2;
-    optional string evaluatorLaunchCommand = 3;
+    required EvaluatorShimCommand command     = 1;
+    optional string evaluatorConfigString     = 2;
+    optional string evaluatorLaunchCommand    = 3;
+    optional string evaluatorFileResourcesUrl = 4;
 }
 
 message EvaluatorShimStatusProto {

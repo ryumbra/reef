@@ -31,6 +31,7 @@ public final class AzureBatchFileNames {
 
   private static final String STORAGE_JOB_FOLDER_PATH = "apps/reef/jobs/";
   private static final String TASK_JAR_FILE_NAME = "local.jar";
+  private static final String EVALUATOR_RESOURCE_FILES_JAR_NAME = "resources.jar";
 
   private static final String EVALUATOR_SHIM_CONFIGURATION_NAME = "shim.conf";
   private static final String TEXTFILE_EXTENSION = ".txt";
@@ -42,8 +43,8 @@ public final class AzureBatchFileNames {
     this.reefFileNames = reefFileNames;
   }
 
-  public String getStorageJobFolder() {
-    return STORAGE_JOB_FOLDER_PATH;
+  public String getStorageJobFolder(final String jobId) {
+    return STORAGE_JOB_FOLDER_PATH + jobId;
   }
 
   public String getEvaluatorStdErrFilename() {
@@ -56,6 +57,10 @@ public final class AzureBatchFileNames {
 
   public String getEvaluatorShimConfigurationPath() {
     return this.reefFileNames.getLocalFolderPath() + "/" + EVALUATOR_SHIM_CONFIGURATION_NAME;
+  }
+
+  public String getEvaluatorResourceFilesJarName() {
+    return EVALUATOR_RESOURCE_FILES_JAR_NAME;
   }
 
   public String getEvaluatorShimConfigurationName() {

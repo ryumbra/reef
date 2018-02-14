@@ -89,6 +89,12 @@ public class AzureStorageUtil {
     }
   }
 
+  public URI uploadFile(final String folderName, final File file) throws IOException {
+    LOG.log(Level.FINE, "Creating a job folder on Azure at: {0}.", folderName);
+    URI jobFolderURI = this.createFolder(folderName);
+    return uploadFile(jobFolderURI, file);
+  }
+
   public URI uploadFile(final URI folder, final File file) throws IOException {
 
     LOG.log(Level.INFO, "Uploading [{0}] to [{1}]", new Object[]{file, folder});
