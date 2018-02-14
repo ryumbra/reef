@@ -75,10 +75,10 @@ public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static final RequiredParameter<String> AZURE_STORAGE_CONTAINER_NAME = new RequiredParameter<>();
 
   /**
-   * Returns an Azure Batch runtime configuration from the credentials stored in the given file.
+   * Create a {@link Configuration} object from an Avro configuration file.
    *
-   * @param file
-   * @return an Azure Batch runtime configuration from the credentials stored in the given file.
+   * @param file the configuration file.
+   * @return the configuration object.
    * @throws IOException if the file can't be read
    */
   public static Configuration fromTextFile(final File file) throws IOException {
@@ -86,8 +86,10 @@ public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
   }
 
   /**
-   * @return the RuntimeConfiguration that is stored in a file refered to
-   * by the environment variable AZBATCH_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE.
+   * Create a {@link Configuration} object from the
+   * {@link AZBATCH_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE} environment variable.
+   *
+   * @return the configuration object.
    * @throws IOException
    * @see AZBATCH_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE
    */

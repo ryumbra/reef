@@ -37,11 +37,18 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
  */
 @Private
 public final class AzureBatchRuntimeConfigurationCreator {
+
   /**
    * The ConfigurationModule for Azure Batch.
    */
   private static ConfigurationModule conf;
 
+  /**
+   * Get or create a {@link ConfigurationModule} for the Azure Batch runtime.
+   *
+   * @param isWindows whether or not the target OS is windows.
+   * @return the configuration module object.
+   */
   public static ConfigurationModule getOrCreateAzureBatchRuntimeConfiguration(final Boolean isWindows) {
 
     if (AzureBatchRuntimeConfigurationCreator.conf == null) {
