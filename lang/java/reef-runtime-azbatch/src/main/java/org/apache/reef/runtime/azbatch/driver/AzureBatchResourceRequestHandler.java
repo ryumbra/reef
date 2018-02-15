@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 @DriverSide
 public final class AzureBatchResourceRequestHandler implements ResourceRequestHandler {
 
-  private static final Logger LOG = Logger.getLogger(AzureBatchResourceLaunchHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(AzureBatchResourceRequestHandler.class.getName());
   private final AzureBatchResourceManager azureBatchResourceManager;
 
   @Inject

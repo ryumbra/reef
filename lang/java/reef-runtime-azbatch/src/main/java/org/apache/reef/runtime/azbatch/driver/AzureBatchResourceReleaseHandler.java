@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 @DriverSide
 public final class AzureBatchResourceReleaseHandler implements ResourceReleaseHandler {
 
-  private static final Logger LOG = Logger.getLogger(AzureBatchResourceLaunchHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(AzureBatchResourceReleaseHandler.class.getName());
 
   private final AzureBatchResourceManager azureBatchResourceManager;
 
