@@ -28,7 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A {@link ResourceReleaseHandler} for Azure Batch.
+ * A {@link ResourceReleaseHandler} for Azure Batch runtime.
  */
 @Private
 @DriverSide

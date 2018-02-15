@@ -35,12 +35,12 @@ import java.io.IOException;
 public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
 
   /**
-   * The Azure Batch account URI to be used by REEF.
+   * The Azure Batch account URI.
    */
   public static final RequiredParameter<String> AZURE_BATCH_ACCOUNT_URI = new RequiredParameter<>();
 
   /**
-   * The Azure Batch account name to be used by REEF.
+   * The Azure Batch account name.
    */
   public static final RequiredParameter<String> AZURE_BATCH_ACCOUNT_NAME = new RequiredParameter<>();
 
@@ -50,7 +50,7 @@ public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static final RequiredParameter<String> AZURE_BATCH_ACCOUNT_KEY = new RequiredParameter<>();
 
   /**
-   * The Azure Batch Pool ID.
+   * The Azure Batch pool ID.
    */
   public static final RequiredParameter<String> AZURE_BATCH_POOL_ID = new RequiredParameter<>();
 
@@ -60,17 +60,17 @@ public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static final String AZBATCH_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE = "REEF_AZBATCH_CONF";
 
   /**
-   * The name of the Azure Storage account.
+   * The Azure Storage account name.
    */
   public static final RequiredParameter<String> AZURE_STORAGE_ACCOUNT_NAME = new RequiredParameter<>();
 
   /**
-   * The key of the Azure Storage account.
+   * The Azure Storage account key.
    */
   public static final RequiredParameter<String> AZURE_STORAGE_ACCOUNT_KEY = new RequiredParameter<>();
 
   /**
-   * The name of the Azure Storage account container.
+   * The Azure Storage container name.
    */
   public static final RequiredParameter<String> AZURE_STORAGE_CONTAINER_NAME = new RequiredParameter<>();
 

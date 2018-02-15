@@ -36,7 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A resource manager that uses threads to execute containerRequests.
+ * A resource manager that uses threads to execute container requests.
  */
 @Private
 @DriverSide
@@ -118,6 +118,12 @@ public final class AzureBatchResourceManager {
     this.evaluatorShimManager.onResourceLaunched(resourceLaunchEvent, launchCommand, evaluatorConfigurationString);
   }
 
+  /**
+   * Whether or not a container is active.
+   *
+   * @param containerId the container ID.
+   * @return true if the container is active.
+   */
   public boolean isContainerActive(final String containerId) {
     return this.activeContainerIds.contains(containerId);
   }
