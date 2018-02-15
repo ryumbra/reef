@@ -101,6 +101,9 @@ public final class EvaluatorShim
     this.onStart();
   }
 
+  /**
+   * Stops the {@link EvaluatorShim}.
+   */
   public void stop() {
     LOG.log(Level.FINEST, "Entering EvaluatorShim.stop().");
     this.onStop();

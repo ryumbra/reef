@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The main entry point into evaluator shim process.
+ * The main entry point into the evaluator shim process.
  */
 @Private
 @EvaluatorSide
@@ -54,6 +54,10 @@ public final class EvaluatorShimLauncher {
     this.configurationSerializer = configurationSerializer;
   }
 
+  /**
+   * Launch the {@link EvaluatorShim}.
+   * @throws Exception
+   */
   public void launch() throws Exception {
     final Injector injector = Tang.Factory.getTang().newInjector(readConfigurationFromDisk(this.configurationFilePath));
     final EvaluatorShim evaluatorShim = injector.getInstance(EvaluatorShim.class);
