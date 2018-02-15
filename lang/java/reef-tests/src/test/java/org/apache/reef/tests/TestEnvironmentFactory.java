@@ -49,7 +49,7 @@ public final class TestEnvironmentFactory {
       return new MesosTestEnvironment();
     } else if (isAzBatch) {
       LOG.log(Level.INFO, "Running tests on Azure Batch");
-      return new AzBatchTestEnvironment();
+      return new AzureBatchTestEnvironment();
     } else {
       LOG.log(Level.INFO, "Running tests on Local");
       return new LocalTestEnvironment();
