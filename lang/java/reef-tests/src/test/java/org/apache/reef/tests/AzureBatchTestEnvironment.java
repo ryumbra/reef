@@ -19,15 +19,19 @@
 package org.apache.reef.tests;
 
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfiguration;
+import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfigurationProvider;
 import org.apache.reef.runtime.azbatch.driver.RuntimeIdentifier;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 
 import java.io.IOException;
 
 /**
- * A TestEnvironment for the local resourcemanager.
+ * A TestEnvironment for the Azure Batch resourcemanager.
  */
-public final class AzBatchTestEnvironment extends TestEnvironmentBase implements TestEnvironment {
+public final class AzureBatchTestEnvironment extends TestEnvironmentBase implements TestEnvironment {
 
   // Used to make sure the tests call the methods in the right order.
   private boolean ready = false;
@@ -41,8 +45,12 @@ public final class AzBatchTestEnvironment extends TestEnvironmentBase implements
   public synchronized Configuration getRuntimeConfiguration() {
     assert this.ready;
     try {
-      return AzureBatchRuntimeConfiguration.fromEnvironment();
-    } catch (IOException e) {
+      Configuration userConfiguration = AzureBatchRuntimeConfiguration.fromEnvironment();
+      final Injector injector = Tang.Factory.getTang().newInjector(userConfiguration);
+      final AzureBatchRuntimeConfigurationProvider runtimeConfigurationProvider =
+          injector.getInstance(AzureBatchRuntimeConfigurationProvider.class);
+      return runtimeConfigurationProvider.getAzureBatchRuntimeConfiguration();
+    } catch (IOException | InjectionException e) {
       throw new RuntimeException(e);
     }
   }
