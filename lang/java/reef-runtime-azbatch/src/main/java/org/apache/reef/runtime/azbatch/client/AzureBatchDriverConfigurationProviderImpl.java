@@ -79,12 +79,6 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
   /**
    * Assembles the Driver configuration.
    *
-   * @return the Driver configuration.
-   */
-
-  /**
-   * Assembles the Driver configuration.
-   *
    * @param jobFolder the job folder.
    * @param clientRemoteId the client remote id.
    * @param jobId the job id.
