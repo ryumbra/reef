@@ -1,0 +1,564 @@
+OpenJDK 64-Bit Server VM warning: ignoring option PermSize=128m; support was removed in 8.0
+OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=128m; support was removed in 8.0
+Feb 20, 2018 5:11:27 PM org.apache.reef.runtime.common.REEFLauncher main
+INFO: Entering REEFLauncher.main().
+Feb 20, 2018 5:11:27 PM org.apache.reef.runtime.common.REEFLauncher main
+FINE: REEFLauncher started with user name [_azbatch]
+Feb 20, 2018 5:11:27 PM org.apache.reef.runtime.common.REEFLauncher main
+FINE: REEFLauncher started. Assertions are DISABLED in this process.
+Feb 20, 2018 5:11:27 PM org.apache.reef.runtime.common.REEFLauncher readConfigurationFromDisk
+FINER: Loading configuration file: reef/local/driver.conf
+Feb 20, 2018 5:11:29 PM org.apache.reef.runtime.common.REEFLauncher readConfigurationFromDisk
+FINEST: Configuration file loaded: reef/local/driver.conf
+Feb 20, 2018 5:11:29 PM org.apache.reef.runtime.common.REEFEnvironment fromConfiguration
+FINEST: Configuration:
+--
+{"language":"Java","Bindings":[{"key":"org.apache.reef.driver.catalog.ResourceCatalog","value":"org.apache.reef.runtime.common.driver.catalog.ResourceCatalogImpl"},{"key":"org.apache.reef.driver.client.JobMessageObserver","value":"org.apache.reef.runtime.common.driver.client.JobMessageObserverImpl"},{"key":"org.apache.reef.driver.evaluator.EvaluatorRequestor","value":"org.apache.reef.runtime.common.driver.EvaluatorRequestorImpl"},{"key":"org.apache.reef.runtime.azbatch.util.CommandBuilder","value":"org.apache.reef.runtime.azbatch.util.LinuxCommandBuilder"},{"key":"org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler","value":"org.apache.reef.runtime.azbatch.driver.AzureBatchResourceLaunchHandler"},{"key":"org.apache.reef.runtime.common.driver.api.ResourceManagerStartHandler","value":"org.apache.reef.runtime.azbatch.driver.AzureBatchResourceManagerStartHandler"},{"key":"org.apache.reef.runtime.common.driver.api.ResourceManagerStopHandler","value":"org.apache.reef.runtime.azbatch.driver.AzureBatchResourceManagerStopHandler"},{"key":"org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler","value":"org.apache.reef.runtime.azbatch.driver.AzureBatchResourceReleaseHandler"},{"key":"org.apache.reef.runtime.common.driver.api.ResourceRequestHandler","value":"org.apache.reef.runtime.azbatch.driver.AzureBatchResourceRequestHandler"},{"key":"org.apache.reef.runtime.common.files.RuntimeClasspathProvider","value":"org.apache.reef.runtime.azbatch.AzureBatchClasspathProvider"},{"key":"org.apache.reef.runtime.common.files.RuntimePathProvider","value":"org.apache.reef.runtime.azbatch.AzureBatchJVMPathProvider"},{"key":"org.apache.reef.driver.parameters.DriverIdentifier","value":"HelloREEF"},{"key":"org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountKey","value":"A4RPZnfg7G5EVtNyKE3xwHQCfSAGpIDIPhZegaCFF2pafJoWFynPAJ88vnekF6ACe8am9u/Dssw1pAimgBIilw=="},{"key":"org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountName","value":"reefbatch01"},{"key":"org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountUri","value":"https://reefbatch01.eastus.batch.azure.com"},{"key":"org.apache.reef.runtime.azbatch.parameters.AzureBatchPoolId","value":"linuxpool"},{"key":"org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountKey","value":"fYjPZJ2UTi9ftCjT29wLsnQ82wXFJZiLWZ013MgCplVlcudTWwaaIVEvzgfYcasXqKUyn468KAZhdEsYCsbGkQ=="},{"key":"org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountName","value":"reefbatch01storage"},{"key":"org.apache.reef.runtime.azbatch.parameters.AzureStorageContainerName","value":"reefcontainer"},{"key":"org.apache.reef.runtime.common.driver.DriverRuntimeConfigurationOptions$JobControlHandler","value":"org.apache.reef.runtime.common.driver.client.ClientManager"},{"key":"org.apache.reef.runtime.common.driver.api.RuntimeParameters$NodeDescriptorHandler","value":"org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorHandler"},{"key":"org.apache.reef.runtime.common.driver.api.RuntimeParameters$ResourceAllocationHandler","value":"org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationHandler"},{"key":"org.apache.reef.runtime.common.driver.api.RuntimeParameters$ResourceStatusHandler","value":"org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusHandler"},{"key":"org.apache.reef.runtime.common.driver.api.RuntimeParameters$RuntimeStatusHandler","value":"org.apache.reef.runtime.common.driver.resourcemanager.ResourceManagerStatus"},{"key":"org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier","value":"NO_ERROR_HANDLER_REMOTE_ID"},{"key":"org.apache.reef.runtime.common.driver.parameters.JobIdentifier","value":"HelloREEF"},{"key":"org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID","value":"NO_ERROR_HANDLER_REMOTE_ID"},{"key":"org.apache.reef.runtime.common.launch.parameters.LaunchID","value":"HelloREEF"},{"key":"org.apache.reef.runtime.common.parameters.JVMHeapSlack","value":"0.0"},{"key":"org.apache.reef.wake.remote.RemoteConfiguration$ErrorHandler","value":"org.apache.reef.runtime.common.launch.REEFErrorHandler"},{"key":"org.apache.reef.wake.remote.RemoteConfiguration$ManagerName","value":"REEF_LAUNCHER"},{"key":"org.apache.reef.wake.remote.RemoteConfiguration$MessageCodec","value":"org.apache.reef.runtime.common.launch.REEFMessageCodec"},{"key":"org.apache.reef.driver.parameters.DriverIdleSources","value":"org.apache.reef.runtime.common.driver.idle.ClockIdlenessSource"},{"key":"org.apache.reef.driver.parameters.DriverIdleSources","value":"org.apache.reef.runtime.common.driver.resourcemanager.ResourceManagerStatus"},{"key":"org.apache.reef.driver.parameters.DriverIdleSources","value":"org.apache.reef.runtime.common.driver.idle.EventHandlerIdlenessSource"},{"key":"org.apache.reef.driver.parameters.DriverStartHandler","value":"org.apache.reef.examples.hello.HelloDriver$StartHandler"},{"key":"org.apache.reef.driver.parameters.EvaluatorAllocatedHandlers","value":"org.apache.reef.examples.hello.HelloDriver$EvaluatorAllocatedHandler"},{"key":"org.apache.reef.driver.parameters.JobGlobalLibraries","value":"/F:/msharath/github/ryumbra/reef/lang/java/reef-examples/target/reef-examples-0.17.0-SNAPSHOT-shaded.jar"},{"key":"org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes","value":"AzBatch"},{"key":"org.apache.reef.wake.time.Clock$IdleHandler","value":"org.apache.reef.runtime.common.driver.idle.ClockIdlenessSource"},{"key":"org.apache.reef.wake.time.Clock$RuntimeStartHandler","value":"org.apache.reef.runtime.common.driver.DriverRuntimeStartHandler"},{"key":"org.apache.reef.wake.time.Clock$RuntimeStartHandler","value":"org.apache.reef.runtime.common.evaluator.PIDStoreStartHandler"},{"key":"org.apache.reef.wake.time.Clock$RuntimeStopHandler","value":"org.apache.reef.runtime.common.driver.DriverRuntimeStopHandler"},{"key":"org.apache.reef.wake.time.Clock$StartHandler","value":"org.apache.reef.runtime.common.driver.DriverStartHandler"}]}
+--
+Feb 20, 2018 5:11:29 PM org.apache.reef.util.REEFVersion logVersion
+INFO: REEF Version: 0.17.0-SNAPSHOT
+Feb 20, 2018 5:11:29 PM org.apache.reef.wake.remote.address.HostnameBasedLocalAddressProvider <init>
+FINE: Instantiating HostnameBasedLocalAddressProvider
+Feb 20, 2018 5:11:29 PM org.apache.reef.wake.remote.ports.RangeTcpPortProvider <init>
+FINE: Instantiating RangeTcpPortProvider{portRangeBegin=10000, portRangeCount=10000, portRangeTryCount=1000}
+Feb 20, 2018 5:11:29 PM org.apache.reef.wake.remote.impl.HandlerContainer <init>
+FINER: Instantiated HandlerContainer: {name:REEF_LAUNCHER codec:org.apache.reef.runtime.common.launch.REEFMessageCodec}
+Feb 20, 2018 5:11:29 PM org.apache.reef.wake.impl.StageManager <init>
+FINE: StageManager adds a shutdown hook
+Feb 20, 2018 5:11:29 PM org.apache.reef.wake.impl.StageManager register
+FINEST: StageManager adds stage Stage:org.apache.reef.wake.impl.ThreadPoolStage:org.apache.reef.wake.remote.impl.OrderedPullEventHandler
+Feb 20, 2018 5:11:29 PM org.apache.reef.wake.impl.StageManager register
+FINEST: StageManager adds stage Stage:org.apache.reef.wake.impl.ThreadPoolStage:org.apache.reef.wake.remote.impl.OrderedPushEventHandler
+Feb 20, 2018 5:11:29 PM org.apache.reef.wake.remote.address.HostnameBasedLocalAddressProvider <init>
+FINE: Instantiating HostnameBasedLocalAddressProvider
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: Using SLF4J as the default logging framework
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: java.nio.Buffer.address: available
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: sun.misc.Unsafe.theUnsafe: available
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: sun.misc.Unsafe.copyMemory: available
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: java.nio.Bits.unaligned: true
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: UID: 1000
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: Java version: 8
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: -Dio.netty.noUnsafe: false
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: sun.misc.Unsafe: available
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: -Dio.netty.noJavassist: false
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: Javassist: unavailable
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: You don't have Javassist in your class path or you don't have enough permission to load dynamically generated classes.  Please check the configuration for better performance.
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: -Dio.netty.tmpdir: /tmp (java.io.tmpdir)
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: -Dio.netty.bitMode: 64 (sun.arch.data.model)
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: -Dio.netty.noPreferDirect: false
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: -Dio.netty.eventLoopThreads: 2
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: -Dio.netty.noKeySetOptimization: false
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: -Dio.netty.selectorAutoRebuildThreshold: 512
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@1725dc0f
+Feb 20, 2018 5:11:29 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@3911c2a7
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@4ac3c60d
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@41e36e46
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@15c43bd9
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@3d74bf60
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@4f209819
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@15eb5ee5
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@2145b572
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@39529185
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@72f926e6
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@3daa422a
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@31c88ec8
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@1cbbffcd
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@27ce24aa
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@481a996b
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@3d51f06e
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@7ed7259e
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@28eaa59a
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@3427b02d
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@647e447
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@41fbdac4
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@3c407114
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@35ef1869
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@c33b74f
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@130161f7
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@2c767a52
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@619713e5
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@708f5957
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@68999068
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@7722c3c3
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@2ef3eef9
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger trace
+FINEST: Instrumented an optimized java.util.Set into: sun.nio.ch.EPollSelectorImpl@243c4f91
+Feb 20, 2018 5:11:30 PM org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport <init>
+FINE: Binding to 10.0.0.4:0
+Feb 20, 2018 5:11:30 PM org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport <init>
+FINEST: Try port 10,438
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: -Dio.netty.initialSeedUniquifier: 0xb1cd3310355a96ca (took 34 ms)
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: -Dio.netty.allocator.type: unpooled
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: -Dio.netty.threadLocalDirectBufferSize: 65536
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: Loopback interface: lo (lo, 0:0:0:0:0:0:0:1%lo)
+Feb 20, 2018 5:11:30 PM io.netty.util.internal.logging.Slf4JLogger debug
+FINE: /proc/sys/net/core/somaxconn: 128
+Feb 20, 2018 5:11:30 PM org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport <init>
+FINE: Starting netty transport socket address: /10.0.0.4:10438
+Feb 20, 2018 5:11:30 PM org.apache.reef.wake.impl.StageManager register
+FINEST: StageManager adds stage RemoteManager: { id: socket://10.0.0.4:10438 handler: HandlerContainer: {name:REEF_LAUNCHER codec:org.apache.reef.runtime.common.launch.REEFMessageCodec} }
+Feb 20, 2018 5:11:30 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation <init>
+FINEST: RemoteManager REEF_LAUNCHER instantiated id socket://10.0.0.4:10438 counter 1 listening on /10.0.0.4:10438 Binding address provided by HostnameBasedLocalAddressProvider:10.0.0.4
+Feb 20, 2018 5:11:30 PM org.apache.reef.runtime.common.utils.RemoteManager <init>
+FINE: Instantiated RemoteManager wrapper: RemoteManager: { id: socket://10.0.0.4:10438 handler: HandlerContainer: {name:REEF_LAUNCHER codec:org.apache.reef.runtime.common.launch.REEFMessageCodec} }
+Feb 20, 2018 5:11:30 PM org.apache.reef.runtime.common.driver.client.RemoteClientJobStatusHandler <init>
+FINE: Instantiated 'RemoteClientJobStatusHandler' without an actual connection to the client.
+Feb 20, 2018 5:11:30 PM org.apache.reef.wake.time.runtime.RuntimeClock <init>
+FINE: RuntimeClock instantiated.
+Feb 20, 2018 5:11:30 PM org.apache.reef.runtime.common.driver.catalog.ResourceCatalogImpl <init>
+FINE: Instantiated 'ResourceCatalogImpl'
+Feb 20, 2018 5:11:31 PM sun.net.www.protocol.http.HttpURLConnection plainConnect0
+FINEST: ProxySelector Request for https://reefbatch01storage.blob.core.windows.net/reefcontainer?restype=container&timeout=90
+Feb 20, 2018 5:11:31 PM sun.net.www.protocol.https.HttpsClient New
+FINEST: Looking for HttpClient for URL https://reefbatch01storage.blob.core.windows.net/reefcontainer?restype=container&timeout=90 and proxy value of DIRECT
+Feb 20, 2018 5:11:31 PM sun.net.www.protocol.https.HttpsClient <init>
+FINEST: Creating new HttpsClient with url:https://reefbatch01storage.blob.core.windows.net/reefcontainer?restype=container&timeout=90 and proxy:DIRECT with connect timeout:-1
+Feb 20, 2018 5:11:31 PM sun.net.www.protocol.http.HttpURLConnection plainConnect0
+FINEST: Proxy used: DIRECT
+Feb 20, 2018 5:11:31 PM sun.net.www.protocol.http.HttpURLConnection writeRequests
+FINE: sun.net.www.MessageHeader@247d8ae11 pairs: {HEAD /reefcontainer?restype=container&timeout=90 HTTP/1.1: null}{Accept: application/xml}{Accept-Charset: UTF-8}{Content-Type: }{x-ms-version: 2013-08-15}{User-Agent: WA-Storage/0.5.0 (Java JRE 1.8.0_151; Linux 4.13.0-1007-azure)}{x-ms-client-request-id: 18e1a8cc-d00b-456e-ab75-d4c0ce3c1b72}{x-ms-date: Tue, 20 Feb 2018 17:11:31 GMT}{Authorization: SharedKey reefbatch01storage:jVbW8FFkLRKc2mEK6utg/EUtkk+y6x2IEUyhaxtidSg=}{Host: reefbatch01storage.blob.core.windows.net}{Connection: keep-alive}
+Feb 20, 2018 5:11:31 PM sun.net.www.protocol.http.HttpURLConnection getInputStream0
+FINE: sun.net.www.MessageHeader@48974e4510 pairs: {null: HTTP/1.1 200 OK}{Transfer-Encoding: chunked}{Last-Modified: Tue, 20 Feb 2018 16:44:16 GMT}{ETag: "0x8D578812E1E782B"}{Server: Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0}{x-ms-request-id: a33e5b8f-001e-008c-236d-aaabe8000000}{x-ms-version: 2013-08-15}{x-ms-lease-status: unlocked}{x-ms-lease-state: available}{Date: Tue, 20 Feb 2018 17:11:30 GMT}
+Feb 20, 2018 5:11:31 PM org.apache.reef.runtime.azbatch.util.AzureStorageUtil <init>
+FINE: Instantiated AzureStorageUtil connected to azure storage account: reefbatch01storage
+Feb 20, 2018 5:11:31 PM org.apache.reef.runtime.common.driver.DriverStatusManager <init>
+FINER: ENTRY
+Feb 20, 2018 5:11:31 PM org.apache.reef.runtime.common.driver.DriverStatusManager <init>
+FINE: Instantiated 'DriverStatusManager'
+Feb 20, 2018 5:11:31 PM org.apache.reef.runtime.common.driver.DriverStatusManager <init>
+FINER: RETURN
+Feb 20, 2018 5:11:31 PM org.apache.reef.runtime.common.driver.evaluator.Evaluators <init>
+FINE: Instantiated Evaluators for driver HelloREEF
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation registerHandler
+FINE: RemoteManager: REEF_LAUNCHER messageType: org.apache.reef.proto.EvaluatorShimProtocol.EvaluatorShimStatusProto handler: org.apache.reef.runtime.azbatch.driver.AzureBatchEvaluatorShimManager
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.remote.impl.HandlerContainer registerHandler
+FINER: Add handler for class: org.apache.reef.proto.EvaluatorShimProtocol.EvaluatorShimStatusProto
+Feb 20, 2018 5:11:33 PM org.apache.reef.examples.hello.HelloDriver <init>
+FINE: Instantiated 'HelloDriver'
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.client.ClientManager <init>
+FINE: Not registering a handler for JobControlProto, as there is no client.
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.evaluator.EvaluatorResourceManagerErrorHandler <init>
+FINE: Instantiated 'EvaluatorResourceManagerErrorHandler'
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.DriverStartHandler <init>
+FINE: Instantiated DriverStartHandler: StartHandlers:[org.apache.reef.examples.hello.HelloDriver$StartHandler@3b7d3a38] RestartHandlers:[] ServiceRestartHandlers:[]
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.REEFEnvironment run
+FINE: REEF started with user name [_azbatch]
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.REEFEnvironment run
+FINE: REEF started. Assertions are DISABLED in this process.
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.REEFEnvironment run
+FINEST: Clock: start
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.time.runtime.RuntimeClock run
+FINER: ENTRY
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.time.runtime.RuntimeClock run
+FINE: Subscribe event handlers
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.time.runtime.RuntimeClock subscribe
+FINEST: Subscribe: event org.apache.reef.wake.time.event.StartTime handler org.apache.reef.runtime.common.driver.DriverStartHandler@416c58f5
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.time.runtime.RuntimeClock subscribe
+FINEST: Subscribe: event org.apache.reef.wake.time.event.StopTime handler org.apache.reef.wake.impl.LoggingEventHandler@73cd37c0
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.time.runtime.RuntimeClock subscribe
+FINEST: Subscribe: event org.apache.reef.wake.time.runtime.event.RuntimeStart handler org.apache.reef.runtime.common.evaluator.PIDStoreStartHandler@146dfe6
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.time.runtime.RuntimeClock subscribe
+FINEST: Subscribe: event org.apache.reef.wake.time.runtime.event.RuntimeStart handler org.apache.reef.runtime.common.driver.DriverRuntimeStartHandler@74589991
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.time.runtime.RuntimeClock subscribe
+FINEST: Subscribe: event org.apache.reef.wake.time.runtime.event.RuntimeStop handler org.apache.reef.runtime.common.driver.DriverRuntimeStopHandler@60df60da
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.time.runtime.RuntimeClock subscribe
+FINEST: Subscribe: event org.apache.reef.wake.time.runtime.event.IdleClock handler org.apache.reef.runtime.common.driver.idle.ClockIdlenessSource@30c15d8b
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.time.runtime.RuntimeClock run
+FINE: Initiate runtime start
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.impl.PubSubEventHandler onNext
+FINEST: Invoked for event: org.apache.reef.wake.time.runtime.event.RuntimeStart:[1519146693716|Tue Feb 20 17:11:33 UTC 2018]
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.impl.PubSubEventHandler onNext
+FINEST: Invoking org.apache.reef.runtime.common.evaluator.PIDStoreStartHandler@146dfe6
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.evaluator.PIDStoreStartHandler onNext
+FINEST: Storing pid `6909` in file /mnt/batch/tasks/workitems/HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018/job-1/HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018/wd/PID.txt
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.impl.PubSubEventHandler onNext
+FINEST: Invoking org.apache.reef.runtime.common.driver.DriverRuntimeStartHandler@74589991
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.DriverRuntimeStartHandler onNext
+FINEST: RuntimeStart: org.apache.reef.wake.time.runtime.event.RuntimeStart:[1519146693716|Tue Feb 20 17:11:33 UTC 2018]
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation registerHandler
+FINE: RemoteManager: REEF_LAUNCHER messageType: org.apache.reef.proto.EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto handler: org.apache.reef.runtime.common.driver.evaluator.EvaluatorHeartbeatHandler
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.remote.impl.HandlerContainer registerHandler
+FINER: Add handler for class: org.apache.reef.proto.EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation registerHandler
+FINE: RemoteManager: REEF_LAUNCHER messageType: org.apache.reef.proto.ReefServiceProtos.RuntimeErrorProto handler: org.apache.reef.runtime.common.driver.evaluator.EvaluatorResourceManagerErrorHandler
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.remote.impl.HandlerContainer registerHandler
+FINER: Add handler for class: org.apache.reef.proto.ReefServiceProtos.RuntimeErrorProto
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.resourcemanager.ResourceManagerStatus setState
+FINEST: State transition: INIT -> RUNNING
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.DriverStatusManager onRunning
+FINER: ENTRY
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.DriverStatusManager onInit
+FINER: ENTRY
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.client.ClientConnection send
+FINEST: Sending to client: status=INIT
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.client.LoggingJobStatusHandler onNext
+INFO: In-process JobStatus:
+identifier: "HelloREEF"
+state: INIT
+
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.DriverStatusManager onInit
+FINER: RETURN
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.client.ClientConnection send
+FINEST: Sending to client: status=RUNNING
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.client.LoggingJobStatusHandler onNext
+INFO: In-process JobStatus:
+identifier: "HelloREEF"
+state: RUNNING
+
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.DriverStatusManager onRunning
+FINER: RETURN
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.azbatch.driver.AzureBatchResourceManagerStartHandler onNext
+FINE: Azure batch runtime has been started...
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.DriverRuntimeStartHandler onNext
+FINEST: DriverRuntimeStartHandler complete.
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.time.runtime.RuntimeClock run
+FINE: Initiate start time
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.impl.PubSubEventHandler onNext
+FINEST: Invoked for event: org.apache.reef.wake.time.event.StartTime:[1519146693964|Tue Feb 20 17:11:33 UTC 2018]
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.impl.PubSubEventHandler onNext
+FINEST: Invoking org.apache.reef.runtime.common.driver.DriverStartHandler@416c58f5
+Feb 20, 2018 5:11:33 PM org.apache.reef.examples.hello.HelloDriver$StartHandler onNext
+INFO: HelloDriver has been started. Requesting an evaluator.
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.EvaluatorRequestorImpl submit
+FINEST: Got an EvaluatorRequest: number: 1, memory = 64, cores = 1.
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.common.driver.EvaluatorRequestorImpl submit
+FINEST: Node names: []
+Feb 20, 2018 5:11:33 PM org.apache.reef.util.logging.LoggingScopeImpl log
+FINE: START:::Evaluator submit: 1
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.azbatch.driver.AzureBatchResourceRequestHandler onNext
+FINEST: Got ResourceRequestEvent in AzureBatchResourceRequestHandler: memory = Optional:{64}, cores = Optional:{1}.
+Feb 20, 2018 5:11:33 PM org.apache.reef.runtime.azbatch.driver.AzureBatchResourceManager onResourceRequested
+FINEST: Got ResourceRequestEvent in AzureBatchResourceManager,
+Feb 20, 2018 5:11:33 PM org.apache.reef.wake.time.runtime.RuntimeClock scheduleAlarm
+FINEST: Schedule alarm: org.apache.reef.wake.time.runtime.event.ClientAlarm:[1519146698997|Tue Feb 20 17:11:38 UTC 2018] Outstanding client alarms: 0
+Feb 20, 2018 5:11:34 PM org.apache.reef.runtime.common.files.JobJarMaker createJAR
+FINE: Staging submission in /tmp/reef-job-2001321864068804957
+Feb 20, 2018 5:11:34 PM org.apache.reef.runtime.common.files.JobJarMaker createJAR
+FINE: Creating job submission jar file: /tmp/reef-job-3079703370868385770.jar
+Feb 20, 2018 5:11:34 PM org.apache.reef.util.JARFileMaker <init>
+FINER: Output jar: /tmp/reef-job-3079703370868385770.jar
+Feb 20, 2018 5:11:34 PM org.apache.reef.util.JARFileMaker addChildren
+FINEST: Add children: /tmp/reef-job-2001321864068804957
+Feb 20, 2018 5:11:34 PM org.apache.reef.util.JARFileMaker add
+FINEST: Add /tmp/reef-job-2001321864068804957/global as global/
+Feb 20, 2018 5:11:34 PM org.apache.reef.util.JARFileMaker add
+FINEST: Add /tmp/reef-job-2001321864068804957/global/reef-examples-0.17.0-SNAPSHOT-shaded.jar as global/reef-examples-0.17.0-SNAPSHOT-shaded.jar
+Feb 20, 2018 5:11:37 PM org.apache.reef.util.JARFileMaker add
+FINEST: Add /tmp/reef-job-2001321864068804957/local as local/
+Feb 20, 2018 5:11:37 PM org.apache.reef.util.JARFileMaker add
+FINEST: Add /tmp/reef-job-2001321864068804957/local/shim.conf as local/shim.conf
+Feb 20, 2018 5:11:37 PM org.apache.reef.runtime.common.files.JobJarMaker createJAR
+FINE: Deleting the temporary job folder [/tmp/reef-job-2001321864068804957] and marking the jar file [/tmp/reef-job-3079703370868385770.jar] for deletion after the JVM exits.
+Feb 20, 2018 5:11:37 PM org.apache.reef.runtime.common.files.JobJarMaker createJAR
+WARNING: Failed to delete [/tmp/reef-job-2001321864068804957]
+Feb 20, 2018 5:11:37 PM org.apache.reef.runtime.azbatch.driver.AzureBatchEvaluatorShimManager createAzureBatchTask
+FINE: Creating a job folder on Azure at: apps/reef/jobs/HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018.
+Feb 20, 2018 5:11:37 PM org.apache.reef.runtime.azbatch.driver.AzureBatchEvaluatorShimManager createAzureBatchTask
+FINE: Uploading apps/reef/jobs/HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018 to apps/reef/jobs/HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018.
+Feb 20, 2018 5:11:37 PM org.apache.reef.runtime.azbatch.util.AzureStorageUtil uploadFile
+INFO: Uploading [/tmp/reef-job-3079703370868385770.jar] to [https://reefbatch01storage.blob.core.windows.net/reefcontainer/apps/reef/jobs/HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018]
+Feb 20, 2018 5:11:37 PM sun.net.www.protocol.http.HttpURLConnection plainConnect0
+FINEST: ProxySelector Request for https://reefbatch01storage.blob.core.windows.net/reefcontainer/apps/reef/jobs/HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018/reef-job-3079703370868385770.jar?timeout=90
+Feb 20, 2018 5:11:37 PM sun.net.www.protocol.https.HttpsClient New
+FINEST: Looking for HttpClient for URL https://reefbatch01storage.blob.core.windows.net/reefcontainer/apps/reef/jobs/HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018/reef-job-3079703370868385770.jar?timeout=90 and proxy value of DIRECT
+Feb 20, 2018 5:11:37 PM sun.net.www.protocol.https.HttpsClient <init>
+FINEST: Creating new HttpsClient with url:https://reefbatch01storage.blob.core.windows.net/reefcontainer/apps/reef/jobs/HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018/reef-job-3079703370868385770.jar?timeout=90 and proxy:DIRECT with connect timeout:-1
+Feb 20, 2018 5:11:37 PM sun.net.www.protocol.http.HttpURLConnection plainConnect0
+FINEST: Proxy used: DIRECT
+Feb 20, 2018 5:11:37 PM sun.net.www.protocol.http.HttpURLConnection writeRequests
+FINE: sun.net.www.MessageHeader@3e30646a14 pairs: {PUT /reefcontainer/apps/reef/jobs/HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018/reef-job-3079703370868385770.jar?timeout=90 HTTP/1.1: null}{Accept: application/xml}{Accept-Charset: UTF-8}{Content-Type: }{x-ms-version: 2013-08-15}{User-Agent: WA-Storage/0.5.0 (Java JRE 1.8.0_151; Linux 4.13.0-1007-azure)}{x-ms-client-request-id: 57fd3dc2-d07b-4859-ad40-712f9d8a3183}{Content-MD5: TvaOIPoFkPY1UCS7p2kjgw==}{x-ms-blob-type: BlockBlob}{x-ms-date: Tue, 20 Feb 2018 17:11:37 GMT}{Authorization: SharedKey reefbatch01storage:gIQCpfWjXoQEhiaq5RVYTGeo/+mWJBxdSH/vYx4kUrg=}{Host: reefbatch01storage.blob.core.windows.net}{Connection: keep-alive}{Content-Length: 25783613}
+Feb 20, 2018 5:11:40 PM sun.net.www.protocol.http.HttpURLConnection getInputStream0
+FINE: sun.net.www.MessageHeader@5cde67479 pairs: {null: HTTP/1.1 201 Created}{Transfer-Encoding: chunked}{Content-MD5: TvaOIPoFkPY1UCS7p2kjgw==}{Last-Modified: Tue, 20 Feb 2018 17:11:39 GMT}{ETag: "0x8D5788501C38644"}{Server: Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0}{x-ms-request-id: d16e5d05-001e-00a3-4a6d-aa2ad2000000}{x-ms-version: 2013-08-15}{Date: Tue, 20 Feb 2018 17:11:39 GMT}
+Feb 20, 2018 5:11:40 PM org.apache.reef.runtime.azbatch.util.AzureStorageUtil uploadFile
+FINE: Uploaded to: https://reefbatch01storage.blob.core.windows.net/reefcontainer/apps/reef/jobs/HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018/reef-job-3079703370868385770.jar
+Feb 20, 2018 5:11:40 PM org.apache.reef.runtime.azbatch.util.AzureBatchHelper submitTask
+INFO: Evaluator task command: /bin/sh -c "ln -sfn '.' 'reef'; unzip local.jar; java -Xmx64m -XX:PermSize=128m -XX:MaxPermSize=128m -classpath reef/local/*:reef/global/* -Dproc_reef org.apache.reef.runtime.azbatch.evaluator.EvaluatorShimLauncher reef/local/shim2.conf"
+Feb 20, 2018 5:11:41 PM org.apache.reef.runtime.azbatch.driver.AzureBatchEvaluatorShimManager onResourceRequested
+FINER: AzureBatchShimManager onResourceRequested created AzureBatch task
+Feb 20, 2018 5:11:41 PM org.apache.reef.runtime.common.driver.resourcemanager.ResourceManagerStatus onNext
+FINEST: Runtime status: RuntimeStatusEventImpl:{name:AzBatch, state:RUNNING, allocated:[], outstanding:1, error:false}
+Feb 20, 2018 5:11:41 PM org.apache.reef.runtime.common.driver.resourcemanager.ResourceManagerStatus setState
+FINE: Transition from RUNNING state to the same state.
+Feb 20, 2018 5:11:41 PM org.apache.reef.util.logging.LoggingScopeImpl log
+FINE: EXIT:::Evaluator submit: 1 Duration = 7497
+Feb 20, 2018 5:11:41 PM org.apache.reef.examples.hello.HelloDriver$StartHandler onNext
+INFO: Requested Evaluator.
+Feb 20, 2018 5:11:41 PM org.apache.reef.wake.time.runtime.RuntimeClock run
+FINEST: Enter clock main loop.
+Feb 20, 2018 5:11:41 PM org.apache.reef.wake.time.runtime.RuntimeClock run
+FINER: Process event: org.apache.reef.wake.time.runtime.event.ClientAlarm:[1519146698997|Tue Feb 20 17:11:38 UTC 2018] Outstanding client alarms: 0
+Feb 20, 2018 5:11:41 PM org.apache.reef.runtime.azbatch.util.AzureBatchHelper getTaskStatusForJob
+INFO: Task status for job: HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018 returned 2 tasks
+Feb 20, 2018 5:11:41 PM org.apache.reef.wake.time.runtime.RuntimeClock scheduleAlarm
+FINEST: Schedule alarm: org.apache.reef.wake.time.runtime.event.ClientAlarm:[1519146706878|Tue Feb 20 17:11:46 UTC 2018] Outstanding client alarms: 0
+Feb 20, 2018 5:11:41 PM org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler onNext
+FINER: Found 2 tasks from job id HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018
+Feb 20, 2018 5:11:41 PM org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler onNext
+FINEST: status for Task Id: feb9888d-e4fb-45a5-9d6c-836de29ef99c is [Azure Batch Status]:active, [REEF status]:INIT
+Feb 20, 2018 5:11:41 PM org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler onNext
+FINEST: No active container in resource manager for Task: feb9888d-e4fb-45a5-9d6c-836de29ef99c.
+Feb 20, 2018 5:11:41 PM org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler onNext
+FINEST: status for Task Id: HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018 is [Azure Batch Status]:running, [REEF status]:RUNNING
+Feb 20, 2018 5:11:41 PM org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler onNext
+FINEST: No active container in resource manager for Task: HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018.
+Feb 20, 2018 5:11:41 PM org.apache.reef.wake.time.runtime.RuntimeClock run
+FINEST: Enter clock main loop.
+Feb 20, 2018 5:11:46 PM org.apache.reef.wake.time.runtime.RuntimeClock run
+FINER: Process event: org.apache.reef.wake.time.runtime.event.ClientAlarm:[1519146706878|Tue Feb 20 17:11:46 UTC 2018] Outstanding client alarms: 0
+Feb 20, 2018 5:11:46 PM org.apache.reef.runtime.azbatch.util.AzureBatchHelper getTaskStatusForJob
+INFO: Task status for job: HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018 returned 2 tasks
+Feb 20, 2018 5:11:46 PM org.apache.reef.wake.time.runtime.RuntimeClock scheduleAlarm
+FINEST: Schedule alarm: org.apache.reef.wake.time.runtime.event.ClientAlarm:[1519146711917|Tue Feb 20 17:11:51 UTC 2018] Outstanding client alarms: 0
+Feb 20, 2018 5:11:46 PM org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler onNext
+FINER: Found 2 tasks from job id HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018
+Feb 20, 2018 5:11:46 PM org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler onNext
+FINEST: status for Task Id: feb9888d-e4fb-45a5-9d6c-836de29ef99c is [Azure Batch Status]:active, [REEF status]:INIT
+Feb 20, 2018 5:11:46 PM org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler onNext
+FINEST: No active container in resource manager for Task: feb9888d-e4fb-45a5-9d6c-836de29ef99c.
+Feb 20, 2018 5:11:46 PM org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler onNext
+FINEST: status for Task Id: HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018 is [Azure Batch Status]:running, [REEF status]:RUNNING
+Feb 20, 2018 5:11:46 PM org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler onNext
+FINEST: No active container in resource manager for Task: HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018.
+Feb 20, 2018 5:11:46 PM org.apache.reef.wake.time.runtime.RuntimeClock run
+FINEST: Enter clock main loop.
+Feb 20, 2018 5:11:51 PM org.apache.reef.wake.time.runtime.RuntimeClock run
+FINER: Process event: org.apache.reef.wake.time.runtime.event.ClientAlarm:[1519146711917|Tue Feb 20 17:11:51 UTC 2018] Outstanding client alarms: 0
+Feb 20, 2018 5:11:51 PM org.apache.reef.runtime.azbatch.util.AzureBatchHelper getTaskStatusForJob
+INFO: Task status for job: HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018 returned 2 tasks
+Feb 20, 2018 5:11:51 PM org.apache.reef.wake.time.runtime.RuntimeClock scheduleAlarm
+FINEST: Schedule alarm: org.apache.reef.wake.time.runtime.event.ClientAlarm:[1519146716985|Tue Feb 20 17:11:56 UTC 2018] Outstanding client alarms: 0
+Feb 20, 2018 5:11:51 PM org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler onNext
+FINER: Found 2 tasks from job id HelloWorldJob-Tue-Feb-20-09-11-18-PST-2018
+Feb 20, 2018 5:11:51 PM org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler onNext
+FINEST: status for Task Id: feb9888d-e4fb-45a5-9d6c-836de29ef99c is [Azure Batch Status]:completed, [REEF status]:FAILED
+Feb 20, 2018 5:11:51 PM org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler onNext
+FINEST: No active container in resource manager for Task: feb9888d-e4fb-45a5-9d6c-836de29ef99c.
+Feb 20, 2018 5:11:51 PM org.apache.reef.runtime.azbatch.driver.REEFEventHandlers onResourceStatus
+FINEST: Sharath Inside onResourceStatus
+Feb 20, 2018 5:11:51 PM org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusHandler onNext
+FINEST: Sharath Evaluator id:feb9888d-e4fb-45a5-9d6c-836de29ef99c, manager:Optional.empty
+Feb 20, 2018 5:11:51 PM org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusHandler onNext
+FINEST: Evaluator Optional.empty status: FAILED
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusHandler onNext
+FINEST: Sharath else loop
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusHandler onNext
+FINER: evaluator restart state is NOT_EXPECTED
+Feb 20, 2018 5:11:52 PM org.apache.reef.wake.time.runtime.RuntimeClock run
+SEVERE: Error in runtime clock
+java.lang.RuntimeException: Unknown resource status from evaluator feb9888d-e4fb-45a5-9d6c-836de29ef99c with state FAILED
+	at org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusHandler.onNext(ResourceStatusHandler.java:103)
+	at org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusHandler.onNext(ResourceStatusHandler.java:39)
+	at org.apache.reef.runtime.azbatch.driver.REEFEventHandlers.onResourceStatus(REEFEventHandlers.java:94)
+	at org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler.onNext(AzureBatchTaskStatusAlarmHandler.java:102)
+	at org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler.onNext(AzureBatchTaskStatusAlarmHandler.java:43)
+	at org.apache.reef.wake.time.event.Alarm.run(Alarm.java:42)
+	at org.apache.reef.wake.time.runtime.RuntimeClock.run(RuntimeClock.java:346)
+	at org.apache.reef.runtime.common.REEFEnvironment.run(REEFEnvironment.java:191)
+	at org.apache.reef.runtime.common.REEFLauncher.main(REEFLauncher.java:181)
+
+Feb 20, 2018 5:11:52 PM org.apache.reef.wake.impl.PubSubEventHandler onNext
+FINEST: Invoked for event: org.apache.reef.wake.time.runtime.event.RuntimeStop:[1519146712018|Tue Feb 20 17:11:52 UTC 2018]
+Feb 20, 2018 5:11:52 PM org.apache.reef.wake.impl.PubSubEventHandler onNext
+FINEST: Invoking org.apache.reef.runtime.common.driver.DriverRuntimeStopHandler@60df60da
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.common.driver.DriverRuntimeStopHandler onNext
+FINE: Driver shutdown: start org.apache.reef.wake.time.runtime.event.RuntimeStop:[1519146712018|Tue Feb 20 17:11:52 UTC 2018]
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.common.driver.DriverRuntimeStopHandler onNext
+FINER: Driver shutdown: close the evaluators
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.common.driver.evaluator.Evaluators close
+FINER: Closing the evaluators - begin
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.common.driver.evaluator.Evaluators close
+FINER: Closing the evaluators - end
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.azbatch.driver.AzureBatchResourceManagerStopHandler onNext
+FINE: Azure batch runtime has been stopped...
+Feb 20, 2018 5:11:52 PM org.apache.reef.wake.remote.impl.HandlerContainer$1 unsubscribe
+FINER: Unsubscribe: REEF_LAUNCHER class org.apache.reef.proto.EvaluatorShimProtocol.EvaluatorShimStatusProto
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.common.driver.DriverRuntimeStopHandler onNext
+FINER: Driver shutdown: notify the client
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.common.driver.DriverStatusManager sendJobEndingMessageToClient
+SEVERE: Sending message in a state different that SHUTTING_DOWN or FAILING. This is likely a illegal call to clock.close() at play. Current state: RUNNING
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.common.driver.DriverStatusManager sendJobEndingMessageToClient
+WARNING: There was an exception during clock.close().
+java.lang.RuntimeException: Unknown resource status from evaluator feb9888d-e4fb-45a5-9d6c-836de29ef99c with state FAILED
+	at org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusHandler.onNext(ResourceStatusHandler.java:103)
+	at org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusHandler.onNext(ResourceStatusHandler.java:39)
+	at org.apache.reef.runtime.azbatch.driver.REEFEventHandlers.onResourceStatus(REEFEventHandlers.java:94)
+	at org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler.onNext(AzureBatchTaskStatusAlarmHandler.java:102)
+	at org.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandler.onNext(AzureBatchTaskStatusAlarmHandler.java:43)
+	at org.apache.reef.wake.time.event.Alarm.run(Alarm.java:42)
+	at org.apache.reef.wake.time.runtime.RuntimeClock.run(RuntimeClock.java:346)
+	at org.apache.reef.runtime.common.REEFEnvironment.run(REEFEnvironment.java:191)
+	at org.apache.reef.runtime.common.REEFLauncher.main(REEFLauncher.java:181)
+
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.common.driver.client.ClientConnection send
+FINEST: Sending to client: status=FAILED
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.common.driver.client.LoggingJobStatusHandler onNext
+INFO: In-process JobStatus:
+identifier: "HelloREEF"
+state: FAILED
+exception: "\254\355\000\005sr\000\032java.lang.RuntimeException\236_\006G\n4\203\345\002\000\000xr\000\023java.lang.Exception\320\375\037>\032;\034\304\002\000\000xr\000\023java.lang.Throwable\325\3065\'9w\270\313\003\000\004L\000\005causet\000\025Ljava/lang/Throwable;L\000\rdetailMessaget\000\022Ljava/lang/String;[\000\nstackTracet\000\036[Ljava/lang/StackTraceElement;L\000\024suppressedExceptionst\000\020Ljava/util/List;xpq\000~\000\at\000]Unknown resource status from evaluator feb9888d-e4fb-45a5-9d6c-836de29ef99c with state FAILEDur\000\036[Ljava.lang.StackTraceElement;\002F*<<\375\"9\002\000\000xp\000\000\000\tsr\000\033java.lang.StackTraceElementa\t\305\232&6\335\205\002\000\004I\000\nlineNumberL\000\016declaringClassq\000~\000\004L\000\bfileNameq\000~\000\004L\000\nmethodNameq\000~\000\004xp\000\000\000gt\000Korg.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusHandlert\000\032ResourceStatusHandler.javat\000\006onNextsq\000~\000\v\000\000\000\'q\000~\000\rq\000~\000\016q\000~\000\017sq\000~\000\v\000\000\000^t\0008org.apache.reef.runtime.azbatch.driver.REEFEventHandlerst\000\026REEFEventHandlers.javat\000\020onResourceStatussq\000~\000\v\000\000\000ft\000Gorg.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandlert\000%AzureBatchTaskStatusAlarmHandler.javaq\000~\000\017sq\000~\000\v\000\000\000+q\000~\000\026q\000~\000\027q\000~\000\017sq\000~\000\v\000\000\000*t\000%org.apache.reef.wake.time.event.Alarmt\000\nAlarm.javat\000\003runsq\000~\000\v\000\000\001Zt\000.org.apache.reef.wake.time.runtime.RuntimeClockt\000\021RuntimeClock.javaq\000~\000\034sq\000~\000\v\000\000\000\277t\000.org.apache.reef.runtime.common.REEFEnvironmentt\000\024REEFEnvironment.javaq\000~\000\034sq\000~\000\v\000\000\000\265t\000+org.apache.reef.runtime.common.REEFLaunchert\000\021REEFLauncher.javat\000\004mainsr\000&java.util.Collections$UnmodifiableList\374\017%1\265\354\216\020\002\000\001L\000\004listq\000~\000\006xr\000,java.util.Collections$UnmodifiableCollection\031B\000\200\313^\367\036\002\000\001L\000\001ct\000\026Ljava/util/Collection;xpsr\000\023java.util.ArrayListx\201\322\035\231\307a\235\003\000\001I\000\004sizexp\000\000\000\000w\004\000\000\000\000xq\000~\000,x"
+
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.common.driver.DriverRuntimeStopHandler onNext
+FINER: Driver shutdown: close the remote manager
+Feb 20, 2018 5:11:52 PM org.apache.reef.runtime.common.utils.RemoteManager close
+FINER: ENTRY
+Feb 20, 2018 5:11:52 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation close
+FINE: RemoteManager: REEF_LAUNCHER Closing remote manager id: socket://10.0.0.4:10438
+Feb 20, 2018 5:11:52 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation$1 run
+FINE: Closing sender stage socket://10.0.0.4:10438
+Feb 20, 2018 5:11:52 PM org.apache.reef.wake.remote.impl.RemoteSenderStage close
+FINE: close NettyMessagingTransport: { address: /10.0.0.4:10438 }
+Feb 20, 2018 5:11:52 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation$1 run
+FINE: Closed the remote sender stage
+Feb 20, 2018 5:11:52 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation$1 run
+FINE: Closing transport socket://10.0.0.4:10438
+Feb 20, 2018 5:11:52 PM org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport close
+FINE: Closing netty transport socket address: /10.0.0.4:10438
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport close
+FINE: Closing netty transport socket address: /10.0.0.4:10438 done
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation$1 run
+FINE: Closed the transport
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation$1 run
+FINE: Closing receiver stage socket://10.0.0.4:10438
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.remote.impl.OrderedRemoteReceiverStage close
+FINE: Close PushExecutor begin
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.remote.impl.OrderedRemoteReceiverStage close
+FINE: Close PushExecutor end
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.remote.impl.OrderedRemoteReceiverStage close
+FINE: Close PullExecutor begin
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.remote.impl.OrderedRemoteReceiverStage close
+FINE: Close PullExecutor end
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation$1 run
+FINE: Closed the remote receiver stage
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation close
+FINE: Close executor terminated properly.
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.utils.RemoteManager close
+FINER: RETURN
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.driver.DriverRuntimeStopHandler onNext
+FINER: Driver shutdown: close the restart manager
+Feb 20, 2018 5:11:54 PM org.apache.reef.driver.restart.DriverRestartManager close
+FINER: Closing restart timer. Final state: NOT_RESTARTED
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.driver.DriverRuntimeStopHandler onNext
+FINER: Driver shutdown: close the idleness checker
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.driver.evaluator.EvaluatorIdlenessThreadPool close
+FINE: EvaluatorIdlenessThreadPool shutdown: begin
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.driver.evaluator.EvaluatorIdlenessThreadPool close
+FINE: EvaluatorIdlenessThreadPool shutdown: Terminated successfully
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.driver.DriverRuntimeStopHandler onNext
+INFO: Driver shutdown complete
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.time.runtime.RuntimeClock run
+FINE: Runtime clock exit
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.time.runtime.RuntimeClock run
+FINER: RETURN
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.REEFEnvironment run
+FINEST: Clock: exit normally: identifier: "HelloREEF"
+state: FAILED
+exception: "\254\355\000\005sr\000\032java.lang.RuntimeException\236_\006G\n4\203\345\002\000\000xr\000\023java.lang.Exception\320\375\037>\032;\034\304\002\000\000xr\000\023java.lang.Throwable\325\3065\'9w\270\313\003\000\004L\000\005causet\000\025Ljava/lang/Throwable;L\000\rdetailMessaget\000\022Ljava/lang/String;[\000\nstackTracet\000\036[Ljava/lang/StackTraceElement;L\000\024suppressedExceptionst\000\020Ljava/util/List;xpq\000~\000\at\000]Unknown resource status from evaluator feb9888d-e4fb-45a5-9d6c-836de29ef99c with state FAILEDur\000\036[Ljava.lang.StackTraceElement;\002F*<<\375\"9\002\000\000xp\000\000\000\tsr\000\033java.lang.StackTraceElementa\t\305\232&6\335\205\002\000\004I\000\nlineNumberL\000\016declaringClassq\000~\000\004L\000\bfileNameq\000~\000\004L\000\nmethodNameq\000~\000\004xp\000\000\000gt\000Korg.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusHandlert\000\032ResourceStatusHandler.javat\000\006onNextsq\000~\000\v\000\000\000\'q\000~\000\rq\000~\000\016q\000~\000\017sq\000~\000\v\000\000\000^t\0008org.apache.reef.runtime.azbatch.driver.REEFEventHandlerst\000\026REEFEventHandlers.javat\000\020onResourceStatussq\000~\000\v\000\000\000ft\000Gorg.apache.reef.runtime.azbatch.driver.AzureBatchTaskStatusAlarmHandlert\000%AzureBatchTaskStatusAlarmHandler.javaq\000~\000\017sq\000~\000\v\000\000\000+q\000~\000\026q\000~\000\027q\000~\000\017sq\000~\000\v\000\000\000*t\000%org.apache.reef.wake.time.event.Alarmt\000\nAlarm.javat\000\003runsq\000~\000\v\000\000\001Zt\000.org.apache.reef.wake.time.runtime.RuntimeClockt\000\021RuntimeClock.javaq\000~\000\034sq\000~\000\v\000\000\000\277t\000.org.apache.reef.runtime.common.REEFEnvironmentt\000\024REEFEnvironment.javaq\000~\000\034sq\000~\000\v\000\000\000\265t\000+org.apache.reef.runtime.common.REEFLaunchert\000\021REEFLauncher.javat\000\004mainsr\000&java.util.Collections$UnmodifiableList\374\017%1\265\354\216\020\002\000\001L\000\004listq\000~\000\006xr\000,java.util.Collections$UnmodifiableCollection\031B\000\200\313^\367\036\002\000\001L\000\001ct\000\026Ljava/util/Collection;xpsr\000\023java.util.ArrayListx\201\322\035\231\307a\235\003\000\001I\000\004sizexp\000\000\000\000w\004\000\000\000\000xq\000~\000,x"
+
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.REEFEnvironment close
+FINER: ENTRY
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.time.runtime.RuntimeClock close
+FINER: ENTRY
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.time.runtime.RuntimeClock close
+FINE: Graceful shutdown scheduled: org.apache.reef.wake.time.event.StopTime:[1519146716986|Tue Feb 20 17:11:56 UTC 2018] Outstanding client alarms: 1
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.time.runtime.RuntimeClock close
+FINER: RETURN
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.launch.REEFErrorHandler close
+FINER: ENTRY
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.utils.RemoteManager close
+FINER: ENTRY
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation close
+FINE: RemoteManager: REEF_LAUNCHER Closing remote manager id: socket://10.0.0.4:10438
+Feb 20, 2018 5:11:54 PM org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation close
+FINE: RemoteManager: REEF_LAUNCHER already closed
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.utils.RemoteManager close
+FINER: RETURN
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.launch.REEFErrorHandler close
+FINER: RETURN
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.REEFEnvironment close
+FINER: RETURN
+Feb 20, 2018 5:11:54 PM org.apache.reef.util.ThreadLogger logThreads
+FINEST: Threads running after REEFEnvironment.close():
+	TG main THREAD OkHttp ConnectionPool :: TIMED_WAITING, Alive, NOT interrupted, Daemon
+		java.lang.Object.wait(Native Method)
+		java.lang.Object.wait(Object.java:460)
+		okhttp3.ConnectionPool$1.run(ConnectionPool.java:66)
+		java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+		java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+		java.lang.Thread.run(Thread.java:748)
+	TG main THREAD Okio Watchdog :: TIMED_WAITING, Alive, NOT interrupted, Daemon
+		java.lang.Object.wait(Native Method)
+		java.lang.Object.wait(Object.java:460)
+		okio.AsyncTimeout.awaitTimeout(AsyncTimeout.java:350)
+		okio.AsyncTimeout$Watchdog.run(AsyncTimeout.java:313)
+	TG main THREAD globalEventExecutor-1-2 :: TIMED_WAITING, Alive, NOT interrupted, NOT daemon
+		sun.misc.Unsafe.park(Native Method)
+		java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:215)
+		java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2078)
+		java.util.concurrent.LinkedBlockingQueue.poll(LinkedBlockingQueue.java:467)
+		io.netty.util.concurrent.GlobalEventExecutor.takeTask(GlobalEventExecutor.java:90)
+		io.netty.util.concurrent.GlobalEventExecutor$TaskRunner.run(GlobalEventExecutor.java:335)
+		io.netty.util.concurrent.DefaultThreadFactory$DefaultRunnableDecorator.run(DefaultThreadFactory.java:137)
+		java.lang.Thread.run(Thread.java:748)
+	TG main THREAD main :: RUNNABLE, Alive, NOT interrupted, NOT daemon
+		java.lang.Thread.dumpThreads(Native Method)
+		java.lang.Thread.getAllStackTraces(Thread.java:1610)
+		org.apache.reef.util.ThreadLogger.getFormattedThreadList(ThreadLogger.java:79)
+		org.apache.reef.util.ThreadLogger.logThreads(ThreadLogger.java:62)
+		org.apache.reef.util.ThreadLogger.logThreads(ThreadLogger.java:45)
+		org.apache.reef.runtime.common.REEFLauncher.main(REEFLauncher.java:186)
+Feb 20, 2018 5:11:54 PM org.apache.reef.runtime.common.REEFLauncher main
+INFO: Exiting REEFLauncher.main()
