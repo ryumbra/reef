@@ -20,6 +20,7 @@ package org.apache.reef.runtime.common.driver.resourcemanager;
 
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.restart.DriverRestartManager;
+import org.apache.reef.driver.restart.EvaluatorRestartState;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManagerFactory;
 import org.apache.reef.runtime.common.driver.evaluator.Evaluators;
@@ -65,24 +66,31 @@ public final class ResourceStatusHandler implements EventHandler<ResourceStatusE
     final String id = resourceStatusEvent.getIdentifier();
     final Optional<EvaluatorManager> evaluatorManager = this.evaluators.get(id);
 
+    LOG.log(Level.FINEST, "Sharath Evaluator id:{0}, manager:{1}",
+        new Object[] {id, evaluatorManager});
+
     LOG.log(Level.FINEST, "Evaluator {0} status: {1}",
         new Object[] {evaluatorManager, resourceStatusEvent.getState()});
 
     if (evaluatorManager.isPresent()) {
+      LOG.log(Level.FINEST, "Sharath Evaluator is present for id {0}", id);
       final EvaluatorManager evaluatorManagerImpl = evaluatorManager.get();
       evaluatorManagerImpl.onResourceStatusMessage(resourceStatusEvent);
       if (evaluatorManagerImpl.isClosed()) {
+        LOG.log(Level.FINEST, "Sharath EvaluatorManager is closed for id {0}", id);
         this.evaluators.removeClosedEvaluator(evaluatorManagerImpl);
       }
 
     } else {
-
+      LOG.log(Level.FINEST, "Sharath else loop");
       if (this.evaluators.wasClosed(id)) {
         LOG.log(Level.WARNING,
             "Unexpected resource status from closed evaluator {0} with state {1}",
             new Object[] {id, resourceStatusEvent.getState()});
       }
 
+      EvaluatorRestartState evaluatorRestartState = driverRestartManager.get().getEvaluatorRestartState(id);
+      LOG.log(Level.FINER, "evaluator restart state is " + evaluatorRestartState.toString());
       if (driverRestartManager.get().getEvaluatorRestartState(id).isFailedOrExpired()) {
 
         final EvaluatorManager previousEvaluatorManager = this.evaluatorManagerFactory

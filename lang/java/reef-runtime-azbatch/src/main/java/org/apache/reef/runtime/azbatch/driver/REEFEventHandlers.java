@@ -25,6 +25,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -79,6 +80,7 @@ public final class REEFEventHandlers {
    */
   @Private
   public void onResourceAllocation(final ResourceAllocationEvent resourceAllocationEvent) {
+    LOG.log(Level.FINEST, "Sharath Inside onResourceAllocation");
     this.resourceAllocationHandler.onNext(resourceAllocationEvent);
   }
 
@@ -88,6 +90,7 @@ public final class REEFEventHandlers {
    * @param resourceStatusEvent
    */
   void onResourceStatus(final ResourceStatusEvent resourceStatusEvent) {
+    LOG.log(Level.FINEST, "Sharath Inside onResourceStatus");
     this.resourceStatusHandler.onNext(resourceStatusEvent);
   }
 }

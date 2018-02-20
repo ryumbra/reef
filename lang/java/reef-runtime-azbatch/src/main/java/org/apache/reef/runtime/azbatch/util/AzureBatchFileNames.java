@@ -55,7 +55,7 @@ public final class AzureBatchFileNames {
   }
 
   public String getEvaluatorShimConfigurationPath() {
-    return this.reefFileNames.getLocalFolderPath() + "/" + EVALUATOR_SHIM_CONFIGURATION_NAME;
+    return this.reefFileNames.getLocalFolderPath() + "/" + "shim2.conf";
   }
 
   public String getEvaluatorShimConfigurationName() {

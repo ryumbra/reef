@@ -116,6 +116,7 @@ public final class AzureBatchEvaluatorShimManager
   public void onResourceRequested(final String containerId, final ResourceRequestEvent resourceRequestEvent) {
     try {
       createAzureBatchTask(containerId);
+      LOG.log(Level.FINER, "AzureBatchShimManager onResourceRequested created AzureBatch task");
       this.outstandingResourceRequests.put(containerId, resourceRequestEvent);
       this.updateRuntimeStatus();
     } catch (IOException e) {

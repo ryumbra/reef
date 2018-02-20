@@ -93,7 +93,16 @@ final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
         this.reefEventHandlers.get().onResourceStatus(resourceStatusEvent);
       } else {
         LOG.log(Level.FINEST,
-            "No active container in resource manager for Task: {0}. Not sending update.", task.id());
+             "No active container in resource manager for Task: {0}.", task.id());
+        if (reefTaskState != State.INIT && reefTaskState != State.RUNNING && !task.id().equals(jobId)) {
+          ResourceStatusEvent resourceStatusEvent = ResourceStatusEventImpl.newBuilder()
+              .setIdentifier(task.id())
+              .setState(reefTaskState)
+              .build();
+          this.reefEventHandlers.get().onResourceStatus(resourceStatusEvent);
+          LOG.log(Level.FINEST,
+              "Sent resource status event for Task: {0}.", task.id());
+        }
       }
     }
   }

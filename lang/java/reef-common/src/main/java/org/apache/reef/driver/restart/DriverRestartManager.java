@@ -148,6 +148,7 @@ public final class DriverRestartManager implements DriverIdlenessSource, AutoClo
       return EvaluatorRestartState.NOT_EXPECTED;
     }
 
+    LOG.log(Level.FINER, "in getEvaluatorRestartState1 since hasNotRestarted is false");
     return getStateOfPreviousEvaluator(evaluatorId);
   }
 
@@ -240,6 +241,7 @@ public final class DriverRestartManager implements DriverIdlenessSource, AutoClo
       return EvaluatorRestartState.NOT_EXPECTED;
     }
 
+    LOG.log(Level.FINER, "in getStateOfPreviousEvaluator since restartEvaluators does not contain evaluatorId");
     return this.restartEvaluators.get(evaluatorId).getEvaluatorRestartState();
   }
 
