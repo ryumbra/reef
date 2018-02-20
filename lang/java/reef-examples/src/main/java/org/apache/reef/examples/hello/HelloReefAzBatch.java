@@ -40,7 +40,7 @@ public final class HelloReefAzBatch {
   private static final Logger LOG = Logger.getLogger(HelloReefAzBatch.class.getName());
 
   /**
-   * Builds the rutime configuration for Azure Batch.
+   * Builds the runtime configuration for Azure Batch.
    *
    * @return the configuration of the runtime.
    * @throws IOException
@@ -64,7 +64,7 @@ public final class HelloReefAzBatch {
   }
 
   /**
-   * Start Hello REEF job with AzBatch runtime.
+   * Start the Hello REEF job with the Azure Batch runtime.
    *
    * @param args command line parameters.
    * @throws InjectionException configuration error.
