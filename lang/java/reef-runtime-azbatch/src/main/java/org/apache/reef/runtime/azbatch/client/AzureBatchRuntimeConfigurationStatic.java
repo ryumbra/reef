@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runtime.azbatch.client;
 
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.AzureBatchClasspathProvider;
 import org.apache.reef.runtime.azbatch.AzureBatchJVMPathProvider;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
@@ -31,6 +32,7 @@ import org.apache.reef.util.logging.LoggingSetup;
 /**
  * The static part of the AzureBatchRuntimeConfigurationStatic.
  */
+@Private
 public class AzureBatchRuntimeConfigurationStatic extends ConfigurationModuleBuilder {
   static {
     LoggingSetup.setupCommonsLogging();

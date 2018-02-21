@@ -41,7 +41,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Azure Storage utility to upload Driver and Evaluator jars to Storage
+ * Azure storage utility to upload Driver and Evaluator jars to blob storage
  * and generate SAS URIs.
  */
 public class AzureStorageUtil {
@@ -74,12 +74,23 @@ public class AzureStorageUtil {
   }
 
   /**
-   * Assemble a connection string from account name and key.
+   * Assemble an Azure blob connection string.
+   *
+   * @param accountName the Azure Blob account name.
+   * @param accountKey the Azure Blob account key.
+   * @return the connection string.
    */
   private static String getStorageConnectionString(final String accountName, final String accountKey) {
     return String.format(AZURE_STORAGE_CONNECTION_STRING_FORMAT, accountName, accountKey);
   }
 
+  /**
+   * Create a folder on the storage account.
+   *
+   * @param folderName the folder name.
+   * @return the URI to the folder.
+   * @throws IOException
+   */
   public URI createFolder(final String folderName) throws IOException {
     try {
       final CloudBlockBlob jobFolderBlob = this.container.getBlockBlobReference(folderName);
@@ -89,6 +100,14 @@ public class AzureStorageUtil {
     }
   }
 
+  /**
+   * Upload a file to the storage account.
+   *
+   * @param folderName the URI to the destination folder.
+   * @param file the source file.
+   * @return the SAS URI to the uploaded file.
+   * @throws IOException
+   */
   public URI uploadFile(final String folderName, final File file) throws IOException {
     LOG.log(Level.FINE, "Creating a job folder on Azure at: {0}.", folderName);
     URI jobFolderURI = this.createFolder(folderName);

@@ -21,23 +21,13 @@ package org.apache.reef.examples.hello;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.REEF;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfiguration;
-import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfigurationCreator;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountKey;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountName;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountUri;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchPoolId;
-import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountKey;
-import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountName;
-import org.apache.reef.runtime.azbatch.parameters.AzureStorageContainerName;
-import org.apache.reef.runtime.azbatch.parameters.IsWindows;
+import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfigurationProvider;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.EnvironmentUtils;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,24 +37,10 @@ import java.util.logging.Logger;
  */
 public final class HelloReefAzBatch {
 
-  private final String azureBatchAccountName;
-  private final String azureBatchAccountKey;
-  private final String azureBatchAccountUri;
-  private final String azureBatchPoolId;
-  private final String azureStorageAccountName;
-  private final String azureStorageAccountKey;
-  private final String azureStorageContainerName;
-  private final Boolean isWindows;
-
   private static final Logger LOG = Logger.getLogger(HelloReefAzBatch.class.getName());
 
   /**
-   * Number of milliseconds to wait for the job to complete.
-   */
-  private static final int JOB_TIMEOUT = 60000; // 60 sec.
-
-  /**
-   * Builds the rutime configuration for Azure Batch.
+   * Builds the runtime configuration for Azure Batch.
    *
    * @return the configuration of the runtime.
    * @throws IOException
@@ -88,7 +64,7 @@ public final class HelloReefAzBatch {
   }
 
   /**
-   * Start Hello REEF job with AzBatch runtime.
+   * Start the Hello REEF job with the Azure Batch runtime.
    *
    * @param args command line parameters.
    * @throws InjectionException configuration error.
@@ -98,26 +74,12 @@ public final class HelloReefAzBatch {
 
     Configuration partialConfiguration = getEnvironmentConfiguration();
     final Injector injector = Tang.Factory.getTang().newInjector(partialConfiguration);
-    final HelloReefAzBatch launcher = injector.getInstance(HelloReefAzBatch.class);
-
-    launcher.launch();
-  }
-
-  public void launch() throws InjectionException {
+    final AzureBatchRuntimeConfigurationProvider runtimeConfigurationProvider =
+        injector.getInstance(AzureBatchRuntimeConfigurationProvider.class);
     Configuration driverConfiguration = getDriverConfiguration();
 
-    final Configuration runtimeConfiguration = AzureBatchRuntimeConfigurationCreator
-        .getOrCreateAzureBatchRuntimeConfiguration(this.isWindows)
-        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_NAME, this.azureBatchAccountName)
-        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_KEY, this.azureBatchAccountKey)
-        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_URI, this.azureBatchAccountUri)
-        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_POOL_ID, this.azureBatchPoolId)
-        .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_ACCOUNT_NAME, this.azureStorageAccountName)
-        .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_ACCOUNT_KEY, this.azureStorageAccountKey)
-        .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_CONTAINER_NAME, this.azureStorageContainerName)
-        .build();
-
-    try (final REEF reef = Tang.Factory.getTang().newInjector(runtimeConfiguration).getInstance(REEF.class)) {
+    try (final REEF reef = Tang.Factory.getTang().newInjector(
+        runtimeConfigurationProvider.getAzureBatchRuntimeConfiguration()).getInstance(REEF.class)) {
       reef.submit(driverConfiguration);
     }
     LOG.log(Level.INFO, "Job Submitted");
@@ -126,23 +88,6 @@ public final class HelloReefAzBatch {
   /**
    * Private constructor.
    */
-  @Inject
-  private HelloReefAzBatch(
-      @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
-      @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey,
-      @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
-      @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId,
-      @Parameter(AzureStorageAccountName.class) final String azureStorageAccountName,
-      @Parameter(AzureStorageAccountKey.class) final String azureStorageAccountKey,
-      @Parameter(AzureStorageContainerName.class) final String azureStorageContainerName,
-      @Parameter(IsWindows.class) final Boolean isWindows) {
-    this.azureBatchAccountName = azureBatchAccountName;
-    this.azureBatchAccountKey = azureBatchAccountKey;
-    this.azureBatchAccountUri = azureBatchAccountUri;
-    this.azureBatchPoolId = azureBatchPoolId;
-    this.azureStorageAccountName = azureStorageAccountName;
-    this.azureStorageAccountKey = azureStorageAccountKey;
-    this.azureStorageContainerName = azureStorageContainerName;
-    this.isWindows = isWindows;
+  private HelloReefAzBatch() {
   }
 }

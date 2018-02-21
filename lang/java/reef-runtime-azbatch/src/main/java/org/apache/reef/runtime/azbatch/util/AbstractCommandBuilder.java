@@ -66,9 +66,6 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
     this.runtimePathProvider = runtimePathProvider;
   }
 
-  /**
-   * Assembles the command to execute the Driver.
-   */
   public String buildDriverCommand(final JobSubmissionEvent jobSubmissionEvent) {
     List<String> commandList = new JavaLaunchCommandBuilder(this.launcherClass, this.commandListPrefix)
         .setJavaPath(runtimePathProvider.getPath())
@@ -79,9 +76,6 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
     return String.format(this.osCommandFormat, StringUtils.join(commandList, ' '));
   }
 
-  /**
-   * Assembles the command to execute the Evaluator Shim.
-   */
   public String buildEvaluatorShimCommand(final int evaluatorShimMemory, final String configurationPath) {
     List<String> commandList = new JavaLaunchCommandBuilder(this.shimLauncherClass, this.commandListPrefix)
         .setJavaPath(runtimePathProvider.getPath())
@@ -92,9 +86,6 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
     return String.format(this.osCommandFormat, StringUtils.join(commandList, ' '));
   }
 
-  /**
-   * Assembles the command to execute the Evaluator.
-   */
   public String buildEvaluatorCommand(final ResourceLaunchEvent resourceLaunchEvent,
                                       final int containerMemory, final double jvmHeapFactor) {
     List<String> commandList = new ArrayList<>();

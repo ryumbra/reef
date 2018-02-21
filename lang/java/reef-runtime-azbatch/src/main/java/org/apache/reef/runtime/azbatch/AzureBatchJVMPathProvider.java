@@ -26,6 +26,7 @@ import javax.inject.Inject;
  * Supplies the java binary's path for Azure Batch.
  */
 public final class AzureBatchJVMPathProvider implements RuntimePathProvider {
+
   @Inject
   public AzureBatchJVMPathProvider() {
   }

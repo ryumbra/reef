@@ -30,6 +30,12 @@ public final class TaskStatusMapper {
   private TaskStatusMapper() {
   }
 
+  /**
+   * Get the {@link State} from a {@link CloudTask}.
+   *
+   * @param task the task.
+   * @return the state of the task.
+   */
   public static State getReefTaskState(final CloudTask task) {
     switch (task.state()) {
     case ACTIVE:

@@ -22,9 +22,9 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * The period to check for task status from Azure batch in ms.
+ * The period to check for task status from Azure Batch in ms.
  */
-@NamedParameter(doc = "The evaluator heartbeat period in ms.", default_value = "5000")
+@NamedParameter(doc = "The period to check for task status from Azure Batch in ms.", default_value = "5000")
 public final class AzureBatchTaskStatusCheckPeriod implements Name<Integer> {
   private AzureBatchTaskStatusCheckPeriod() {
   }

@@ -28,7 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Handler of RuntimeStart for the Azure Batch Runtime.
+ * A {@link ResourceManagerStartHandler} for Azure Batch runtime.
  */
 @Private
 @DriverSide

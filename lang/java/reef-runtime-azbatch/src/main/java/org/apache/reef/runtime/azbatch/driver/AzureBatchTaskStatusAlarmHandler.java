@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/*
+/**
  * Class that gets that status of the tasks from Azure Batch for the job that is currently in progress
  * and notifies REEF of the status.
  */
@@ -50,7 +50,7 @@ final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
   private boolean isAlarmScheduled;
   private Clock clock;
 
-  private static final Logger LOG = Logger.getLogger(AzureBatchResourceLaunchHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(AzureBatchTaskStatusAlarmHandler.class.getName());
 
   @Inject
   private AzureBatchTaskStatusAlarmHandler(
@@ -98,11 +98,17 @@ final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
     }
   }
 
+  /**
+   * Enable the period alarm to send status updates.
+   */
   public synchronized void enableAlarm() {
     this.isAlarmScheduled = true;
     this.scheduleAlarm();
   }
 
+  /**
+   * Disable the period alarm to send status updates.
+   */
   public synchronized void disableAlarm() {
     this.isAlarmScheduled = false;
   }

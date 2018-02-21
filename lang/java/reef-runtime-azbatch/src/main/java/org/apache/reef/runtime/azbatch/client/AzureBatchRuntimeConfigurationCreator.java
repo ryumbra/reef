@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runtime.azbatch.client;
 
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountName;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountUri;
@@ -34,17 +35,25 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 /**
  * Class that builds the ConfigurationModule for Azure Batch runtime.
  */
+@Private
 public final class AzureBatchRuntimeConfigurationCreator {
+
   /**
    * The ConfigurationModule for Azure Batch.
    */
   private static ConfigurationModule conf;
 
+  /**
+   * Get or create a {@link ConfigurationModule} for the Azure Batch runtime.
+   *
+   * @param isWindows whether or not the target OS is windows.
+   * @return the configuration module object.
+   */
   public static ConfigurationModule getOrCreateAzureBatchRuntimeConfiguration(final Boolean isWindows) {
 
     if (AzureBatchRuntimeConfigurationCreator.conf == null) {
       ConfigurationModuleBuilder builder = AzureBatchRuntimeConfigurationStatic.CONF;
-      ConfigurationModule module = null;
+      ConfigurationModule module;
       if (isWindows) {
         module = builder.bindImplementation(CommandBuilder.class, WindowsCommandBuilder.class).build();
       } else {
@@ -70,7 +79,6 @@ public final class AzureBatchRuntimeConfigurationCreator {
   /*
    * Private constructor since this is a utility class.
    */
-  private AzureBatchRuntimeConfigurationCreator(){
+  private AzureBatchRuntimeConfigurationCreator() {
   }
-
 }

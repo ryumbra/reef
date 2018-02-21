@@ -103,7 +103,7 @@ public final class JobJarMaker {
       final JobSubmissionEvent jobSubmissionEvent,
       final Configuration driverConfiguration) throws IOException {
 
-    return newBuilder()
+    return new JarBuilder()
         .withConfiguration(driverConfiguration)
         .withGlobalFileSet(jobSubmissionEvent.getGlobalFileSet())
         .withLocalFileSet(jobSubmissionEvent.getLocalFileSet())

@@ -16,14 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.azbatch.parameters;
-
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-
 /**
- * The Azure Batch account name.
+ * Unit tests for REEF Driver running under Azure Batch runtime.
  */
-@NamedParameter(doc = "The Azure Batch account name.")
-public class AzureBatchAccountName implements Name<String> {
-}
+package org.apache.reef.runtime.azbatch;

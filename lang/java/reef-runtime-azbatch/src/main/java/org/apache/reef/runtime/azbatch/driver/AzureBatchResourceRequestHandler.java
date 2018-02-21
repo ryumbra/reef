@@ -28,13 +28,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A {@link ResourceRequestHandler} for Azure Batch.
+ * A {@link ResourceRequestHandler} for Azure Batch runtime.
  */
 @Private
 @DriverSide
 public final class AzureBatchResourceRequestHandler implements ResourceRequestHandler {
 
-  private static final Logger LOG = Logger.getLogger(AzureBatchResourceLaunchHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(AzureBatchResourceRequestHandler.class.getName());
   private final AzureBatchResourceManager azureBatchResourceManager;
 
   @Inject
