@@ -19,7 +19,11 @@
 #
 
 # EXAMPLE USAGE 
-# ./run.sh org.apache.reef.examples.hello.HelloREEF
+# ./bin/runazuretests.sh 
+# "./lang/java/reef-examples/target/reef-examples-0.17.0-SNAPSHOT-shaded.jar;
+# ./lang/java/reef-tests/target/reef-tests-0.17.0-SNAPSHOT-test-jar-with-dependencies.jar" 
+# org.apache.reef.tests.examples.TestHelloREEF
+
 
 # RUNTIME
 if [ $# -ne 2 ];
@@ -31,5 +35,7 @@ CLASSPATH=$1
 TESTCLASS=$2
 
 CMD="java -cp ${CLASSPATH} org.junit.runner.JUnitCore ${TESTCLASS}"
+
+echo -e "\n\nRunning Azure Batch Tests...\n\n"
 echo $CMD
 $CMD # 2> /dev/null
