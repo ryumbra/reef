@@ -33,6 +33,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -103,7 +104,7 @@ public final class JobJarMaker {
       final JobSubmissionEvent jobSubmissionEvent,
       final Configuration driverConfiguration) throws IOException {
 
-    return newBuilder()
+    return new JarBuilder()
         .withConfiguration(driverConfiguration)
         .withGlobalFileSet(jobSubmissionEvent.getGlobalFileSet())
         .withLocalFileSet(jobSubmissionEvent.getLocalFileSet())
