@@ -37,10 +37,20 @@ under the License.
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Azure.Batch, Version=8.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Azure.Batch.8.0.1\lib\net452\Microsoft.Azure.Batch.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Practices.TransientFaultHandling.Core, Version=5.1.1209.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>$(PackagesDir)\TransientFaultHandling.Core.5.1.1209.1\lib\NET4\Microsoft.Practices.TransientFaultHandling.Core.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Rest.ClientRuntime, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Rest.ClientRuntime.2.3.10\lib\net452\Microsoft.Rest.ClientRuntime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Rest.ClientRuntime.Azure, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Rest.ClientRuntime.Azure.3.3.10\lib\net452\Microsoft.Rest.ClientRuntime.Azure.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>$(PackagesDir)\Newtonsoft.Json.$(NewtonsoftJsonVersion)\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -88,6 +98,27 @@ under the License.
     <Compile Include="Avro\YARN\AvroYarnAppSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnJobSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnClusterJobSubmissionParameters.cs" />
+    <Compile Include="AzureBatch\AddTaskOptions.cs" />
+    <Compile Include="AzureBatch\AzureBatchClientConfiguration.cs" />
+    <Compile Include="AzureBatch\AzureBatchCommandProviderConfiguration.cs" />
+    <Compile Include="AzureBatch\AzureBatchDotNetClient.cs" />
+    <Compile Include="AzureBatch\BatchService.cs" />
+    <Compile Include="AzureBatch\CreateJobManagerOptions.cs" />
+    <Compile Include="AzureBatch\CreateJobOptions.cs" />
+    <Compile Include="AzureBatch\IAzureBatchJobCommandProvider.cs" />
+    <Compile Include="AzureBatch\Parameters\AzureBatchAccountKey.cs" />
+    <Compile Include="AzureBatch\Parameters\AzureBatchAccountName.cs" />
+    <Compile Include="AzureBatch\Parameters\AzureBatchAccountUri.cs" />
+    <Compile Include="AzureBatch\Parameters\AzureBatchPoolId.cs" />
+    <Compile Include="AzureBatch\Parameters\AzureStorageAccountKey.cs" />
+    <Compile Include="AzureBatch\Parameters\AzureStorageAccountName.cs" />
+    <Compile Include="AzureBatch\Parameters\AzureStorageContainerName.cs" />
+    <Compile Include="AzureBatch\Parameters\DriverStderrFilePath.cs" />
+    <Compile Include="AzureBatch\Parameters\DriverStdoutFilePath.cs" />
+    <Compile Include="AzureBatch\Parameters\EnableDebugLogging.cs" />
+    <Compile Include="AzureBatch\Parameters\IsWindows.cs" />
+    <Compile Include="AzureBatch\ResourceFileInfo.cs" />
+    <Compile Include="AzureBatch\WindowsAzureBatchJobCommandProvider.cs" />
     <Compile Include="Common\DotNetFile.cs" />
     <Compile Include="Common\ClientConstants.cs" />
     <Compile Include="Common\DriverFolderPreparationHelper.cs" />
@@ -204,6 +235,7 @@ under the License.
     <Compile Include="YARN\YarnREEFParamSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Avro\README.md" />
     <None Include="Org.Apache.REEF.Client.nuspec" />
     <None Include="packages.config" />

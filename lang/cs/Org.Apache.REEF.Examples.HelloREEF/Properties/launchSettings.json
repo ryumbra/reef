@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Org.Apache.REEF.Examples.HelloREEF.DotNet": {
+      "commandName": "Executable"
+    }
+  }
+}

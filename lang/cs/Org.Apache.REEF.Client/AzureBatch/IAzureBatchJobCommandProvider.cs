@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,17 +15,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-namespace Org.Apache.REEF.Examples.HelloREEF
+using Org.Apache.REEF.Tang.Annotations;
+
+namespace Org.Apache.REEF.Client.AzureBatch
 {
-    public sealed class Run
+    /// <summary>
+    /// Provide the command to be submitted to RM for execution of .NET driver.
+    /// </summary>
+    [DefaultImplementation(typeof(WindowsAzureBatchJobCommandProvider))]
+    internal interface IAzureBatchJobCommandProvider
     {
         /// <summary>
-        /// Program that runs hello reef
+        /// Builds the command to be submitted to AzureBatch
         /// </summary>
-        /// <param name="args"></param>
-        public static void Main(string[] args)
-        {
-            HelloREEF.MainSimple(args);
-        }
+        /// <returns>Command</returns>
+        string GetJobSubmissionCommand();
     }
 }
