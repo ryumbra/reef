@@ -29,6 +29,7 @@
 if [ $# -ne 2 ];
 then 
 	echo "Only 2 arguments are accepted - CLASSPATH and TESTCLASS"
+	exit 1;
 fi
 
 CLASSPATH=$1
