@@ -64,7 +64,8 @@ public final class AzureBatchFileNames {
   }
 
   /**
-   * @return The path to the evaluator shim configuration: REEF_BASE_FOLDER/LOCAL_FOLDER/EVALUATOR_SHIM_CONFIGURATION_NAME.
+   * @return The path to the evaluator shim configuration:
+   * REEF_BASE_FOLDER/LOCAL_FOLDER/EVALUATOR_SHIM_CONFIGURATION_NAME.
    */
   public String getEvaluatorShimConfigurationPath() {
     return this.reefFileNames.getLocalFolderPath() + "/" + EVALUATOR_SHIM_CONFIGURATION_NAME;
