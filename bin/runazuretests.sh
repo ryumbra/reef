@@ -39,4 +39,4 @@ CMD="java -cp ${CLASSPATH} org.junit.runner.JUnitCore ${TESTCLASS}"
 
 echo -e "\n\nRunning Azure Batch Tests...\n\n"
 echo $CMD
-$CMD # 2> /dev/null
+$CMD
