@@ -103,11 +103,17 @@ public class AzureStorageUtil {
   /**
    * Upload a file to the storage account.
    *
-   * @param folder the URI to the destination folder.
+   * @param folderName the URI to the destination folder.
    * @param file the source file.
    * @return the SAS URI to the uploaded file.
    * @throws IOException
    */
+  public URI uploadFile(final String folderName, final File file) throws IOException {
+    LOG.log(Level.FINE, "Creating a job folder on Azure at: {0}.", folderName);
+    URI jobFolderURI = this.createFolder(folderName);
+    return uploadFile(jobFolderURI, file);
+  }
+
   public URI uploadFile(final URI folder, final File file) throws IOException {
 
     LOG.log(Level.INFO, "Uploading [{0}] to [{1}]", new Object[]{file, folder});
