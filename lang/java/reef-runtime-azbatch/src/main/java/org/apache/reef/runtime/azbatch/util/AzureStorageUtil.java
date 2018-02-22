@@ -27,7 +27,6 @@ import org.apache.reef.runtime.azbatch.parameters.AzureStorageContainerName;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -121,8 +120,8 @@ public class AzureStorageUtil {
     try {
       final CloudBlockBlob blob = this.container.getBlockBlobReference(String.format("%s/%s", folder, file.getName()));
 
-      try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
-        blob.upload(in, file.length());
+      try (FileInputStream fis = new FileInputStream(file)) {
+        blob.upload(fis, file.length());
       }
 
       LOG.log(Level.FINE, "Uploaded to: {0}", blob.getStorageUri().getPrimaryUri());

@@ -56,9 +56,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * This class sends a message back to the driver upon starting and listens for
- * commands to launch an evaluator. Once the evaluator completes, it will listen
- * for a command to terminate.
+ * The evaluator shim acts as a wrapper process around the Evaluator. Azure Batch starts this process on the evaluator
+ * node at the time that the resource is allocated. Once started, the evaluator shim process will send a status
+ * message back to the the Driver which triggers a
+ * {@link org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent} on the Driver side.
+ * The evaluator shim will then wait for a command from the Driver to start the Evaluator process.
+ * Upon receiving the command, the shim will launch the evaluator process and wait for it to exit. After receiving
+ * a terminate command, the evaluator shim will exit thus releasing the resource and completing the Azure Batch task.
  */
 @Private
 @EvaluatorSide
@@ -106,6 +110,9 @@ public final class EvaluatorShim
     this.threadPool = Executors.newCachedThreadPool();
   }
 
+  /**
+   * Starts the {@link EvaluatorShim}.
+   */
   public void run() {
     LOG.log(Level.FINEST, "Entering EvaluatorShim.run().");
     this.onStart();
@@ -119,35 +126,39 @@ public final class EvaluatorShim
     this.onStop();
   }
 
+  /**
+   * This method is invoked by the Remote Manager when a command message from the Driver is received.
+   * @param remoteMessage the message sent to the evaluator shim by the Driver.
+   */
   @Override
   public void onNext(final RemoteMessage<EvaluatorShimProtocol.EvaluatorShimControlProto> remoteMessage) {
     final EvaluatorShimProtocol.EvaluatorShimCommand command = remoteMessage.getMessage().getCommand();
     switch (command) {
-      case LAUNCH_EVALUATOR:
-        LOG.log(Level.INFO, "Received a command to launch the Evaluator.");
-        this.threadPool.submit(new Runnable() {
-          @Override
-          public void run() {
-            EvaluatorShim.this.onEvaluatorLaunch(remoteMessage.getMessage().getEvaluatorLaunchCommand(),
-                remoteMessage.getMessage().getEvaluatorConfigString(),
-                remoteMessage.getMessage().getEvaluatorFileResourcesUrl());
-          }
-        });
-        break;
+    case LAUNCH_EVALUATOR:
+      LOG.log(Level.INFO, "Received a command to launch the Evaluator.");
+      this.threadPool.submit(new Runnable() {
+        @Override
+        public void run() {
+          EvaluatorShim.this.onEvaluatorLaunch(remoteMessage.getMessage().getEvaluatorLaunchCommand(),
+              remoteMessage.getMessage().getEvaluatorConfigString(),
+              remoteMessage.getMessage().getEvaluatorFileResourcesUrl());
+        }
+      });
+      break;
 
-      case TERMINATE:
-        LOG.log(Level.INFO, "Received a command to terminate the EvaluatorShim.");
-        this.threadPool.submit(new Runnable() {
-          @Override
-          public void run() {
-            EvaluatorShim.this.onStop();
-          }
-        });
-        break;
+    case TERMINATE:
+      LOG.log(Level.INFO, "Received a command to terminate the EvaluatorShim.");
+      this.threadPool.submit(new Runnable() {
+        @Override
+        public void run() {
+          EvaluatorShim.this.onStop();
+        }
+      });
+      break;
 
-      default:
-        LOG.log(Level.WARNING, "An unknown command was received by the EvaluatorShim: {0}.", command);
-        throw new IllegalArgumentException("An unknown command was received by the EvaluatorShim.");
+    default:
+      LOG.log(Level.WARNING, "An unknown command was received by the EvaluatorShim: {0}.", command);
+      throw new IllegalArgumentException("An unknown command was received by the EvaluatorShim.");
     }
   }
 
@@ -272,8 +283,11 @@ public final class EvaluatorShim
           LOG.log(Level.INFO, "Skipping entry {0} because the file already exists.", zipEntry.getName());
         } else {
           if (zipEntry.isDirectory()) {
-            LOG.log(Level.INFO, "Creating directory {0}.", zipEntry.getName());
-            file.mkdirs();
+            if (file.mkdirs()) {
+              LOG.log(Level.INFO, "Creating directory {0}.", zipEntry.getName());
+            } else {
+              LOG.log(Level.INFO, "Directory {0} already exists. Ignoring.", zipEntry.getName());
+            }
           } else {
             try (InputStream inputStream = zipFileHandle.getInputStream(zipEntry)) {
               LOG.log(Level.INFO, "Extracting {0}.", zipEntry.getName());

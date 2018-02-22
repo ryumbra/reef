@@ -56,10 +56,10 @@ public final class REEFEventHandlers {
   /**
    * Inform reef of a node.
    *
-   * @param nodeDescriptorProto
+   * @param nodeDescriptorEvent
    */
-  void onNodeDescriptor(final NodeDescriptorEvent nodeDescriptorProto) {
-    this.nodeDescriptorEventHandler.onNext(nodeDescriptorProto);
+  void onNodeDescriptor(final NodeDescriptorEvent nodeDescriptorEvent) {
+    this.nodeDescriptorEventHandler.onNext(nodeDescriptorEvent);
   }
 
   /**
