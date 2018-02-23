@@ -12,24 +12,25 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
     public class BatchService : IDisposable
     {
         public BatchSharedKeyCredential Credentials { get; private set; }
+        public string PoolId { get; private set; }
 
         private BatchClient Client { get; set; }
         private readonly IRetryPolicy retryPolicy;
         private bool disposed;
 
+        [Inject]
         public BatchService(
             [Parameter(typeof(AzureBatchAccountUri))] string azureBatchAccountUri,
             [Parameter(typeof(AzureBatchAccountName))] string azureBatchAccountName,
             [Parameter(typeof(AzureBatchAccountKey))] string azureBatchAccountKey,
-            [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId
-            )
+            [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId)
         {
-            BatchSharedKeyCredentials credentials = new BatchSharedKeyCredentials
-                (azureBatchAccountUri,azureBatchAccountName, azureBatchAccountKey);
+            BatchSharedKeyCredentials credentials = new BatchSharedKeyCredentials(azureBatchAccountUri, azureBatchAccountName, azureBatchAccountKey);
 
             this.Client = BatchClient.Open(credentials);
             this.Credentials = credentials;
             this.retryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(5), 3);
+            this.PoolId = azureBatchPoolId;
 
             this.Client.CustomBehaviors.Add(new RetryPolicyProvider(this.retryPolicy));
         }
@@ -68,33 +69,25 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         #region Job related operations
 
-        public async Task CreateJobAsync(CreateJobOptions createJobOptions)
+        public void CreateJob(string jobId, string commandLine)
         {
             CloudJob unboundJob = this.Client.JobOperations.CreateJob();
 
-            unboundJob.Id = createJobOptions.JobId;
-            unboundJob.Priority = createJobOptions.Priority;
-            unboundJob.Constraints = new JobConstraints(createJobOptions.MaxWallClockTime, createJobOptions.MaxRetryCount);
+            unboundJob.Id = jobId;
 
             PoolInformation poolInformation = new PoolInformation();
-            poolInformation.PoolId = createJobOptions.PoolId;
+            poolInformation.PoolId = this.PoolId;
             unboundJob.PoolInformation = poolInformation;
 
             JobManagerTask jobManager = new JobManagerTask()
             {
-                CommandLine = createJobOptions.JobManagerOptions.CommandLine,
-                KillJobOnCompletion = true,
-                Id = createJobOptions.JobManagerOptions.JobManagerId
+                CommandLine = commandLine,
+                Id = jobId,
             };
-
-            jobManager.Constraints = new TaskConstraints(
-                createJobOptions.JobManagerOptions.MaxTaskWallClockTime,
-                createJobOptions.JobManagerOptions.RetentionTime,
-                createJobOptions.JobManagerOptions.MaxTaskRetryCount);
 
             unboundJob.JobManagerTask = jobManager;
 
-            await unboundJob.CommitAsync();
+            unboundJob.Commit();
         }
 
         public CloudJob GetJob(string jobId, DetailLevel detailLevel)
@@ -127,7 +120,6 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         public Task<CloudTask> GetTaskAsync(string jobId, string taskId, DetailLevel detailLevel)
         {
             return this.Client.JobOperations.GetTaskAsync(jobId, taskId, detailLevel);
-
         }
 
         /// <summary>

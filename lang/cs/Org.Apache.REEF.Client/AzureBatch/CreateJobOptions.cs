@@ -14,8 +14,6 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         public TimeSpan? MaxWallClockTime { get; set; }
 
-        public string PoolId { get; set; }
-
         public CreateJobManagerOptions JobManagerOptions { get; set; }
     }
 }

@@ -8,20 +8,15 @@ using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Client.AzureBatch.Parameters;
+using Org.Apache.REEF.Client.AzureBatch;
 
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
     class AzureBatchDotNetClient : IREEFClient
     {
-        /// <summary>
-        /// The class name that contains the Java counterpart for this client.
-        /// </summary>
-        private const string JavaClassName = "org.apache.reef.bridge.client.YarnJobSubmissionClient";
-
-        private static readonly Logger Logger = Logger.GetLogger(typeof(AzureBatchDotNetClient));
+        private static readonly Logger Log = Logger.GetLogger(typeof(AzureBatchDotNetClient));
         private readonly IInjector _injector;
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
-        private readonly IJavaClientLauncher _javaClientLauncher;
         private readonly REEFFileNames _fileNames;
         private readonly JobRequestBuilderFactory _jobRequestBuilderFactory;
         private readonly BatchService _batchService;
@@ -32,8 +27,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             DriverFolderPreparationHelper driverFolderPreparationHelper,
             REEFFileNames fileNames,
             JobRequestBuilderFactory jobRequestBuilderFactory,
-            BatchService batchService
-            )
+            BatchService batchService)
         {
             _injector = injector;
             _fileNames = fileNames;
@@ -42,31 +36,58 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             _batchService = batchService;
         }
 
+        public JobRequestBuilder NewJobRequestBuilder()
+        {
+            return _jobRequestBuilderFactory.NewInstance();
+        }
+
         public Task<FinalState> GetJobFinalStatus(string appId)
         {
             throw new NotImplementedException();
         }
 
-        public JobRequestBuilder NewJobRequestBuilder()
+        public void Submit(JobRequest jobRequest)
         {
-            throw new NotImplementedException();
+            var configModule = AzureBatchClientConfiguration.ConfigurationModule;
+            string jobId = jobRequest.JobIdentifier;
+            string commandLine = GetCommand(jobRequest.JobParameters);
+            _batchService.CreateJob(jobId, commandLine);
         }
 
-        public Task SubmitAsync(JobRequest jobRequest)
+        private string GetCommand(JobParameters jobParameters)
         {
-            string jobId = jobRequest.JobIdentifier;
+            var commandProviderConfigModule = AzureBatchCommandProviderConfiguration.ConfigurationModule;
+            if (jobParameters.JavaLogLevel == JavaLoggingSetting.Verbose)
+            {
+                commandProviderConfigModule = commandProviderConfigModule
+                    .Set(AzureBatchCommandProviderConfiguration.JavaDebugLogging, true.ToString().ToLowerInvariant());
+            }
 
+            if (jobParameters.StdoutFilePath.IsPresent())
+            {
+                commandProviderConfigModule = commandProviderConfigModule
+                    .Set(AzureBatchCommandProviderConfiguration.DriverStdoutFilePath, jobParameters.StdoutFilePath.Value);
+            }
 
+            if (jobParameters.StderrFilePath.IsPresent())
+            {
+                commandProviderConfigModule = commandProviderConfigModule
+                    .Set(AzureBatchCommandProviderConfiguration.DriverStderrFilePath, jobParameters.StderrFilePath.Value);
+            }
+
+            var azureBatchJobCommandProvider = _injector.ForkInjector(commandProviderConfigModule.Build())
+                .GetInstance<IAzureBatchJobCommandProvider>();
+
+            var command = azureBatchJobCommandProvider.GetJobSubmissionCommand();
+
+            Log.Log(Level.Verbose, "Command for Azure Batch: {0}", command);
+            return command;
         }
 
         public IJobSubmissionResult SubmitAndGetJobStatus(JobRequest jobRequest)
         {
-            throw new NotImplementedException();
-        }
-
-        public void Launch(JobRequest jobRequest)
-        {
-
+            Submit(jobRequest);
+            return null;
         }
     }
 }

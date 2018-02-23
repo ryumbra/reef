@@ -17,6 +17,7 @@
 
 using System;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.AzureBatch;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
@@ -40,6 +41,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         private const string YARN = "yarn";
         private const string YARNRest = "yarnrest";
         private const string HDInsight = "hdi";
+        private const string AzureBatch = "azurebatch";
         private readonly IREEFClient _reefClient;
 
         [Inject]
@@ -104,6 +106,17 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(HDInsightClientConfiguration.JobSubmissionDirectoryPrefix, string.Format(@"/{0}/tmp", continerName))
                         .Set(AzureBlockBlobFileSystemConfiguration.ConnectionString, connectionString)
                         .Build();
+                case AzureBatch:
+                    return AzureBatchClientConfiguration.ConfigurationModule
+                        .Set(AzureBatchClientConfiguration.AzureBatchAccountKey, @"##########################################")
+                        .Set(AzureBatchClientConfiguration.AzureBatchAccountName, @"######")
+                        .Set(AzureBatchClientConfiguration.AzureBatchAccountUri, @"######################")
+                        .Set(AzureBatchClientConfiguration.AzureBatchPoolId, "######")
+                        .Set(AzureBatchClientConfiguration.AzureStorageAccountKey, "##########################################")
+                        .Set(AzureBatchClientConfiguration.AzureStorageAccountName, "############")
+                        .Set(AzureBatchClientConfiguration.AzureStorageContainerName, "###########")
+                        .Build();
+
                 default:
                     throw new Exception("Unknown runtime: " + name);
             }
