@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Globalization;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.AzureBatch;
 using Org.Apache.REEF.Client.Common;
@@ -62,19 +63,29 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .Set(DriverConfiguration.CustomTraceLevel, Level.Verbose.ToString())
                 .Build();
 
+            string applicationId = GetApplicationId();
+
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
             var helloJobRequest = _reefClient.NewJobRequestBuilder()
                 .AddDriverConfiguration(helloDriverConfiguration)
                 .AddGlobalAssemblyForType(typeof(HelloDriver))
                 .AddGlobalAssembliesInDirectoryOfExecutingAssembly()
-                .SetJobIdentifier("HelloREEF")
+                .SetJobIdentifier(applicationId)
                 .SetJavaLogLevel(JavaLoggingSetting.Verbose)
                 .Build();
 
             IJobSubmissionResult jobSubmissionResult = _reefClient.SubmitAndGetJobStatus(helloJobRequest);
 
             // Wait for the Driver to complete.
-            jobSubmissionResult.WaitForDriverToFinish();
+            if (jobSubmissionResult != null)
+            {
+                jobSubmissionResult.WaitForDriverToFinish();
+            }
+        }
+
+        private string GetApplicationId()
+        {
+            return "HelloWorldJob-" + DateTime.Now.ToString("ddd-MMM-d-HH-mm-ss-yyyy", CultureInfo.CreateSpecificCulture("en-US"));
         }
 
         /// <summary>

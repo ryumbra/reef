@@ -82,7 +82,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             JobManagerTask jobManager = new JobManagerTask()
             {
                 CommandLine = commandLine,
-                Id = jobId,
+                Id = Guid.NewGuid().ToString(),
             };
 
             unboundJob.JobManagerTask = jobManager;

@@ -37,7 +37,6 @@
     <Compile Include="HelloDriver.cs" />
     <Compile Include="HelloDriverYarn.cs" />
     <Compile Include="HelloREEF.cs" />
-    <Compile Include="HelloREEFAzureBatch.cs" />
     <Compile Include="HelloREEFYarn.cs" />
     <Compile Include="HelloTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
