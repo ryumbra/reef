@@ -45,8 +45,6 @@ public class AzureBatchHelper {
 
   private static final Logger LOG = Logger.getLogger(AzureBatchJobSubmissionHandler.class.getName());
 
-  private final AzureBatchFileNames azureBatchFileNames;
-
   /*
    * Environment variable that contains the Azure Batch jobId.
    */
@@ -61,12 +59,10 @@ public class AzureBatchHelper {
 
   @Inject
   public AzureBatchHelper(
-      final AzureBatchFileNames azureBatchFileNames,
       @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
       @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
       @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey,
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId) {
-    this.azureBatchFileNames = azureBatchFileNames;
     this.azureBatchAccountUri = azureBatchAccountUri;
     this.azureBatchAccountName = azureBatchAccountName;
     this.azureBatchAccountKey = azureBatchAccountKey;
@@ -91,7 +87,7 @@ public class AzureBatchHelper {
   public void submitJob(final String applicationId, final URI jobJarUri, final String command) throws IOException {
     ResourceFile jarResourceFile = new ResourceFile()
         .withBlobSource(jobJarUri.toString())
-        .withFilePath(this.azureBatchFileNames.getTaskJarFileName());
+        .withFilePath(AzureBatchFileNames.getTaskJarFileName());
 
     JobManagerTask jobManagerTask = new JobManagerTask()
         .withRunExclusive(false)
@@ -123,7 +119,7 @@ public class AzureBatchHelper {
 
     final ResourceFile jarSourceFile = new ResourceFile()
         .withBlobSource(jobJarUri.toString())
-        .withFilePath(this.azureBatchFileNames.getTaskJarFileName());
+        .withFilePath(AzureBatchFileNames.getTaskJarFileName());
 
     final List<ResourceFile> resources = new ArrayList<>();
     resources.add(jarSourceFile);
