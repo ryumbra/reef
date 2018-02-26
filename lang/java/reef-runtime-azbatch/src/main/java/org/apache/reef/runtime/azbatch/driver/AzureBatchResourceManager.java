@@ -29,7 +29,6 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
