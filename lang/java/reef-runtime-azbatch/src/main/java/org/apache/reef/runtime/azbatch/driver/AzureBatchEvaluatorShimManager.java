@@ -288,7 +288,7 @@ public final class AzureBatchEvaluatorShimManager
 
   private void createAzureBatchTask(final String taskId, final URI jarFileUri) throws IOException {
     final Configuration shimConfig = this.evaluatorShimConfigurationProvider.getConfiguration(taskId);
-    final File shim = new File(this.azureBatchFileNames.getLocalFolderPath(), this.azureBatchFileNames.getEvaluatorShimConfigurationName() + taskId);
+    final File shim = new File(this.azureBatchFileNames.getLocalFolderPath(), taskId + '-' + this.azureBatchFileNames.getEvaluatorShimConfigurationName());
     this.configurationSerializer.toFile(shimConfig, shim);
     final URI shimUri = this.uploadFile(shim);
     this.azureBatchHelper.submitTask(getAzureBatchJobId(), taskId, jarFileUri, shimUri, getEvaluatorShimLaunchCommand());
