@@ -135,7 +135,8 @@ public final class AzureBatchEvaluatorShimManager
     }
   }
 
-  public void onResourceRequested(final String containerId, final ResourceRequestEvent resourceRequestEvent, final URI jarFileUri) {
+  public void onResourceRequested(final String containerId, final ResourceRequestEvent resourceRequestEvent,
+                                  final URI jarFileUri) {
     try {
       createAzureBatchTask(containerId, jarFileUri);
       this.outstandingResourceRequests.put(containerId, resourceRequestEvent);
@@ -279,6 +280,10 @@ public final class AzureBatchEvaluatorShimManager
         this.azureBatchFileNames.getEvaluatorShimConfigurationPath());
   }
 
+  /**
+   * @return The name under which the evaluator shim configuration will be stored in
+   * REEF_BASE_FOLDER/LOCAL_FOLDER.
+   */
   private FileResource getFileResourceFromFile(final File configFile, final FileType type) {
     return FileResourceImpl.newBuilder()
         .setName(configFile.getName())
@@ -288,10 +293,12 @@ public final class AzureBatchEvaluatorShimManager
 
   private void createAzureBatchTask(final String taskId, final URI jarFileUri) throws IOException {
     final Configuration shimConfig = this.evaluatorShimConfigurationProvider.getConfiguration(taskId);
-    final File shim = new File(this.azureBatchFileNames.getLocalFolderPath(), taskId + '-' + this.azureBatchFileNames.getEvaluatorShimConfigurationName());
+    final File shim = new File(this.reefFileNames.getLocalFolderPath(),
+        taskId + '-' + this.azureBatchFileNames.getEvaluatorShimConfigurationName());
     this.configurationSerializer.toFile(shimConfig, shim);
     final URI shimUri = this.uploadFile(shim);
-    this.azureBatchHelper.submitTask(getAzureBatchJobId(), taskId, jarFileUri, shimUri, getEvaluatorShimLaunchCommand());
+    this.azureBatchHelper.submitTask(getAzureBatchJobId(), taskId, jarFileUri,
+        shimUri, getEvaluatorShimLaunchCommand());
   }
 
   private File writeFileResourcesJarFile(final Set<FileResource> fileResourceSet) throws IOException {
@@ -300,7 +307,7 @@ public final class AzureBatchEvaluatorShimManager
 
   private URI uploadFile(final File jarFile) throws IOException {
     final String folderName = this.azureBatchFileNames.getStorageJobFolder(this.getAzureBatchJobId());
-    LOG.log(Level.FINE, "Uploading {0} to {0}.", new Object[]{jarFile.getAbsolutePath(), folderName});
+    LOG.log(Level.FINE, "Uploading {0} to {1}.", new Object[]{jarFile.getAbsolutePath(), folderName});
     return this.azureStorageUtil.uploadFile(folderName, jarFile);
   }
 

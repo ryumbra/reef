@@ -27,7 +27,7 @@ import java.io.File;
  * Access to the various places things go according to the REEF file system standard.
  */
 @Immutable
-public class REEFFileNames {
+public final class REEFFileNames {
 
   private static final String REEF_BASE_FOLDER = "reef";
   private static final String GLOBAL_FOLDER = "global";

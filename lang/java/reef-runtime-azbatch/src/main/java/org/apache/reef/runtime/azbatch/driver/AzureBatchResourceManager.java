@@ -73,11 +73,11 @@ public final class AzureBatchResourceManager {
   }
 
   public void onResourceRequested(final ResourceRequestEvent resourceRequestEvent) {
-    LOG.log(Level.INFO, "Got ResourceRequestEvent in AzureBatchResourceManager,");
+    LOG.log(Level.FINEST, "Got ResourceRequestEvent in AzureBatchResourceManager,");
     URI jarFileUri = this.evaluatorShimManager.generateShimJarFile();
     for (int r = 0; r < resourceRequestEvent.getResourceCount(); r++) {
       final String containerId = generateContainerId();
-      LOG.log(Level.INFO, "containerId in AzureBatchResourceManager {0}", containerId);
+      LOG.log(Level.FINE, "containerId in AzureBatchResourceManager {0}", containerId);
       this.containerRequests.put(containerId, resourceRequestEvent);
       this.containerCount.incrementAndGet();
       this.evaluatorShimManager.onResourceRequested(containerId, resourceRequestEvent, jarFileUri);

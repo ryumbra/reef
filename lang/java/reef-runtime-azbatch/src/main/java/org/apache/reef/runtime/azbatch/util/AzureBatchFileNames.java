@@ -27,7 +27,7 @@ import javax.inject.Inject;
  * Access to the various places things go according to the REEF Azure Batch runtime.
  */
 @Private
-public final class AzureBatchFileNames extends REEFFileNames {
+public final class AzureBatchFileNames {
 
   private static final String STORAGE_JOB_FOLDER_PATH = "apps/reef/jobs/";
   private static final String TASK_JAR_FILE_NAME = "local.jar";
@@ -80,7 +80,6 @@ public final class AzureBatchFileNames extends REEFFileNames {
   }
 
   /**
-   * @return The name under which the evaluator shim configuration will be stored in REEF_BASE_FOLDER/LOCAL_FOLDER.
    * @return
    */
   public String getEvaluatorShimConfigurationName() {
