@@ -7,8 +7,9 @@ using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Client.AzureBatch.Parameters;
+using Org.Apache.REEF.Client.AzureBatch.Storage;
 using Org.Apache.REEF.Client.AzureBatch;
+using Org.Apache.REEF.Client.AzureBatch.Util;
 
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
@@ -16,22 +17,29 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
     {
         private static readonly Logger Log = Logger.GetLogger(typeof(AzureBatchDotNetClient));
         private readonly IInjector _injector;
+        private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
         private readonly REEFFileNames _fileNames;
+        private readonly IStorageUploader _storageUploader;
         private readonly JobRequestBuilderFactory _jobRequestBuilderFactory;
-        private readonly BatchService _batchService;
+        private readonly AzureBatchService _batchService;
 
         [Inject]
         private AzureBatchDotNetClient(
             IInjector injector,
+            IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
+            IStorageUploader storageUploader,
             REEFFileNames fileNames,
             JobRequestBuilderFactory jobRequestBuilderFactory,
-            BatchService batchService)
+
+            AzureBatchService batchService)
         {
             _injector = injector;
+            _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
             _fileNames = fileNames;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
+            _storageUploader = storageUploader;
             _jobRequestBuilderFactory = jobRequestBuilderFactory;
             _batchService = batchService;
         }
@@ -51,34 +59,35 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             var configModule = AzureBatchClientConfiguration.ConfigurationModule;
             string jobId = jobRequest.JobIdentifier;
             string commandLine = GetCommand(jobRequest.JobParameters);
-            _batchService.CreateJob(jobId, commandLine);
+
+            _batchService.CreateJob(jobId, null, commandLine);
         }
 
         private string GetCommand(JobParameters jobParameters)
         {
-            var commandProviderConfigModule = AzureBatchCommandProviderConfiguration.ConfigurationModule;
+            var commandProviderConfigModule = AzureBatchCommandBuilderConfiguration.ConfigurationModule;
             if (jobParameters.JavaLogLevel == JavaLoggingSetting.Verbose)
             {
                 commandProviderConfigModule = commandProviderConfigModule
-                    .Set(AzureBatchCommandProviderConfiguration.JavaDebugLogging, true.ToString().ToLowerInvariant());
+                    .Set(AzureBatchCommandBuilderConfiguration.JavaDebugLogging, true.ToString().ToLowerInvariant());
             }
 
             if (jobParameters.StdoutFilePath.IsPresent())
             {
                 commandProviderConfigModule = commandProviderConfigModule
-                    .Set(AzureBatchCommandProviderConfiguration.DriverStdoutFilePath, jobParameters.StdoutFilePath.Value);
+                    .Set(AzureBatchCommandBuilderConfiguration.DriverStdoutFilePath, jobParameters.StdoutFilePath.Value);
             }
 
             if (jobParameters.StderrFilePath.IsPresent())
             {
                 commandProviderConfigModule = commandProviderConfigModule
-                    .Set(AzureBatchCommandProviderConfiguration.DriverStderrFilePath, jobParameters.StderrFilePath.Value);
+                    .Set(AzureBatchCommandBuilderConfiguration.DriverStderrFilePath, jobParameters.StderrFilePath.Value);
             }
 
-            var azureBatchJobCommandProvider = _injector.ForkInjector(commandProviderConfigModule.Build())
-                .GetInstance<IAzureBatchJobCommandProvider>();
+            var azureBatchJobCommandBuilder = _injector.ForkInjector(commandProviderConfigModule.Build())
+                .GetInstance<ICommandBuilder>();
 
-            var command = azureBatchJobCommandProvider.GetJobSubmissionCommand();
+            var command = azureBatchJobCommandBuilder.BuildDriverCommand();
 
             Log.Log(Level.Verbose, "Command for Azure Batch: {0}", command);
             return command;
@@ -87,6 +96,8 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         public IJobSubmissionResult SubmitAndGetJobStatus(JobRequest jobRequest)
         {
             Submit(jobRequest);
+
+            // TODO[fix this null]
             return null;
         }
     }

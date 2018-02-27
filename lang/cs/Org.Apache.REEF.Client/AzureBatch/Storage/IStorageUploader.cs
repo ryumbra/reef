@@ -15,20 +15,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
+using System.Threading.Tasks;
+using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Client.AzureBatch
+namespace Org.Apache.REEF.Client.AzureBatch.Storage
 {
-    /// <summary>
-    /// Provide the command to be submitted to RM for execution of .NET driver.
-    /// </summary>
-    [DefaultImplementation(typeof(WindowsAzureBatchJobCommandProvider))]
-    internal interface IAzureBatchJobCommandProvider
+    [DefaultImplementation(typeof(AzureStorageUploader))]
+    internal interface IStorageUploader
     {
         /// <summary>
-        /// Builds the command to be submitted to AzureBatch
+        /// Creates a folder in Azure Storage.
         /// </summary>
-        /// <returns>Command</returns>
-        string GetJobSubmissionCommand();
+        /// <param name="folderName">The name of the folder to be created.</param>
+        /// <returns>The URI for created folder.</returns>
+        Task<Uri> CreateFolder(string folderName);
+
+        /// <summary>
+        /// Uploads a given file to the given destination folder in Azure Storage.
+        /// </summary>
+        /// <param name="destination">Destination in Azure Storage where given file will be uploaded.</param>
+        /// <param name="file">File to be uploaded.</param>
+        /// <returns>Storage SAS URI for uploaded file.</returns>
+        Task<Uri> UploadFile(Uri destination, IFile file);
     }
 }

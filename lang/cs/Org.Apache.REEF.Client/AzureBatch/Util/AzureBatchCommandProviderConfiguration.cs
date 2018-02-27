@@ -19,9 +19,9 @@ using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.REEF.Client.AzureBatch
+namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
-    internal class AzureBatchCommandProviderConfiguration : ConfigurationModuleBuilder
+    internal class AzureBatchCommandBuilderConfiguration : ConfigurationModuleBuilder
     {
         public static readonly OptionalParameter<string> DriverStdoutFilePath = new OptionalParameter<string>();
         public static readonly OptionalParameter<string> DriverStderrFilePath = new OptionalParameter<string>();
@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
         {
             get
             {
-                return new AzureBatchCommandProviderConfiguration()
+                return new AzureBatchCommandBuilderConfiguration()
                     .BindNamedParameter(GenericType<DriverStdoutFilePath>.Class, DriverStdoutFilePath)
                     .BindNamedParameter(GenericType<DriverStderrFilePath>.Class, DriverStderrFilePath)
                     .BindNamedParameter(GenericType<EnableDebugLogging>.Class, JavaDebugLogging)
