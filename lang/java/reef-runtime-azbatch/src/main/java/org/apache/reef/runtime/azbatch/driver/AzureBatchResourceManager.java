@@ -83,7 +83,7 @@ public final class AzureBatchResourceManager {
       this.evaluatorShimManager.onResourceRequested(containerId, resourceRequestEvent, jarFileUri);
     }
 
-    int currentContainerCount = this.containerCount.decrementAndGet();
+    int currentContainerCount = this.containerCount.get();
     if (currentContainerCount > 0) {
       this.azureBatchTaskStatusAlarmHandler.enableAlarm();
     }
