@@ -45,13 +45,12 @@ public class AzureBatchHelper {
 
   private static final Logger LOG = Logger.getLogger(AzureBatchJobSubmissionHandler.class.getName());
 
-  private final AzureBatchFileNames azureBatchFileNames;
-
   /*
    * Environment variable that contains the Azure Batch jobId.
    */
   private static final String AZ_BATCH_JOB_ID_ENV = "AZ_BATCH_JOB_ID";
 
+  private final AzureBatchFileNames azureBatchFileNames;
   private final String azureBatchAccountUri;
   private final String azureBatchAccountName;
   private final String azureBatchAccountKey;
@@ -66,11 +65,11 @@ public class AzureBatchHelper {
       @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
       @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey,
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId) {
-    this.azureBatchFileNames = azureBatchFileNames;
     this.azureBatchAccountUri = azureBatchAccountUri;
     this.azureBatchAccountName = azureBatchAccountName;
     this.azureBatchAccountKey = azureBatchAccountKey;
     this.azureBatchPoolId = azureBatchPoolId;
+    this.azureBatchFileNames = azureBatchFileNames;
 
     BatchSharedKeyCredentials cred = new BatchSharedKeyCredentials(
         this.azureBatchAccountUri, this.azureBatchAccountName, this.azureBatchAccountKey);
@@ -84,14 +83,14 @@ public class AzureBatchHelper {
    * Create a job on Azure Batch.
    *
    * @param applicationId the ID of the application.
-   * @param jobJarUri the publicly accessible uri to the job jar directory.
-   * @param command the commandline argument to execute the job.
+   * @param jobJarUri     the publicly accessible uri to the job jar directory.
+   * @param command       the commandline argument to execute the job.
    * @throws IOException
    */
   public void submitJob(final String applicationId, final URI jobJarUri, final String command) throws IOException {
     ResourceFile jarResourceFile = new ResourceFile()
         .withBlobSource(jobJarUri.toString())
-        .withFilePath(this.azureBatchFileNames.getTaskJarFileName());
+        .withFilePath(AzureBatchFileNames.getTaskJarFileName());
 
     JobManagerTask jobManagerTask = new JobManagerTask()
         .withRunExclusive(false)
@@ -112,21 +111,28 @@ public class AzureBatchHelper {
   /**
    * Adds a single task to a job on Azure Batch.
    *
-   * @param jobId the ID of the job.
-   * @param taskId the ID of the task.
-   * @param jobJarUri the publicly accessible uri to the job jar directory.
-   * @param command the commandline argument to execute the job.
+   * @param jobId     the ID of the job.
+   * @param taskId    the ID of the task.
+   * @param jobJarUri the publicly accessible uri list to the job jar directory.
+   * @param confUri   the publicly accessible uri list to the job configuration directory.
+   * @param command   the commandline argument to execute the job.
    * @throws IOException
    */
-  public void submitTask(final String jobId, final String taskId, final URI jobJarUri, final String command)
+  public void submitTask(final String jobId, final String taskId, final URI jobJarUri,
+                         final URI confUri, final String command)
       throws IOException {
+
+    final List<ResourceFile> resources = new ArrayList<>();
 
     final ResourceFile jarSourceFile = new ResourceFile()
         .withBlobSource(jobJarUri.toString())
-        .withFilePath(this.azureBatchFileNames.getTaskJarFileName());
-
-    final List<ResourceFile> resources = new ArrayList<>();
+        .withFilePath(AzureBatchFileNames.getTaskJarFileName());
     resources.add(jarSourceFile);
+
+    final ResourceFile confSourceFile = new ResourceFile()
+        .withBlobSource(confUri.toString())
+        .withFilePath(this.azureBatchFileNames.getEvaluatorShimConfigurationPath());
+    resources.add(confSourceFile);
 
     LOG.log(Level.INFO, "Evaluator task command: " + command);
 
@@ -151,7 +157,7 @@ public class AzureBatchHelper {
       LOG.log(Level.INFO, "Task status for job: {0} returned {1} tasks", new Object[]{jobId, tasks.size()});
     } catch (IOException | BatchErrorException ex) {
       LOG.log(Level.SEVERE, "Exception when fetching Task status for job: {0}. Exception [{1}]:[2]",
-          new Object[] {jobId, ex.getMessage(), ex.getStackTrace()});
+          new Object[]{jobId, ex.getMessage(), ex.getStackTrace()});
     }
 
     return tasks;

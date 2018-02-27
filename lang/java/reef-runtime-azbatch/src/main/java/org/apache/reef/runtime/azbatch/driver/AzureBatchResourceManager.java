@@ -29,6 +29,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 
 import javax.inject.Inject;
+import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -73,12 +74,18 @@ public final class AzureBatchResourceManager {
 
   public void onResourceRequested(final ResourceRequestEvent resourceRequestEvent) {
     LOG.log(Level.FINEST, "Got ResourceRequestEvent in AzureBatchResourceManager,");
+    URI jarFileUri = this.evaluatorShimManager.generateShimJarFile();
     for (int r = 0; r < resourceRequestEvent.getResourceCount(); r++) {
       final String containerId = generateContainerId();
+      LOG.log(Level.FINE, "containerId in AzureBatchResourceManager {0}", containerId);
       this.containerRequests.put(containerId, resourceRequestEvent);
       this.containerCount.incrementAndGet();
+      this.evaluatorShimManager.onResourceRequested(containerId, resourceRequestEvent, jarFileUri);
+    }
+
+    int currentContainerCount = this.containerCount.get();
+    if (currentContainerCount > 0) {
       this.azureBatchTaskStatusAlarmHandler.enableAlarm();
-      this.evaluatorShimManager.onResourceRequested(containerId, resourceRequestEvent);
     }
   }
 

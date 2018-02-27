@@ -109,8 +109,12 @@ final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
    * Enable the period alarm to send status updates.
    */
   public synchronized void enableAlarm() {
-    this.isAlarmEnabled = true;
-    this.scheduleAlarm();
+    if (!this.isAlarmEnabled) {
+      this.isAlarmEnabled = true;
+      this.scheduleAlarm();
+    } else {
+      LOG.log(Level.FINE, "Alarm is already scheduled.");
+    }
   }
 
   /**
