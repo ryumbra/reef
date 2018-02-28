@@ -72,6 +72,7 @@ public final class AzureBatchResourceManager {
 
   /**
    * This method is invoked when a {@link ResourceRequestEvent} is triggered.
+   *
    * @param resourceRequestEvent the resource request event.
    */
   public void onResourceRequested(final ResourceRequestEvent resourceRequestEvent) {
@@ -93,6 +94,7 @@ public final class AzureBatchResourceManager {
 
   /**
    * This method is invoked when a {@link ResourceReleaseEvent} is triggered.
+   *
    * @param resourceReleaseEvent the resource release event.
    */
   public void onResourceReleased(final ResourceReleaseEvent resourceReleaseEvent) {
@@ -115,6 +117,7 @@ public final class AzureBatchResourceManager {
 
   /**
    * This method is called when the {@link ResourceLaunchEvent} is triggered.
+   *
    * @param resourceLaunchEvent the resource launch event.
    */
   public void onResourceLaunched(final ResourceLaunchEvent resourceLaunchEvent) {

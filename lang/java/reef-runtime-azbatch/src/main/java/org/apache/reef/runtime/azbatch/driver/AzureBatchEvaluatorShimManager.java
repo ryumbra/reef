@@ -147,6 +147,7 @@ public final class AzureBatchEvaluatorShimManager
    * This method is called when a resource is requested. It will add a task to the existing Azure Batch job which
    * is equivalent to requesting a container in Azure Batch. When the request is fulfilled and the evaluator shim is
    * started, it will send a message back to the driver which signals that a resource request was fulfilled.
+   *
    * @param resourceRequestEvent resource request event.
    * @param containerId container id for the resource. It will be used as the task id for Azure Batch task.
    * @param jarFileUri Azure Storage SAS URI of the JAR file containing libraries required by the evaluator shim.
@@ -167,6 +168,7 @@ public final class AzureBatchEvaluatorShimManager
 
   /**
    * This method is invoked by the RemoteManager when a message from the evaluator shim is received.
+   *
    * @param statusMessage the message from the evaluator shim indicating that the shim has started and is ready to
    *                      start the evaluator process.
    */
@@ -195,6 +197,7 @@ public final class AzureBatchEvaluatorShimManager
    *    1. The driver receives a message from the evaluator shim indicating it has successfully started.
    *    2. {@link AzureBatchTaskStatusAlarmHandler} detects that the evaluator shim failed before sending the status
    *       message.
+   *
    * @param containerId id of the container.
    * @param remoteId remote address for the allocated container.
    * @param cloudTask Azure Batch task which corresponds to the container.
@@ -241,6 +244,7 @@ public final class AzureBatchEvaluatorShimManager
   /**
    * Event handler method for {@link ResourceLaunchEvent}. This method will determine if the evaluator shim
    * is online and send the evaluator launch command to the shim to start the evaluator.
+   *
    * @param resourceLaunchEvent an instance of {@ResourceLaunchEvent}
    * @param command OS command to launch the evaluator process.
    * @param evaluatorConfigurationString evaluator configuration serialized as a String.
@@ -267,6 +271,7 @@ public final class AzureBatchEvaluatorShimManager
 
   /**
    * Event handler method for {@link ResourceReleaseEvent}. Sends a TERMINATE command to the appropriate evaluator shim.
+   *
    * @param resourceReleaseEvent
    */
   public void onResourceReleased(final ResourceReleaseEvent resourceReleaseEvent) {
@@ -274,8 +279,7 @@ public final class AzureBatchEvaluatorShimManager
 
     // REEF Common will trigger a ResourceReleaseEvent even if the resource has failed. Since we know that the shim
     // has already failed, we can safely ignore this.
-    if (this.failedResources.containsKey(resourceReleaseEvent.getIdentifier())) {
-      this.failedResources.remove(resourceReleaseEvent.getIdentifier());
+    if (this.failedResources.remove(resourceReleaseEvent.getIdentifier()) != null) {
       LOG.log(Level.INFO, "Received a ResourceReleaseEvent for a failed shim with resourceId = {0}. Ignoring.",
           resourceReleaseEvent.getIdentifier());
     } else if (this.evaluators.get(resourceReleaseEvent.getIdentifier()).isPresent()) {
@@ -296,6 +300,7 @@ public final class AzureBatchEvaluatorShimManager
   /**
    * Takes in an instance of {@link CloudTask}, generates and triggers a
    * {@link org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent}.
+   *
    * @param cloudTask and instance of {@link CloudTask}.
    */
   public void onAzureBatchTaskStatus(final CloudTask cloudTask) {
@@ -326,6 +331,7 @@ public final class AzureBatchEvaluatorShimManager
 
   /**
    * A utility method which builds the evaluator shim JAR file and uploads it to Azure Storage.
+   *
    * @return SAS URI to where the evaluator shim JAR was uploaded.
    */
   public URI generateShimJarFile() {

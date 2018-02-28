@@ -78,6 +78,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
   /**
    * Returns REEF application id (which corresponds to Azure Batch job id) or null if the application hasn't been
    * submitted yet.
+   *
    * @return REEF application id.
    */
   @Override
@@ -87,6 +88,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
 
   /**
    * Closes the resources.
+   *
    * @throws Exception
    */
   @Override
@@ -96,6 +98,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
 
   /**
    * Invoked when JobSubmissionEvent is triggered.
+   *
    * @param jobSubmissionEvent triggered job submission event.
    */
   @Override

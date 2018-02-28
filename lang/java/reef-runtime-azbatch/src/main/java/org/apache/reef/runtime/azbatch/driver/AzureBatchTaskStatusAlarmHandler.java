@@ -82,6 +82,7 @@ final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
    * This method is periodically invoked by the Runtime Clock. It will call Azure Batch APIs to determine
    * the status of tasks running inside the job and notify REEF of tasks statuses that correspond to running
    * evaluators.
+   *
    * @param alarm alarm object.
    */
   @Override

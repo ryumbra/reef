@@ -44,6 +44,7 @@ public final class AzureBatchResourceLaunchHandler implements ResourceLaunchHand
 
   /**
    * This method is called when a new resource is requested.
+   *
    * @param resourceLaunchEvent resource launch event.
    */
   @Override

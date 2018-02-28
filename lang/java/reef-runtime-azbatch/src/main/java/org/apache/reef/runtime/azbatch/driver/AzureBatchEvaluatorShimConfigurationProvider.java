@@ -41,6 +41,7 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
   /**
    * Constructs a {@link Configuration} object which will be serialized and written to shim.config and
    * used to launch the evaluator shim.
+   *
    * @param containerId id of the container for which the shim is being launched.
    * @return A {@link Configuration} object needed to launch the evaluator shim.
    */

@@ -128,6 +128,7 @@ public final class EvaluatorShim
 
   /**
    * This method is invoked by the Remote Manager when a command message from the Driver is received.
+   *
    * @param remoteMessage the message sent to the evaluator shim by the Driver.
    */
   @Override
