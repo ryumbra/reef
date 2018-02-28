@@ -46,10 +46,10 @@ public final class AzureBatchRuntimeConfigurationCreator {
   /**
    * Get or create a {@link ConfigurationModule} for the Azure Batch runtime.
    *
-   * @param isWindows whether or not the target OS is windows.
+   * @param isWindows true if Azure Batch pool nodes run Windows, false otherwise.
    * @return the configuration module object.
    */
-  public static ConfigurationModule getOrCreateAzureBatchRuntimeConfiguration(final Boolean isWindows) {
+  public static ConfigurationModule getOrCreateAzureBatchRuntimeConfiguration(final boolean isWindows) {
 
     if (AzureBatchRuntimeConfigurationCreator.conf == null) {
       ConfigurationModuleBuilder builder = AzureBatchRuntimeConfigurationStatic.CONF;
