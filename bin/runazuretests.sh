@@ -29,8 +29,8 @@
 
 if [ $# -ne 2 ];
 then 
-	echo "Only 2 arguments are accepted - CLASSPATH and TESTCLASS"
-	exit 1;
+    echo "Only 2 arguments are accepted - CLASSPATH and TESTCLASS"
+    exit 1;
 fi
 
 [ -z "$VARIABLE" ] && VARIABLE="REEF_TEST_AZBATCH"
@@ -38,8 +38,8 @@ fi
 if [ $VARIABLE != "true" ]
 then
     echo "Trying to set REEF_TEST_AZBATCH environment variable."
-	echo "Please run as \". runazuretests.sh\" or set it from your environment."
-	export REEF_TEST_AZBATCH=true
+    echo "Please run as \". runazuretests.sh\" or set it from your environment."
+    export REEF_TEST_AZBATCH=true
 fi
 
 CLASSPATH=$1
