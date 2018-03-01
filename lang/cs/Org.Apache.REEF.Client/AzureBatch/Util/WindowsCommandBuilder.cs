@@ -15,15 +15,38 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Org.Apache.REEF.Common.Files;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
     internal sealed class WindowsCommandBuilder : AbstractCommandBuilder
     {
+        private static readonly string COMMAND_PREFIX = @"Add-Type -AssemblyName System.IO.Compression.FileSystem; " +
+          "[System.IO.Compression.ZipFile]::ExtractToDirectory(\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\" +
+              AzureBatchFileNames.getTaskJarFileName() + "\\\", " +
+              "\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\reef\\\");";
+        private const string CLASSPATH_SEPARATOR = ";";
+        private const string OS_COMMAND_FORMAT = "powershell.exe /c \"{0}\";";
+
+        [Inject]
+        private WindowsCommandBuilder(
+            REEFFileNames fileNames,
+            AzureBatchFileNames azureBatchFileNames) : base(fileNames, azureBatchFileNames,
+                COMMAND_PREFIX, OS_COMMAND_FORMAT)
+        {
+        }
+
+        protected override string GetDriverClasspath()
+        {
+            List<string> classpathList = new List<string>()
+            {
+                string.Format("{0}/{1}/*", _fileNames.GetReefFolderName(), _fileNames.GetLocalFolderName()),
+                string.Format("{0}/{1}/*", _fileNames.GetReefFolderName(), _fileNames.GetGlobalFolderName())
+            };
+
+            return string.Format("'{0};'", string.Join(CLASSPATH_SEPARATOR, classpathList));
+        }
     }
 }

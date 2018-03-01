@@ -102,7 +102,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             var azureBatchJobCommandBuilder = _injector.ForkInjector(commandProviderConfigModule.Build())
                 .GetInstance<ICommandBuilder>();
 
-            var command = azureBatchJobCommandBuilder.BuildDriverCommand();
+            var command = azureBatchJobCommandBuilder.BuildDriverCommand(jobParameters.DriverMemoryInMB);
 
             Log.Log(Level.Verbose, "Command for Azure Batch: {0}", command);
             return command;

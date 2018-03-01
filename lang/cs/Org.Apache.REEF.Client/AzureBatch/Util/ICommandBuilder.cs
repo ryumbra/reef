@@ -15,17 +15,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Client.API;
+
 namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
     /// <summary>
-    /// Provide the command to be submitted to RM for execution of .NET driver.
+    /// Build the launch command for Java REEF processes for Azure Batch.
     /// </summary>
     internal interface ICommandBuilder
     {
         /// <summary>
-        /// Builds the command to launch the Driver in Azure Batch
+        /// Assembles the command to execute the Driver.
         /// </summary>
-        /// <returns>A string command</returns>
-        string BuildDriverCommand();
+        /// <param name="driverMemory">The memory in megabytes used by driver.</param>
+        /// <returns>The command string.</returns>
+        string BuildDriverCommand(int driverMemory);
     }
 }

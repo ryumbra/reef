@@ -17,13 +17,35 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Org.Apache.REEF.Common.Files;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
     internal sealed class LinuxCommandBuilder : AbstractCommandBuilder
     {
+        private static readonly string COMMAND_PREFIX =
+                "unzip " + AzureBatchFileNames.getTaskJarFileName() + " -d 'reef/'" + ";";
+        private const string CLASSPATH_SEPARATOR = ":";
+        private const string OS_COMMAND_FORMAT = "/bin/sh -c \"{0}\"";
+
+        [Inject]
+        private LinuxCommandBuilder(
+            REEFFileNames fileNames,
+            AzureBatchFileNames azureBatchFileNames) : base(fileNames, azureBatchFileNames,
+                COMMAND_PREFIX, OS_COMMAND_FORMAT)
+        {
+        }
+
+        protected override string GetDriverClasspath()
+        {
+            List<string> classpathList = new List<string>()
+            {
+                string.Format("{0}/{1}/*", _fileNames.GetReefFolderName(), _fileNames.GetLocalFolderName()),
+                string.Format("{0}/{1}/*", _fileNames.GetReefFolderName(), _fileNames.GetGlobalFolderName())
+            };
+
+            return string.Join(CLASSPATH_SEPARATOR, classpathList);
+        }
     }
 }

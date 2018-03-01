@@ -16,22 +16,56 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Org.Apache.REEF.Common.Files;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
     internal abstract class AbstractCommandBuilder : ICommandBuilder
     {
-        public string BuildDriverCommand()
+        private const string JAVA_EXE = @"java";
+        private const string JVM_OPTIONS_PERM_SIZE = @"-XX:PermSize=128m";
+        private const string JVM_OPTIONS_MAX_PERM_SIZE_FORMAT = @"-XX:MaxPermSize=128m";
+        private const string JVM_OPTIONS_MAX_MEMORY_ALLOCATION_POOL_SIZE_FORMAT = @"-Xmx{0}m";
+        private const string CLASS_PATH_TOKEN = @"-classpath";
+        private const string PROC_REEF_PROPERTY = @"-Dproc_reef";
+        private const string LAUNCHER_CLASS_NAME = @"org.apache.reef.runtime.common.REEFLauncher";
+        protected readonly REEFFileNames _fileNames;
+        protected readonly string _osCommandFormat;
+        protected readonly string _commandPrefix;
+        protected readonly AzureBatchFileNames _azureBatchFileNames;
+
+        protected AbstractCommandBuilder(
+            REEFFileNames fileNames,
+            AzureBatchFileNames azureBatchFileNames,
+            string commandPrefix,
+            string osCommandFormat)
         {
-            // TODO[fix this]
-            return "/bin/sh -c \"ln -sfn '.' 'reef'; " +
-                "unzip local.jar; " +
-                "java -Xmx256m -XX:PermSize=128m -XX:MaxPermSize=128m -classpath " +
-                "reef/local/*:reef/global/* -Dproc_reef org.apache.reef.runtime.common.REEFLauncher reef/local/driver.conf\"";
+            _fileNames = fileNames;
+            _osCommandFormat = osCommandFormat;
+            _commandPrefix = commandPrefix;
+            _azureBatchFileNames = azureBatchFileNames;
         }
+
+        public string BuildDriverCommand(int driverMemory)
+        {
+            var sb = new StringBuilder();
+            sb.Append(" " + JAVA_EXE)
+              .Append(" " + string.Format(JVM_OPTIONS_MAX_MEMORY_ALLOCATION_POOL_SIZE_FORMAT, driverMemory))
+              .Append(" " + JVM_OPTIONS_PERM_SIZE)
+              .Append(" " + JVM_OPTIONS_MAX_PERM_SIZE_FORMAT)
+              .Append(" " + CLASS_PATH_TOKEN)
+              .Append(" " + GetDriverClasspath())
+              .Append(" " + PROC_REEF_PROPERTY)
+              .Append(" " + LAUNCHER_CLASS_NAME)
+              .Append(" " + _fileNames.GetDriverConfigurationPath()).Replace("\\", "/");
+            return string.Format(_osCommandFormat, _commandPrefix + sb.ToString());
+        }
+
+        /// <summary>
+        /// Returns the driver classpath string which is compatible with the intricacies of the OS.
+        /// </summary>
+        /// <returns>classpath parameter string.</returns>
+        protected abstract string GetDriverClasspath();
     }
 }
