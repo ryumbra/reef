@@ -56,6 +56,11 @@ under the License.
             <artifactId>reef-runtime-hdinsight</artifactId>
             <version>${project.version}</version>
         </dependency>
+		<dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-runtime-azbatch</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>reef-io</artifactId>
