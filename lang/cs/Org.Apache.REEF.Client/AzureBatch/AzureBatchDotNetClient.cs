@@ -43,7 +43,6 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         private readonly AzureBatchService _batchService;
         private readonly JobJarMaker _jobJarMaker;
         private readonly AzureBatchFileNames _azbatchFileNames;
-        private readonly DotNetFile _dotNetFile;
 
         [Inject]
         private AzureBatchDotNetClient(
@@ -83,7 +82,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             string jobId = jobRequest.JobIdentifier;
             string commandLine = GetCommand(jobRequest.JobParameters);
             string jarPath = _jobJarMaker.CreateJobSubmissionJAR(jobRequest);
-            Uri blobUri = _storageUploader.UploadFile(new Uri(_azbatchFileNames.StorageJobFolder(jobId)), null).Result;
+            Uri blobUri = _storageUploader.UploadFile(new Uri(_azbatchFileNames.GetStorageJobFolder(jobId)), null).Result;
             _batchService.CreateJob(jobId, blobUri, commandLine);
         }
 

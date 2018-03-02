@@ -16,12 +16,14 @@
 // under the License.
 
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
     /// <summary>
     /// Build the launch command for Java REEF processes for Azure Batch.
     /// </summary>
+    [DefaultImplementation(typeof(LinuxCommandBuilder))]
     internal interface ICommandBuilder
     {
         /// <summary>
