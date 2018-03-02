@@ -23,18 +23,18 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
     internal sealed class WindowsCommandBuilder : AbstractCommandBuilder
     {
-        private static readonly string COMMAND_PREFIX = @"Add-Type -AssemblyName System.IO.Compression.FileSystem; " +
+        private static readonly string CommandPrefix = @"Add-Type -AssemblyName System.IO.Compression.FileSystem; " +
           "[System.IO.Compression.ZipFile]::ExtractToDirectory(\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\" +
               AzureBatchFileNames.getTaskJarFileName() + "\\\", " +
               "\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\reef\\\");";
-        private const string CLASSPATH_SEPARATOR = ";";
-        private const string OS_COMMAND_FORMAT = "powershell.exe /c \"{0}\";";
+        private const string ClassPathSeparator = ";";
+        private const string OsCommandFormat = "powershell.exe /c \"{0}\";";
 
         [Inject]
         private WindowsCommandBuilder(
             REEFFileNames fileNames,
             AzureBatchFileNames azureBatchFileNames) : base(fileNames, azureBatchFileNames,
-                COMMAND_PREFIX, OS_COMMAND_FORMAT)
+                CommandPrefix, OsCommandFormat)
         {
         }
 
@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
                 string.Format("{0}/{1}/*", _fileNames.GetReefFolderName(), _fileNames.GetGlobalFolderName())
             };
 
-            return string.Format("'{0};'", string.Join(CLASSPATH_SEPARATOR, classpathList));
+            return string.Format("'{0};'", string.Join(ClassPathSeparator, classpathList));
         }
     }
 }

@@ -9,8 +9,8 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
     /// </summary>
     internal sealed class AzureBatchFileNames
     {
-        private const string STORAGE_JOB_FOLDER_PATH = "apps/reef/jobs/";
-        private const string TASL_JAS_FILE_NAME = "local.jar";
+        private const string StorageJobFolderPath = "apps/reef/jobs/";
+        private const string TaskJarFileName = "local.jar";
         private readonly REEFFileNames _reefFileNames;
 
         [Inject]
@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// <returns>The relative path to the folder storing the job assets.</returns>
         public string getStorageJobFolder(string jobId)
         {
-            return STORAGE_JOB_FOLDER_PATH + jobId;
+            return StorageJobFolderPath + jobId;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// <returns>The name under which the task jar will be stored.</returns>
         public static string getTaskJarFileName()
         {
-            return TASL_JAS_FILE_NAME;
+            return TaskJarFileName;
         }
     }
 }

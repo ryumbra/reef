@@ -23,13 +23,13 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
     internal abstract class AbstractCommandBuilder : ICommandBuilder
     {
-        private const string JAVA_EXE = @"java";
-        private const string JVM_OPTIONS_PERM_SIZE = @"-XX:PermSize=128m";
-        private const string JVM_OPTIONS_MAX_PERM_SIZE_FORMAT = @"-XX:MaxPermSize=128m";
-        private const string JVM_OPTIONS_MAX_MEMORY_ALLOCATION_POOL_SIZE_FORMAT = @"-Xmx{0}m";
-        private const string CLASS_PATH_TOKEN = @"-classpath";
-        private const string PROC_REEF_PROPERTY = @"-Dproc_reef";
-        private const string LAUNCHER_CLASS_NAME = @"org.apache.reef.runtime.common.REEFLauncher";
+        private const string JavaExe = @"java";
+        private const string JvmOptionsPermSize = @"-XX:PermSize=128m";
+        private const string JvmOptionsMaxPermSizeFormat = @"-XX:MaxPermSize=128m";
+        private const string JvmOptionsMaxMemoryAllocationPoolSizeFormat = @"-Xmx{0}m";
+        private const string ClassPathToken = @"-classpath";
+        private const string ProcReefProperty = @"-Dproc_reef";
+        private const string LauncherClassName = @"org.apache.reef.runtime.common.REEFLauncher";
         protected readonly REEFFileNames _fileNames;
         protected readonly string _osCommandFormat;
         protected readonly string _commandPrefix;
@@ -50,14 +50,14 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         public string BuildDriverCommand(int driverMemory)
         {
             var sb = new StringBuilder();
-            sb.Append(" " + JAVA_EXE)
-              .Append(" " + string.Format(JVM_OPTIONS_MAX_MEMORY_ALLOCATION_POOL_SIZE_FORMAT, driverMemory))
-              .Append(" " + JVM_OPTIONS_PERM_SIZE)
-              .Append(" " + JVM_OPTIONS_MAX_PERM_SIZE_FORMAT)
-              .Append(" " + CLASS_PATH_TOKEN)
+            sb.Append(" " + JavaExe)
+              .Append(" " + string.Format(JvmOptionsMaxMemoryAllocationPoolSizeFormat, driverMemory))
+              .Append(" " + JvmOptionsPermSize)
+              .Append(" " + JvmOptionsMaxPermSizeFormat)
+              .Append(" " + ClassPathToken)
               .Append(" " + GetDriverClasspath())
-              .Append(" " + PROC_REEF_PROPERTY)
-              .Append(" " + LAUNCHER_CLASS_NAME)
+              .Append(" " + ProcReefProperty)
+              .Append(" " + LauncherClassName)
               .Append(" " + _fileNames.GetDriverConfigurationPath()).Replace("\\", "/");
             return string.Format(_osCommandFormat, _commandPrefix + sb.ToString());
         }

@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
@@ -24,16 +23,16 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
     internal sealed class LinuxCommandBuilder : AbstractCommandBuilder
     {
-        private static readonly string COMMAND_PREFIX =
+        private static readonly string CommandPrefix =
                 "unzip " + AzureBatchFileNames.getTaskJarFileName() + " -d 'reef/'" + ";";
-        private const string CLASSPATH_SEPARATOR = ":";
-        private const string OS_COMMAND_FORMAT = "/bin/sh -c \"{0}\"";
+        private const string ClassPathSeparator = ":";
+        private const string OsCommandFormat = "/bin/sh -c \"{0}\"";
 
         [Inject]
         private LinuxCommandBuilder(
             REEFFileNames fileNames,
             AzureBatchFileNames azureBatchFileNames) : base(fileNames, azureBatchFileNames,
-                COMMAND_PREFIX, OS_COMMAND_FORMAT)
+                CommandPrefix, OsCommandFormat)
         {
         }
 
@@ -45,7 +44,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
                 string.Format("{0}/{1}/*", _fileNames.GetReefFolderName(), _fileNames.GetGlobalFolderName())
             };
 
-            return string.Join(CLASSPATH_SEPARATOR, classpathList);
+            return string.Join(ClassPathSeparator, classpathList);
         }
     }
 }
