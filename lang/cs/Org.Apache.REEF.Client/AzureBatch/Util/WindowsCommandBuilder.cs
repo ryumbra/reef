@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
     {
         private static readonly string CommandPrefix = @"Add-Type -AssemblyName System.IO.Compression.FileSystem; " +
           "[System.IO.Compression.ZipFile]::ExtractToDirectory(\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\" +
-              AzureBatchFileNames.getTaskJarFileName() + "\\\", " +
+              AzureBatchFileNames.GetTaskJarFileName() + "\\\", " +
               "\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\reef\\\");";
         private const string ClassPathSeparator = ";";
         private const string OsCommandFormat = "powershell.exe /c \"{0}\";";

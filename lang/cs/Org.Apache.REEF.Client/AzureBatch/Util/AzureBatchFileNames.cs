@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// </summary>
         /// <param name="jobId">Job Submission Id</param>
         /// <returns>The relative path to the folder storing the job assets.</returns>
-        public string getStorageJobFolder(string jobId)
+        public string GetStorageJobFolder(string jobId)
         {
             return StorageJobFolderPath + jobId;
         }
@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// <summary>
         /// </summary>
         /// <returns>The name under which the task jar will be stored.</returns>
-        public static string getTaskJarFileName()
+        public static string GetTaskJarFileName()
         {
             return TaskJarFileName;
         }

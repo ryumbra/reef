@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
     internal sealed class LinuxCommandBuilder : AbstractCommandBuilder
     {
         private static readonly string CommandPrefix =
-                "unzip " + AzureBatchFileNames.getTaskJarFileName() + " -d 'reef/'" + ";";
+                "unzip " + AzureBatchFileNames.GetTaskJarFileName() + " -d 'reef/'" + ";";
         private const string ClassPathSeparator = ":";
         private const string OsCommandFormat = "/bin/sh -c \"{0}\"";
 
