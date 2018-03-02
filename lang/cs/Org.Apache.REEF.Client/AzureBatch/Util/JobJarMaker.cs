@@ -20,6 +20,7 @@ using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,11 +30,15 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
     internal sealed class JobJarMaker
     {
         private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
+        private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
 
         [Inject]
-        JobJarMaker(IResourceArchiveFileGenerator resourceArchiveFileGenerator)
+        JobJarMaker(
+            IResourceArchiveFileGenerator resourceArchiveFileGenerator,
+            DriverFolderPreparationHelper driverFolderPreparationHelper)
         {
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
+            _driverFolderPreparationHelper = driverFolderPreparationHelper;
         }
 
         /// <summary>
@@ -43,7 +48,14 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// <returns>A string path to file.</returns>
         public string CreateJobSubmissionJAR(JobRequest jobRequest)
         {
-            throw new NotImplementedException();
+            string localDriverFolderPath = CreateDriverFolder(jobRequest.JobIdentifier);
+            _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, localDriverFolderPath);
+            return _resourceArchiveFileGenerator.CreateArchiveToUpload(localDriverFolderPath);
+        }
+
+        private string CreateDriverFolder(string jobId)
+        {
+            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId)));
         }
     }
 }
