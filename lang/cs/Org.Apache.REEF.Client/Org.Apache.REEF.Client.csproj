@@ -103,6 +103,7 @@ under the License.
     <Compile Include="AzureBatch\AzureBatchDotNetClient.cs" />
     <Compile Include="AzureBatch\Storage\AzureStorageUploader.cs" />
     <Compile Include="AzureBatch\Service\AzureBatchService.cs" />
+    <Compile Include="AzureBatch\Util\AzureBatchFileNames.cs" />
     <Compile Include="AzureBatch\Util\ICommandBuilder.cs" />
     <Compile Include="AzureBatch\Storage\IStorageUploader.cs" />
     <Compile Include="AzureBatch\Parameters\AzureBatchAccountKey.cs" />

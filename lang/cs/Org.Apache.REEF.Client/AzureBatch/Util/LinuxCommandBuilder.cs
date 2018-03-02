@@ -15,15 +15,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Org.Apache.REEF.Common.Files;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
     internal sealed class LinuxCommandBuilder : AbstractCommandBuilder
     {
+        private static readonly string CommandPrefix =
+                "unzip " + AzureBatchFileNames.GetTaskJarFileName() + " -d 'reef/'" + ";";
+        private const string ClassPathSeparator = ":";
+        private const string OsCommandFormat = "/bin/sh -c \"{0}\"";
+
+        [Inject]
+        private LinuxCommandBuilder(
+            REEFFileNames fileNames,
+            AzureBatchFileNames azureBatchFileNames) : base(fileNames, azureBatchFileNames,
+                CommandPrefix, OsCommandFormat)
+        {
+        }
+
+        protected override string GetDriverClasspath()
+        {
+            List<string> classpathList = new List<string>()
+            {
+                string.Format("{0}/{1}/*", _fileNames.GetReefFolderName(), _fileNames.GetLocalFolderName()),
+                string.Format("{0}/{1}/*", _fileNames.GetReefFolderName(), _fileNames.GetGlobalFolderName())
+            };
+
+            return string.Join(ClassPathSeparator, classpathList);
+        }
     }
 }
