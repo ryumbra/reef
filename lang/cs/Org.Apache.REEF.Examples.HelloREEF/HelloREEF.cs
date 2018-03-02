@@ -119,13 +119,13 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Build();
                 case AzureBatch:
                     return AzureBatchClientConfiguration.ConfigurationModule
-                        .Set(AzureBatchClientConfiguration.AzureBatchAccountKey, @"sIZP6bAv3XORsnhq2Wbg0CqnIdyFiZXr1G5URGnfRTVQnQ50LvB5+wnrr5ERS87TH/8K93ViZn/qfH0SGH4DKQ==")
-                        .Set(AzureBatchClientConfiguration.AzureBatchAccountName, @"chzhareefbatch")
-                        .Set(AzureBatchClientConfiguration.AzureBatchAccountUri, @"https://chzhareefbatch.westus2.batch.azure.com")
-                        .Set(AzureBatchClientConfiguration.AzureBatchPoolId, "LinuxPool")
-                        .Set(AzureBatchClientConfiguration.AzureStorageAccountKey, "Om+vMDX1JyAJKmTwWh5+f8lN4H3BnwgIHi3Xj/ohNZt5sm8ZWK8jnKWWKD2r9WeBw8Yad5CGjyd7s9lSY01RDw==")
-                        .Set(AzureBatchClientConfiguration.AzureStorageAccountName, "reefstorage1")
-                        .Set(AzureBatchClientConfiguration.AzureStorageContainerName, "chzha-container1")
+                        .Set(AzureBatchClientConfiguration.AzureBatchAccountKey, @"##########################################")
+                        .Set(AzureBatchClientConfiguration.AzureBatchAccountName, @"######")
+                        .Set(AzureBatchClientConfiguration.AzureBatchAccountUri, @"######################")
+                        .Set(AzureBatchClientConfiguration.AzureBatchPoolId, "######")
+                        .Set(AzureBatchClientConfiguration.AzureStorageAccountKey, "##########################################")
+                        .Set(AzureBatchClientConfiguration.AzureStorageAccountName, "############")
+                        .Set(AzureBatchClientConfiguration.AzureStorageContainerName, "###########")
                         .Build();
 
                 default:
