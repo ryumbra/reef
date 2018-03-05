@@ -56,10 +56,10 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
         /// <param name="destination">Destination in Azure Storage where given file will be uploaded.</param>
         /// <param name="filePath">Path to the file to be uploaded.</param>
         /// <returns>Storage SAS URI for uploaded file.</returns>
-        public async Task<Uri> UploadFile(string folderName, string filePath)
+        public async Task<Uri> UploadFile(string destination, string filePath)
         {
             CloudBlobContainer blobContainer = await this.GetOrCreateCloudBlobContainer();
-            CloudBlobDirectory directory = blobContainer.GetDirectoryReference(folderName);
+            CloudBlobDirectory directory = blobContainer.GetDirectoryReference(destination);
 
             string fileName = Path.GetFileName(filePath);
             CloudBlockBlob blob = directory.GetBlockBlobReference(fileName);
