@@ -15,19 +15,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.Client.AzureBatch.Parameters;
-using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Tang.Annotations;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Storage
 {
     internal class AzureStorageUploader : IStorageUploader
     {
+        private static readonly string StorageConnectionStringFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}";
+        private static readonly int SASTokenValidityMinutes = 30;
+
         private readonly string _storageAccountName;
         private readonly string _storageAccountKey;
         private readonly string _storageContainerName;
+
+        private readonly string _storageConnectionString;
 
         [Inject]
         AzureStorageUploader(
@@ -38,27 +45,54 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
             this._storageAccountName = storageAccountName;
             this._storageAccountKey = storageAccountKey;
             this._storageContainerName = storageContainerName;
-        }
 
-        /// <summary>
-        /// Creates a folder in Azure Storage.
-        /// </summary>
-        /// <param name="folderName">The name of the folder to be created.</param>
-        /// <returns>The URI for created folder.</returns>
-        public Task<Uri> CreateFolder(string folderName)
-        {
-            throw new NotImplementedException();
+            this._storageConnectionString = string.Format(StorageConnectionStringFormat,
+                new object[] { storageAccountName, storageAccountKey });
         }
 
         /// <summary>
         /// Uploads a given file to the given destination folder in Azure Storage.
         /// </summary>
         /// <param name="destination">Destination in Azure Storage where given file will be uploaded.</param>
-        /// <param name="file">File to be uploaded.</param>
+        /// <param name="filePath">Path to the file to be uploaded.</param>
         /// <returns>Storage SAS URI for uploaded file.</returns>
-        public Task<Uri> UploadFile(Uri destination, IFile file)
+        public async Task<Uri> UploadFile(string destination, string filePath)
         {
-            throw new NotImplementedException();
+            CloudBlobContainer blobContainer = await this.GetOrCreateCloudBlobContainer();
+            CloudBlobDirectory directory = blobContainer.GetDirectoryReference(destination);
+
+            string fileName = Path.GetFileName(filePath);
+            CloudBlockBlob blob = directory.GetBlockBlobReference(fileName);
+            await blob.UploadFromFileAsync(filePath, FileMode.Open);
+
+            string sas = blob.GetSharedAccessSignature(CreateSASPolicy());
+            string uri = blob.Uri.AbsoluteUri;
+
+            return new Uri(uri + sas);
+        }
+
+        private CloudBlobClient GetCloudBlobClient()
+        {
+            return CloudStorageAccount.Parse(this._storageConnectionString).CreateCloudBlobClient();
+        }
+
+        private async Task<CloudBlobContainer> GetOrCreateCloudBlobContainer()
+        {
+            CloudBlobClient blobClient = this.GetCloudBlobClient();
+            CloudBlobContainer blobContainer = blobClient.GetContainerReference(this._storageContainerName);
+            await blobContainer.CreateIfNotExistsAsync();
+
+            return blobContainer;
+        }
+
+        private SharedAccessBlobPolicy CreateSASPolicy()
+        {
+            return new SharedAccessBlobPolicy()
+            {
+                SharedAccessStartTime = DateTime.UtcNow,
+                SharedAccessExpiryTime = DateTime.UtcNow.AddMinutes(SASTokenValidityMinutes),
+                Permissions = SharedAccessBlobPermissions.Read
+            };
         }
     }
 }

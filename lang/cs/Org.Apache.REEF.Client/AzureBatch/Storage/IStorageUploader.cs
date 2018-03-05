@@ -17,7 +17,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Storage
@@ -26,18 +25,11 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
     internal interface IStorageUploader
     {
         /// <summary>
-        /// Creates a folder in Azure Storage.
-        /// </summary>
-        /// <param name="folderName">The name of the folder to be created.</param>
-        /// <returns>The URI for created folder.</returns>
-        Task<Uri> CreateFolder(string folderName);
-
-        /// <summary>
         /// Uploads a given file to the given destination folder in Azure Storage.
         /// </summary>
         /// <param name="destination">Destination in Azure Storage where given file will be uploaded.</param>
-        /// <param name="file">File to be uploaded.</param>
+        /// <param name="filePath">Path to the file to be uploaded.</param>
         /// <returns>Storage SAS URI for uploaded file.</returns>
-        Task<Uri> UploadFile(Uri destination, IFile file);
+        Task<Uri> UploadFile(string destination, string filePath);
     }
 }
