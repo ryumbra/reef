@@ -97,6 +97,7 @@ under the License.
     <Compile Include="API\TcpPortConfigurationModule.cs" />
     <Compile Include="Avro\AvroAppSubmissionParameters.cs" />
     <Compile Include="Avro\AvroJobSubmissionParameters.cs" />
+    <Compile Include="Avro\AzureBatch\AvroAzureBatchJobSubmissionParameters.cs" />
     <Compile Include="Avro\Local\AvroLocalAppSubmissionParameters.cs" />
     <Compile Include="Avro\Local\AvroLocalJobSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnAppSubmissionParameters.cs" />
@@ -125,6 +126,7 @@ under the License.
     <Compile Include="AzureBatch\Util\JobJarMaker.cs" />
     <Compile Include="AzureBatch\Util\LinuxCommandBuilder.cs" />
     <Compile Include="AzureBatch\Util\WindowsCommandBuilder.cs" />
+    <Compile Include="AzureBatch\AzureBatchREEFDotNetParamSerializer.cs" />
     <Compile Include="Common\DotNetFile.cs" />
     <Compile Include="Common\ClientConstants.cs" />
     <Compile Include="Common\DriverFolderPreparationHelper.cs" />
@@ -298,6 +300,7 @@ under the License.
       <Visible>false</Visible>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets')" />

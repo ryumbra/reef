@@ -16,14 +16,13 @@
 // under the License.
 
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Avro.AzureBatch;
 using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Tang.Annotations;
-using System;
-using System.Collections.Generic;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
@@ -31,14 +30,17 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
     {
         private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
+        private readonly AzureBatchREEFDotNetParamSerializer _paramSerializer;
 
         [Inject]
         JobJarMaker(
             IResourceArchiveFileGenerator resourceArchiveFileGenerator,
-            DriverFolderPreparationHelper driverFolderPreparationHelper)
+            DriverFolderPreparationHelper driverFolderPreparationHelper,
+            AzureBatchREEFDotNetParamSerializer paramSerializer)
         {
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
+            _paramSerializer = paramSerializer;
         }
 
         /// <summary>
@@ -50,12 +52,14 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         {
             string localDriverFolderPath = CreateDriverFolder(jobRequest.JobIdentifier);
             _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, localDriverFolderPath);
+            _paramSerializer.SerializeJobFile(jobRequest.JobParameters, localDriverFolderPath);
+
             return _resourceArchiveFileGenerator.CreateArchiveToUpload(localDriverFolderPath);
         }
 
         private string CreateDriverFolder(string jobId)
         {
-            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId)));
+            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId)) + "\\");
         }
     }
 }

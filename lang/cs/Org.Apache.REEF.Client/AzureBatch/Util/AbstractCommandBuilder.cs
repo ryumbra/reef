@@ -29,7 +29,8 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         private const string JvmOptionsMaxMemoryAllocationPoolSizeFormat = @"-Xmx{0}m";
         private const string ClassPathToken = @"-classpath";
         private const string ProcReefProperty = @"-Dproc_reef";
-        private const string LauncherClassName = @"org.apache.reef.runtime.common.REEFLauncher";
+        //// private const string LauncherClassName = @"org.apache.reef.runtime.common.REEFLauncher";
+        private const string LauncherClassName = @"org.apache.reef.bridge.client.AzureBatchBootstrapClient";
         protected readonly REEFFileNames _fileNames;
         protected readonly string _osCommandFormat;
         protected readonly string _commandPrefix;
@@ -58,7 +59,15 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
               .Append(" " + GetDriverClasspath())
               .Append(" " + ProcReefProperty)
               .Append(" " + LauncherClassName)
-              .Append(" " + _fileNames.GetDriverConfigurationPath()).Replace("\\", "/");
+              //// .Append(" " + _fileNames.GetClrDriverConfigurationPath().Replace("\\", "/");
+              .Append(" " + string.Format("{0}/{1}", _fileNames.GetReefFolderName(), _fileNames.GetJobSubmissionParametersFile()));
+            /**
+             * .Append(" " +
+                    string.Format("{0}/{1}/{2}",
+                        _fileNames.GetReefFolderName(),
+                        _fileNames.GetLocalFolderName(),
+                        _fileNames.GetAppSubmissionParametersFile()));
+            **/
             return string.Format(_osCommandFormat, _commandPrefix + sb.ToString());
         }
 

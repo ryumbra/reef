@@ -28,12 +28,13 @@ using Org.Apache.REEF.Client.AzureBatch.Storage;
 using Org.Apache.REEF.Client.AzureBatch;
 using Org.Apache.REEF.Client.AzureBatch.Util;
 using System.IO;
+using Org.Apache.REEF.Client.YARN;
 
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
     class AzureBatchDotNetClient : IREEFClient
     {
-        private static readonly Logger Log = Logger.GetLogger(typeof(AzureBatchDotNetClient));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(AzureBatchDotNetClient));
 
         private readonly IInjector _injector;
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
@@ -82,7 +83,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             string jobId = jobRequest.JobIdentifier;
             string commandLine = GetCommand(jobRequest.JobParameters);
             string jarPath = _jobJarMaker.CreateJobSubmissionJAR(jobRequest);
-            Uri blobUri = _storageUploader.UploadFile(new Uri(_azbatchFileNames.GetStorageJobFolder(jobId)), null).Result;
+            Uri blobUri = _storageUploader.UploadFile(_azbatchFileNames.GetStorageJobFolder(jobId), jarPath).Result;
             _batchService.CreateJob(jobId, blobUri, commandLine);
         }
 
@@ -112,7 +113,6 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
             var command = azureBatchJobCommandBuilder.BuildDriverCommand(jobParameters.DriverMemoryInMB);
 
-            Log.Log(Level.Verbose, "Command for Azure Batch: {0}", command);
             return command;
         }
 
