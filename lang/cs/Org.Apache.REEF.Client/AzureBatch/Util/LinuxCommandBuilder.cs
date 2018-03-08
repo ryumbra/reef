@@ -46,5 +46,10 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
 
             return string.Join(ClassPathSeparator, classpathList);
         }
+
+        protected override string GetLibarayClasspath()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

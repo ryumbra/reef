@@ -48,5 +48,16 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
 
             return string.Format("'{0};'", string.Join(ClassPathSeparator, classpathList));
         }
+
+        protected override string GetLibarayClasspath()
+        {
+            List<string> classpathList = new List<string>()
+            {
+                string.Format("{0}/{1}", _fileNames.GetReefFolderName(), _fileNames.GetLocalFolderName()),
+                string.Format("{0}/{1}", _fileNames.GetReefFolderName(), _fileNames.GetGlobalFolderName())
+            };
+
+            return string.Format("'{0};'", string.Join(ClassPathSeparator, classpathList));
+        }
     }
 }

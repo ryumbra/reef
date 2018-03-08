@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         private const string ProcReefProperty = @"-Dproc_reef";
         private const string LibraryPathToken = @"-Djava.libaray.path";
         //// private const string LauncherClassName = @"org.apache.reef.runtime.common.REEFLauncher";
-        private const string LauncherClassName = @"org.apache.reef.bridge.client.AzureBatchBootstrapClient";
+        private const string LauncherClassName = @"org.apache.reef.bridge.client.AzureBatchBootstrapREEFLauncher";
         protected readonly REEFFileNames _fileNames;
         protected readonly string _osCommandFormat;
         protected readonly string _commandPrefix;
@@ -52,16 +52,16 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         public string BuildDriverCommand(int driverMemory)
         {
             var sb = new StringBuilder();
-            sb.Append(" " + JavaExe)
+            sb.Append(_fileNames.GetBridgeExePath())
+              .Append(" " + JavaExe)
               .Append(" " + string.Format(JvmOptionsMaxMemoryAllocationPoolSizeFormat, driverMemory))
               .Append(" " + JvmOptionsPermSize)
               .Append(" " + JvmOptionsMaxPermSizeFormat)
               .Append(" " + ClassPathToken)
               .Append(" " + GetDriverClasspath())
+              //// .Append(" " + LibraryPathToken + "=" + GetLibarayClasspath())
               .Append(" " + ProcReefProperty)
               .Append(" " + LauncherClassName)
-              .Append(" " + LibraryPathToken)
-              .Append(" " + GetDriverClasspath())
               //// .Append(" " + _fileNames.GetClrDriverConfigurationPath().Replace("\\", "/");
               .Append(" " + string.Format("{0}/{1}", _fileNames.GetReefFolderName(), _fileNames.GetJobSubmissionParametersFile()));
             /**
@@ -79,5 +79,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// </summary>
         /// <returns>classpath parameter string.</returns>
         protected abstract string GetDriverClasspath();
+
+        protected abstract string GetLibarayClasspath();
     }
 }

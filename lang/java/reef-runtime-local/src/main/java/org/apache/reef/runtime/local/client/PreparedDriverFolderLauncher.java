@@ -104,6 +104,7 @@ public class PreparedDriverFolderLauncher {
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, "REEF app command: {0}", StringUtils.join(command, ' '));
     }
+    LOG.log(Level.INFO, "REEF app command: {0}", StringUtils.join(command, ' '));
     return command;
   }
 

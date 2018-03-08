@@ -24,7 +24,6 @@ import org.apache.avro.io.JsonDecoder;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters;
-import org.apache.reef.reef.bridge.client.avro.AvroLocalJobSubmissionParameters;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfigurationProvider;
 import org.apache.reef.runtime.azbatch.parameters.*;
 import org.apache.reef.runtime.common.REEFLauncher;
@@ -32,7 +31,6 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,8 +45,8 @@ import java.util.logging.Logger;
  * being in order for the Interop code to discover the class.
  */
 @Interop(CppFiles = "DriverLauncher.cpp")
-public final class AzureBatchBootstrapClient {
-  private static final Logger LOG = Logger.getLogger(org.apache.reef.bridge.client.AzureBatchBootstrapClient.class.getName());
+public final class AzureBatchBootstrapREEFLauncher {
+  private static final Logger LOG = Logger.getLogger(AzureBatchBootstrapREEFLauncher.class.getName());
 
   public static void main(final String[] args) throws IOException, InjectionException {
     LOG.log(Level.INFO, "Entering BootstrapLauncher.main().");
@@ -118,6 +116,6 @@ public final class AzureBatchBootstrapClient {
     return new RuntimeException(msg, t);
   }
 
-  private AzureBatchBootstrapClient() {
+  private AzureBatchBootstrapREEFLauncher() {
   }
 }
