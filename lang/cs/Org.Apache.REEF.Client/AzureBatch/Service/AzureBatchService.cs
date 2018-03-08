@@ -109,7 +109,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
             unboundJob.JobManagerTask = jobManager;
             unboundJob.Commit();
-            Logger.Log(Level.Verbose, "Submitted job {0}, coommandLine {1} ", jobId, commandLine);
+            Logger.Log(Level.Info, "Submitted job {0}, coommandLine {1} ", jobId, commandLine);
         }
 
         public CloudJob GetJob(string jobId, DetailLevel detailLevel)

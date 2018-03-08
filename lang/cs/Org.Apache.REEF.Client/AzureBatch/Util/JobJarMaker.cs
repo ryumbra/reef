@@ -16,9 +16,12 @@
 // under the License.
 
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Avro;
 using Org.Apache.REEF.Client.Avro.AzureBatch;
+using Org.Apache.REEF.Client.AzureBatch.Parameters;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.YARN;
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using System.IO;
@@ -31,16 +34,36 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
         private readonly AzureBatchREEFDotNetParamSerializer _paramSerializer;
+        private readonly AvroAzureBatchJobSubmissionParameters _avroAzureBatchJobSubmissionParameters;
+        private readonly REEFFileNames _fileNames;
 
         [Inject]
         JobJarMaker(
             IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
-            AzureBatchREEFDotNetParamSerializer paramSerializer)
+            AzureBatchREEFDotNetParamSerializer paramSerializer,
+            REEFFileNames fileNames,
+            [Parameter(typeof(AzureBatchAccountKey))] string azureBatchAccountKey,
+            [Parameter(typeof(AzureBatchAccountName))] string azureBatchAccountName,
+            [Parameter(typeof(AzureBatchAccountUri))] string azureBatchAccountUri,
+            [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId,
+            [Parameter(typeof(AzureStorageAccountKey))] string azureStorageAccountKey,
+            [Parameter(typeof(AzureStorageAccountName))] string azureStorageAccountName,
+            [Parameter(typeof(AzureStorageContainerName))] string azureStorageContainerName)
         {
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _paramSerializer = paramSerializer;
+            _fileNames = fileNames;
+            _avroAzureBatchJobSubmissionParameters = new AvroAzureBatchJobSubmissionParameters();
+            _avroAzureBatchJobSubmissionParameters.AzureBatchAccountKey = azureStorageAccountKey;
+            _avroAzureBatchJobSubmissionParameters.AzureBatchAccountName = azureBatchAccountName;
+            _avroAzureBatchJobSubmissionParameters.AzureBatchAccountUri = azureBatchAccountUri;
+            _avroAzureBatchJobSubmissionParameters.AzureBatchPoolId = azureBatchPoolId;
+            _avroAzureBatchJobSubmissionParameters.AzureStorageAccountKey = azureStorageAccountKey;
+            _avroAzureBatchJobSubmissionParameters.AzureStorageAccountName = azureStorageAccountName;
+            _avroAzureBatchJobSubmissionParameters.AzureStorageContainerName = azureStorageContainerName;
+            _avroAzureBatchJobSubmissionParameters.AzureBatchIsWindows = true;
         }
 
         /// <summary>
@@ -49,10 +72,16 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// <param name="jobRequest">Job request received from the client code.</param>
         /// <returns>A string path to file.</returns>
         public string CreateJobSubmissionJAR(JobRequest jobRequest)
-        {
+        {   
+            var bootstrapJobArgs = new AvroJobSubmissionParameters
+            {
+                jobId = jobRequest.JobIdentifier,
+                jobSubmissionFolder = "./"
+            };
+            _avroAzureBatchJobSubmissionParameters.sharedJobSubmissionParameters = bootstrapJobArgs;
             string localDriverFolderPath = CreateDriverFolder(jobRequest.JobIdentifier);
             _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, localDriverFolderPath);
-            _paramSerializer.SerializeJobFile(jobRequest.JobParameters, localDriverFolderPath);
+            _paramSerializer.SerializeJobFile(localDriverFolderPath, _avroAzureBatchJobSubmissionParameters);
 
             return _resourceArchiveFileGenerator.CreateArchiveToUpload(localDriverFolderPath);
         }

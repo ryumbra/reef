@@ -30,22 +30,19 @@ namespace Org.Apache.REEF.Client.YARN
     internal sealed class AzureBatchREEFDotNetParamSerializer
     {
         private readonly REEFFileNames _fileNames;
-        private readonly AvroAzureBatchJobSubmissionParameters _avroAzureBatchJobSubmissionParameters;
 
         [Inject]
-        private AzureBatchREEFDotNetParamSerializer(REEFFileNames fileNames,
-            AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters)
+        private AzureBatchREEFDotNetParamSerializer(REEFFileNames fileNames)
         {
             _fileNames = fileNames;
-            _avroAzureBatchJobSubmissionParameters = avroAzureBatchJobSubmissionParameters;
         }
 
         /// <summary>
         /// Serializes the job parameters to job-submission-params.json.
         /// </summary>
-        internal void SerializeJobFile(JobParameters jobParameters, string localDriverFolderPath)
+        internal void SerializeJobFile(string localDriverFolderPath, AvroAzureBatchJobSubmissionParameters jobParameters)
         {
-            var serializedArgs = SerializeJobArgsToBytes();
+            var serializedArgs = SerializeJobArgsToBytes(jobParameters);
 
             var submissionJobArgsFilePath = Path.Combine(
                 new string[] 
@@ -61,9 +58,9 @@ namespace Org.Apache.REEF.Client.YARN
             }
         }
 
-        internal byte[] SerializeJobArgsToBytes()
+        internal byte[] SerializeJobArgsToBytes(AvroAzureBatchJobSubmissionParameters jobParameters)
         {
-            return AvroJsonSerializer<AvroAzureBatchJobSubmissionParameters>.ToBytes(_avroAzureBatchJobSubmissionParameters);
+            return AvroJsonSerializer<AvroAzureBatchJobSubmissionParameters>.ToBytes(jobParameters);
         }
     }
 }

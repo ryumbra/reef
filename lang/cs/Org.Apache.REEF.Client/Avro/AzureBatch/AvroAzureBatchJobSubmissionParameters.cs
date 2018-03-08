@@ -20,7 +20,7 @@ namespace Org.Apache.REEF.Client.Avro.AzureBatch
     [DataContract(Namespace = "org.apache.reef.reef.bridge.client.avro")]
     public sealed class AvroAzureBatchJobSubmissionParameters
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters"",""doc"":""Job submission parameters used by the Azure Batch runtime"",""fields"":[{""name"":""AzureBatchAccountKey"",""type"":""string""},{""name"":""AzureBatchAccountName"",""type"":""string""},{""name"":""AzureBatchAccountUri"",""type"":""string""},{""name"":""AzureBatchPoolId"",""type"":""string""},{""name"":""AzureStorageAccountKey"",""type"":""string""},{""name"":""AzureStorageAccountName"",""type"":""string""},{""name"":""AzureStorageContainerName"",""type"":""string""},{""name"":""AzureBatchIsWindows"",""type"":""boolean""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters"",""doc"":""Job submission parameters used by the Azure Batch runtime"",""fields"":[{""name"":""sharedJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language job submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""AzureBatchAccountKey"",""type"":""string""},{""name"":""AzureBatchAccountName"",""type"":""string""},{""name"":""AzureBatchAccountUri"",""type"":""string""},{""name"":""AzureBatchPoolId"",""type"":""string""},{""name"":""AzureStorageAccountKey"",""type"":""string""},{""name"":""AzureStorageAccountName"",""type"":""string""},{""name"":""AzureStorageContainerName"",""type"":""string""},{""name"":""AzureBatchIsWindows"",""type"":""boolean""}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -32,6 +32,12 @@ namespace Org.Apache.REEF.Client.Avro.AzureBatch
                 return JsonSchema;
             }
         }
+
+        /// <summary>
+        /// Gets or sets the sharedJobSubmissionParameters field.
+        /// </summary>
+        [DataMember]
+        public AvroJobSubmissionParameters sharedJobSubmissionParameters { get; set; }
 
         /// <summary>
         /// Gets or sets the sharedJobSubmissionParameters field.
@@ -79,7 +85,6 @@ namespace Org.Apache.REEF.Client.Avro.AzureBatch
         /// <param name="sharedJobSubmissionParameters">The sharedJobSubmissionParameters.</param>
         /// <param name="driverStdoutFilePath">The driverStdoutFilePath.</param>
         /// <param name="driverStderrFilePath">The drverStderrFilePath.</param>
-        /** 
         public AvroAzureBatchJobSubmissionParameters(
             string azureBatchAccountKey,
             string azureBatchAccountName,
@@ -98,8 +103,8 @@ namespace Org.Apache.REEF.Client.Avro.AzureBatch
             AzureStorageAccountName = azureStorageAccountName;
             AzureStorageContainerName = azureStorageContainerName;
             AzureBatchIsWindows = azureBatchIsWindows;
-        }**/
-
+        }
+        /*
         [Inject]
         public AvroAzureBatchJobSubmissionParameters(
             [Parameter(typeof(AzureBatchAccountKey))] string azureBatchAccountKey,
@@ -118,6 +123,6 @@ namespace Org.Apache.REEF.Client.Avro.AzureBatch
             AzureStorageAccountName = azureStorageAccountName;
             AzureStorageContainerName = azureStorageContainerName;
             AzureBatchIsWindows = true;
-        }
+        }*/
     }
 }

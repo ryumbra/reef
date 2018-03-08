@@ -27,8 +27,6 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Client.AzureBatch.Storage;
 using Org.Apache.REEF.Client.AzureBatch;
 using Org.Apache.REEF.Client.AzureBatch.Util;
-using System.IO;
-using Org.Apache.REEF.Client.YARN;
 
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
