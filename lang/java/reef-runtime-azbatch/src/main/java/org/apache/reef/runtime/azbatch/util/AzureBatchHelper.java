@@ -71,6 +71,7 @@ public class AzureBatchHelper {
     this.azureBatchAccountName = azureBatchAccountName;
     this.azureBatchAccountKey = azureBatchAccountKey;
     this.azureBatchPoolId = azureBatchPoolId;
+
     BatchSharedKeyCredentials cred = new BatchSharedKeyCredentials(
         this.azureBatchAccountUri, this.azureBatchAccountName, this.azureBatchAccountKey);
     this.client = BatchClient.open(cred);

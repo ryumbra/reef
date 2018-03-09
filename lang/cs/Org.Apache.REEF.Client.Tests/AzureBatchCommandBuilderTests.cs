@@ -51,12 +51,6 @@ namespace Org.Apache.REEF.Client.Tests
                 IInjector injector = TangFactory.GetTang().NewInjector();
                 return injector.GetInstance<WindowsCommandBuilder>();
             }
-
-            public static AbstractCommandBuilder GetLinuxCommandBuilder()
-            {
-                IInjector injector = TangFactory.GetTang().NewInjector();
-                return injector.GetInstance<LinuxCommandBuilder>();
-            }
         }
     }
 }
