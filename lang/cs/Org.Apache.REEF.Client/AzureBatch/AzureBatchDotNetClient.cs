@@ -118,7 +118,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         {
             Submit(jobRequest);
 
-            // TODO[fix this null]
+            // TODO[Figure out how to return result from AzureBatch]
             return null;
         }
     }

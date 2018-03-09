@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             _paramSerializer = paramSerializer;
             _fileNames = fileNames;
             _avroAzureBatchJobSubmissionParameters = new AvroAzureBatchJobSubmissionParameters();
-            _avroAzureBatchJobSubmissionParameters.AzureBatchAccountKey = azureStorageAccountKey;
+            _avroAzureBatchJobSubmissionParameters.AzureBatchAccountKey = azureBatchAccountKey;
             _avroAzureBatchJobSubmissionParameters.AzureBatchAccountName = azureBatchAccountName;
             _avroAzureBatchJobSubmissionParameters.AzureBatchAccountUri = azureBatchAccountUri;
             _avroAzureBatchJobSubmissionParameters.AzureBatchPoolId = azureBatchPoolId;

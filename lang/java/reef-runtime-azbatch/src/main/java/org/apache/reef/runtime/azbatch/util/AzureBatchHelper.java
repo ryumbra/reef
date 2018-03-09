@@ -71,7 +71,6 @@ public class AzureBatchHelper {
     this.azureBatchAccountName = azureBatchAccountName;
     this.azureBatchAccountKey = azureBatchAccountKey;
     this.azureBatchPoolId = azureBatchPoolId;
-
     BatchSharedKeyCredentials cred = new BatchSharedKeyCredentials(
         this.azureBatchAccountUri, this.azureBatchAccountName, this.azureBatchAccountKey);
     this.client = BatchClient.open(cred);
@@ -128,6 +127,10 @@ public class AzureBatchHelper {
     final List<ResourceFile> resources = new ArrayList<>();
     resources.add(jarSourceFile);
 
+    LOG.log(Level.INFO, "azureBatchAccountUri: " + azureBatchAccountUri);
+    LOG.log(Level.INFO, "azureBatchAccountName: " + azureBatchAccountName);
+    LOG.log(Level.INFO, "azureBatchAccountKey: " + azureBatchAccountKey);
+    LOG.log(Level.INFO, "azureBatchPoolId: " + azureBatchPoolId);
     LOG.log(Level.INFO, "Evaluator task command: " + command);
 
     final TaskAddParameter taskAddParameter = new TaskAddParameter()

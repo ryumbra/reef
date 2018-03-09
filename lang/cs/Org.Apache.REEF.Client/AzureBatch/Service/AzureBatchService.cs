@@ -107,6 +107,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
                     new List<ResourceFile>()
             };
 
+            jobManager.RunExclusive = false;
             unboundJob.JobManagerTask = jobManager;
             unboundJob.Commit();
             Logger.Log(Level.Info, "Submitted job {0}, coommandLine {1} ", jobId, commandLine);
