@@ -80,7 +80,7 @@ final class AzureBatchBootstrapDriverConfigGenerator {
     return driverConfigPath;
   }
 
-   private AvroAzureBatchJobSubmissionParameters readAzureBatchJobSubmissionParametersFromFile(final File file)
+  private AvroAzureBatchJobSubmissionParameters readAzureBatchJobSubmissionParametersFromFile(final File file)
       throws IOException {
     try (final FileInputStream fileInputStream = new FileInputStream(file)) {
       return readAzureBatchSubmissionParametersFromInputStream(fileInputStream);

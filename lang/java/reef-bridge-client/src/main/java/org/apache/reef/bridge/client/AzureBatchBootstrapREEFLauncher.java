@@ -1,5 +1,3 @@
-package org.apache.reef.bridge.client;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,6 +16,7 @@ package org.apache.reef.bridge.client;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.bridge.client;
 
 import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.io.JsonDecoder;
@@ -85,7 +84,8 @@ public final class AzureBatchBootstrapREEFLauncher {
     }
   }
 
-  private static Configuration generateConfigurationFromJobSubmissionParameters(File params) throws IOException {
+  private static Configuration generateConfigurationFromJobSubmissionParameters(final File params)
+      throws IOException {
     final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters;
     try (final FileInputStream fileInputStream = new FileInputStream(params)) {
       final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
@@ -96,13 +96,20 @@ public final class AzureBatchBootstrapREEFLauncher {
     }
     return AzureBatchRuntimeConfigurationCreator
         .getOrCreateAzureBatchRuntimeConfiguration(avroAzureBatchJobSubmissionParameters.getAzureBatchIsWindows())
-        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_NAME, avroAzureBatchJobSubmissionParameters.getAzureBatchAccountName().toString())
-        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_KEY, avroAzureBatchJobSubmissionParameters.getAzureBatchAccountKey().toString())
-        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_URI, avroAzureBatchJobSubmissionParameters.getAzureBatchAccountUri().toString())
-        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_POOL_ID, avroAzureBatchJobSubmissionParameters.getAzureBatchPoolId().toString())
-        .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_ACCOUNT_NAME, avroAzureBatchJobSubmissionParameters.getAzureStorageAccountName().toString())
-        .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_ACCOUNT_KEY, avroAzureBatchJobSubmissionParameters.getAzureStorageAccountKey().toString())
-        .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_CONTAINER_NAME, avroAzureBatchJobSubmissionParameters.getAzureStorageContainerName().toString())
+        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_NAME,
+            avroAzureBatchJobSubmissionParameters.getAzureBatchAccountName().toString())
+        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_KEY,
+            avroAzureBatchJobSubmissionParameters.getAzureBatchAccountKey().toString())
+        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_URI,
+            avroAzureBatchJobSubmissionParameters.getAzureBatchAccountUri().toString())
+        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_POOL_ID,
+            avroAzureBatchJobSubmissionParameters.getAzureBatchPoolId().toString())
+        .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_ACCOUNT_NAME,
+            avroAzureBatchJobSubmissionParameters.getAzureStorageAccountName().toString())
+        .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_ACCOUNT_KEY,
+            avroAzureBatchJobSubmissionParameters.getAzureStorageAccountKey().toString())
+        .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_CONTAINER_NAME,
+            avroAzureBatchJobSubmissionParameters.getAzureStorageContainerName().toString())
         .build();
   }
 
