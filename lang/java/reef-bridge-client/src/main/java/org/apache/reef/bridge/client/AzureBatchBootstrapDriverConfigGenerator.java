@@ -26,7 +26,6 @@ import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 
 import javax.inject.Inject;
@@ -39,7 +38,7 @@ import java.util.logging.Logger;
 
 /**
  * This is the Java Driver configuration generator for .NET Drivers that generates
- * the Driver configuration at runtime. Called by {@link YarnBootstrapREEFLauncher}.
+ * the Driver configuration at runtime. Called by {@link AzureBatchBootstrapREEFLauncher}.
  */
 final class AzureBatchBootstrapDriverConfigGenerator {
   private static final Logger LOG = Logger.getLogger(AzureBatchBootstrapDriverConfigGenerator.class.getName());

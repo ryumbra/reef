@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Text;
 using Org.Apache.REEF.Common.Files;
 
@@ -30,7 +29,6 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         private const string ClassPathToken = @"-classpath";
         private const string ProcReefProperty = @"-Dproc_reef";
         private const string LibraryPathToken = @"-Djava.libaray.path";
-        //// private const string LauncherClassName = @"org.apache.reef.runtime.common.REEFLauncher";
         private const string LauncherClassName = @"org.apache.reef.bridge.client.AzureBatchBootstrapREEFLauncher";
         protected readonly REEFFileNames _fileNames;
         protected readonly string _osCommandFormat;
@@ -59,18 +57,9 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
               .Append(" " + JvmOptionsMaxPermSizeFormat)
               .Append(" " + ClassPathToken)
               .Append(" " + GetDriverClasspath())
-              //// .Append(" " + LibraryPathToken + "=" + GetLibarayClasspath())
               .Append(" " + ProcReefProperty)
               .Append(" " + LauncherClassName)
-              //// .Append(" " + _fileNames.GetClrDriverConfigurationPath().Replace("\\", "/");
               .Append(" " + string.Format("{0}/{1}", _fileNames.GetReefFolderName(), _fileNames.GetJobSubmissionParametersFile()));
-            /**
-             * .Append(" " +
-                    string.Format("{0}/{1}/{2}",
-                        _fileNames.GetReefFolderName(),
-                        _fileNames.GetLocalFolderName(),
-                        _fileNames.GetAppSubmissionParametersFile()));
-            **/
             return string.Format(_osCommandFormat, _commandPrefix + sb.ToString());
         }
 
@@ -79,7 +68,5 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// </summary>
         /// <returns>classpath parameter string.</returns>
         protected abstract string GetDriverClasspath();
-
-        protected abstract string GetLibarayClasspath();
     }
 }

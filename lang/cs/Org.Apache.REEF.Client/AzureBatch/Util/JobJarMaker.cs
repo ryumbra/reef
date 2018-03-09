@@ -20,12 +20,9 @@ using Org.Apache.REEF.Client.Avro;
 using Org.Apache.REEF.Client.Avro.AzureBatch;
 using Org.Apache.REEF.Client.AzureBatch.Parameters;
 using Org.Apache.REEF.Client.Common;
-using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 using System.IO;
-using System.Linq;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
 {

@@ -16,16 +16,15 @@
 // under the License.
 
 using System.IO;
-using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Avro.AzureBatch;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Client.YARN
+namespace Org.Apache.REEF.Client.AzureBatch
 {
     /// <summary>
-    /// Job/application parameter file serializer for <see cref="YarnREEFDotNetClient"/>.
+    /// Job/application parameter file serializer for <see cref="AzureBatchDotNetClient"/>.
     /// </summary>
     internal sealed class AzureBatchREEFDotNetParamSerializer
     {

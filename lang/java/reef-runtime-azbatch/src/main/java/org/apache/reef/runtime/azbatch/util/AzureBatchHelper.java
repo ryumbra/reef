@@ -127,10 +127,6 @@ public class AzureBatchHelper {
     final List<ResourceFile> resources = new ArrayList<>();
     resources.add(jarSourceFile);
 
-    LOG.log(Level.INFO, "azureBatchAccountUri: " + azureBatchAccountUri);
-    LOG.log(Level.INFO, "azureBatchAccountName: " + azureBatchAccountName);
-    LOG.log(Level.INFO, "azureBatchAccountKey: " + azureBatchAccountKey);
-    LOG.log(Level.INFO, "azureBatchPoolId: " + azureBatchPoolId);
     LOG.log(Level.INFO, "Evaluator task command: " + command);
 
     final TaskAddParameter taskAddParameter = new TaskAddParameter()

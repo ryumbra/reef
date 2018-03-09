@@ -26,11 +26,8 @@ import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfiguration;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfigurationCreator;
-import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfigurationProvider;
-import org.apache.reef.runtime.azbatch.parameters.*;
 import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 

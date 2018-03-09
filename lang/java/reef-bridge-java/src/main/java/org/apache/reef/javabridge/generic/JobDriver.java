@@ -201,7 +201,6 @@ public final class JobDriver {
           new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory,
                   JobDriver.this.definedRuntimes);
       JobDriver.this.handlerManager = new BridgeHandlerManager();
-
       NativeInterop.clrSystemSetupBridgeHandlerManager(portNumber,
           JobDriver.this.handlerManager, evaluatorRequestorBridge);
 
