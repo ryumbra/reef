@@ -58,6 +58,8 @@ public final class HelloDriver {
     @Override
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "HelloDriver has been started. Requesting an evaluator.");
+      String token = System.getenv("AZURE_STORAGE_CONTAINER_SAS_TOKEN_ENV");
+      LOG.log(Level.INFO, "Here's Azure Batch SAS token: " + token);
       HelloDriver.this.requestor.newRequest()
           .setNumber(1)
           .setMemory(64)
