@@ -83,7 +83,6 @@ final class AzureBatchBootstrapDriverConfigGenerator {
    private AvroAzureBatchJobSubmissionParameters readAzureBatchJobSubmissionParametersFromFile(final File file)
       throws IOException {
     try (final FileInputStream fileInputStream = new FileInputStream(file)) {
-      // This is mainly a test hook.
       return readAzureBatchSubmissionParametersFromInputStream(fileInputStream);
     }
   }

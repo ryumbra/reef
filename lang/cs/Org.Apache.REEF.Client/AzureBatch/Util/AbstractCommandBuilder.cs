@@ -28,7 +28,6 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         private const string JvmOptionsMaxMemoryAllocationPoolSizeFormat = @"-Xmx{0}m";
         private const string ClassPathToken = @"-classpath";
         private const string ProcReefProperty = @"-Dproc_reef";
-        private const string LibraryPathToken = @"-Djava.libaray.path";
         private const string LauncherClassName = @"org.apache.reef.bridge.client.AzureBatchBootstrapREEFLauncher";
         protected readonly REEFFileNames _fileNames;
         protected readonly string _osCommandFormat;
