@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
 {
     internal class AzureStorageUploader : IStorageUploader
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(AzureStorageUploader));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureStorageUploader));
         private static readonly string StorageConnectionStringFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}";
         private static readonly int SASTokenValidityMinutes = 30;
 
@@ -70,7 +70,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
             string sas = blob.GetSharedAccessSignature(CreateSASPolicy());
             string uri = blob.Uri.AbsoluteUri;
             Uri uploadedFile = new Uri(uri + sas);
-            Logger.Log(Level.Info, "Upload jar file to {0}", uploadedFile.ToString());
+            LOGGER.Log(Level.Info, "Uploaded {0} jar file to {1}", new String[] { filePath, uploadedFile.ToString() });
             return uploadedFile;
         }
 

@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
         /// </summary>
         internal void SerializeJobFile(string localDriverFolderPath, AvroAzureBatchJobSubmissionParameters jobParameters)
         {
-            var serializedArgs = SerializeJobArgsToBytes(jobParameters);
+            var serializedArgs = AvroJsonSerializer<AvroAzureBatchJobSubmissionParameters>.ToBytes(jobParameters);
 
             var submissionJobArgsFilePath = Path.Combine(
                 new string[] 
@@ -55,11 +55,6 @@ namespace Org.Apache.REEF.Client.AzureBatch
             {
                 jobArgsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
             }
-        }
-
-        internal byte[] SerializeJobArgsToBytes(AvroAzureBatchJobSubmissionParameters jobParameters)
-        {
-            return AvroJsonSerializer<AvroAzureBatchJobSubmissionParameters>.ToBytes(jobParameters);
         }
     }
 }

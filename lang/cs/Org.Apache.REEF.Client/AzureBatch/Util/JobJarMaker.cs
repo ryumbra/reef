@@ -69,11 +69,12 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// <param name="jobRequest">Job request received from the client code.</param>
         /// <returns>A string path to file.</returns>
         public string CreateJobSubmissionJAR(JobRequest jobRequest)
-        {   
+        {
             var bootstrapJobArgs = new AvroJobSubmissionParameters
             {
                 jobId = jobRequest.JobIdentifier,
-                jobSubmissionFolder = "./"
+                //// This is dummy in Azure Batch, as it does not use jobSubmissionFolder in Azure Batch.
+                jobSubmissionFolder = Path.PathSeparator.ToString()
             };
             _avroAzureBatchJobSubmissionParameters.sharedJobSubmissionParameters = bootstrapJobArgs;
             string localDriverFolderPath = CreateDriverFolder(jobRequest.JobIdentifier);
@@ -85,7 +86,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
 
         private string CreateDriverFolder(string jobId)
         {
-            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId)) + "\\");
+            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId)) + Path.DirectorySeparatorChar);
         }
     }
 }

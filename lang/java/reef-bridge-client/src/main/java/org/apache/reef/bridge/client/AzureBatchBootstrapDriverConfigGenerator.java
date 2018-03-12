@@ -56,8 +56,8 @@ final class AzureBatchBootstrapDriverConfigGenerator {
     this.driverConfigurationProvider = driverConfigurationProvider;
   }
 
-  public String writeDriverConfigurationFile(final String bootstrapJobArgsLocation
-  ) throws IOException {
+  public String writeDriverConfigurationFile(final String bootstrapJobArgsLocation)
+      throws IOException {
 
     File bootstrapJobArgsFile = new File(bootstrapJobArgsLocation).getCanonicalFile();
 

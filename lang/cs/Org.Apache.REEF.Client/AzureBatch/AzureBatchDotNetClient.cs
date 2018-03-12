@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
     class AzureBatchDotNetClient : IREEFClient
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(AzureBatchDotNetClient));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureBatchDotNetClient));
 
         private readonly IInjector _injector;
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
@@ -118,7 +118,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         {
             Submit(jobRequest);
 
-            // TODO[Figure out how to return result from AzureBatch]
+            // TODO[Azure Batch is not able to comminicate to client through driver end point. It now behaves the same as Submit(JobRequest jobRequest)]
             return null;
         }
     }

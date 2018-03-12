@@ -37,7 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This is a bootstrap launcher for YARN for submission from C#. It allows for Java Driver
+ * This is a bootstrap launcher for Azure Batch for submission from C#. It allows for Java Driver
  * configuration generation directly on the Driver without need of Java dependency if REST
  * submission is used. Note that the name of the class must contain "REEFLauncher" for the time
  * being in order for the Interop code to discover the class.
@@ -47,7 +47,7 @@ public final class AzureBatchBootstrapREEFLauncher {
   private static final Logger LOG = Logger.getLogger(AzureBatchBootstrapREEFLauncher.class.getName());
 
   public static void main(final String[] args) throws IOException, InjectionException {
-    LOG.log(Level.INFO, "Entering BootstrapLauncher.main().");
+    LOG.log(Level.INFO, "Entering BootstrapLauncher.main(). {0}", args[0]);
 
     if (args.length != 1) {
       final StringBuilder sb = new StringBuilder();
@@ -60,13 +60,11 @@ public final class AzureBatchBootstrapREEFLauncher {
       sb.append("]");
 
       final String message = "Bootstrap launcher should have one configuration file input, specifying the" +
-          "job submission parameters to be deserialized to create the YarnDriverConfiguration on the fly." +
+          "job submission parameters to be deserialized to create the Azure Batch DriverConfiguration on the fly." +
           " Current args are " + sb.toString();
 
       throw fatal(message, new IllegalArgumentException(message));
     }
-
-    LOG.log(Level.INFO, "Entering BootstrapLauncher.main(). {0}", args[0]);
 
     try {
 

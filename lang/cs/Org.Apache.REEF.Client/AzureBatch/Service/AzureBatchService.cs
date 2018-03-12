@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
     public class AzureBatchService : IDisposable
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(AzureBatchService));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureBatchService));
 
         public BatchSharedKeyCredential Credentials { get; private set; }
         public string PoolId { get; private set; }
@@ -110,7 +110,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             jobManager.RunExclusive = false;
             unboundJob.JobManagerTask = jobManager;
             unboundJob.Commit();
-            Logger.Log(Level.Info, "Submitted job {0}, coommandLine {1} ", jobId, commandLine);
+            LOGGER.Log(Level.Info, "Submitted job {0}, commandLine {1} ", jobId, commandLine);
         }
 
         public CloudJob GetJob(string jobId, DetailLevel detailLevel)

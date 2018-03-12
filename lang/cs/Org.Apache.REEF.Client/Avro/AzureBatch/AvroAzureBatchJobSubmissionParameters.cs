@@ -103,36 +103,5 @@ namespace Org.Apache.REEF.Client.Avro.AzureBatch
         public AvroAzureBatchJobSubmissionParameters()
         {
         }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AvroAzureBatchJobSubmissionParameters"/> class.
-        /// </summary>
-        /// <param name="azureBatchAccountKey">The azureBatchAccountKey.</param>
-        /// <param name="azureBatchAccountName">The azureBatchAccountName.</param>
-        /// <param name="azureBatchAccountUri">The azureBatchAccountUri.</param>
-        /// <param name="azureBatchPoolId">The azureBatchPoolId.</param>
-        /// <param name="azureStorageAccountKey">The azureStorageAccountKey.</param>
-        /// <param name="azureStorageAccountName">The azureStorageAccountName.</param>
-        /// <param name="azureStorageContainerName">The azureStorageContainerName.</param>
-        /// <param name="azureBatchIsWindows">The azureBatchIsWindows.</param>
-        public AvroAzureBatchJobSubmissionParameters(
-            string azureBatchAccountKey,
-            string azureBatchAccountName,
-            string azureBatchAccountUri,
-            string azureBatchPoolId,
-            string azureStorageAccountKey,
-            string azureStorageAccountName,
-            string azureStorageContainerName,
-            bool azureBatchIsWindows)
-        {
-            AzureBatchAccountKey = azureStorageAccountKey;
-            AzureBatchAccountName = azureBatchAccountName;
-            AzureBatchAccountUri = azureBatchAccountUri;
-            AzureBatchPoolId = azureBatchPoolId;
-            AzureStorageAccountKey = azureStorageAccountKey;
-            AzureStorageAccountName = azureStorageAccountName;
-            AzureStorageContainerName = azureStorageContainerName;
-            AzureBatchIsWindows = azureBatchIsWindows;
-        }
     }
 }
