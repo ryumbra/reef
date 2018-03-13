@@ -20,6 +20,7 @@ using Org.Apache.REEF.Client.Avro;
 using Org.Apache.REEF.Client.Avro.AzureBatch;
 using Org.Apache.REEF.Client.AzureBatch.Parameters;
 using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using System.IO;
@@ -30,7 +31,6 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
     {
         private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
-        private readonly AzureBatchREEFDotNetParamSerializer _paramSerializer;
         private readonly AvroAzureBatchJobSubmissionParameters _avroAzureBatchJobSubmissionParameters;
         private readonly REEFFileNames _fileNames;
 
@@ -38,7 +38,6 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         JobJarMaker(
             IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
-            AzureBatchREEFDotNetParamSerializer paramSerializer,
             REEFFileNames fileNames,
             [Parameter(typeof(AzureBatchAccountKey))] string azureBatchAccountKey,
             [Parameter(typeof(AzureBatchAccountName))] string azureBatchAccountName,
@@ -50,7 +49,6 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         {
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
-            _paramSerializer = paramSerializer;
             _fileNames = fileNames;
             _avroAzureBatchJobSubmissionParameters = new AvroAzureBatchJobSubmissionParameters();
             _avroAzureBatchJobSubmissionParameters.AzureBatchAccountKey = azureBatchAccountKey;
@@ -79,7 +77,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             _avroAzureBatchJobSubmissionParameters.sharedJobSubmissionParameters = bootstrapJobArgs;
             string localDriverFolderPath = CreateDriverFolder(jobRequest.JobIdentifier);
             _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, localDriverFolderPath);
-            _paramSerializer.SerializeJobFile(localDriverFolderPath, _avroAzureBatchJobSubmissionParameters);
+            SerializeJobFile(localDriverFolderPath, _avroAzureBatchJobSubmissionParameters);
 
             return _resourceArchiveFileGenerator.CreateArchiveToUpload(localDriverFolderPath);
         }
@@ -87,6 +85,24 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         private string CreateDriverFolder(string jobId)
         {
             return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId)) + Path.DirectorySeparatorChar);
+        }
+
+        private void SerializeJobFile(string localDriverFolderPath, AvroAzureBatchJobSubmissionParameters jobParameters)
+        {
+            var serializedArgs = AvroJsonSerializer<AvroAzureBatchJobSubmissionParameters>.ToBytes(jobParameters);
+
+            var submissionJobArgsFilePath = Path.Combine(
+                new string[]
+                {
+                    localDriverFolderPath,
+                    _fileNames.GetReefFolderName(),
+                    _fileNames.GetJobSubmissionParametersFile()
+                });
+
+            using (var jobArgsFileStream = new FileStream(submissionJobArgsFilePath, FileMode.CreateNew))
+            {
+                jobArgsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
+            }
         }
     }
 }
