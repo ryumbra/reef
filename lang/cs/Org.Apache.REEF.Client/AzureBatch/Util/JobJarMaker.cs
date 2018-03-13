@@ -16,14 +16,14 @@
 // under the License.
 
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Avro;
+using Org.Apache.REEF.Client.Avro.AzureBatch;
+using Org.Apache.REEF.Client.AzureBatch.Parameters;
 using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Common.Avro;
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
@@ -31,14 +31,34 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
     {
         private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
+        private readonly AvroAzureBatchJobSubmissionParameters _avroAzureBatchJobSubmissionParameters;
+        private readonly REEFFileNames _fileNames;
 
         [Inject]
         JobJarMaker(
             IResourceArchiveFileGenerator resourceArchiveFileGenerator,
-            DriverFolderPreparationHelper driverFolderPreparationHelper)
+            DriverFolderPreparationHelper driverFolderPreparationHelper,
+            REEFFileNames fileNames,
+            [Parameter(typeof(AzureBatchAccountKey))] string azureBatchAccountKey,
+            [Parameter(typeof(AzureBatchAccountName))] string azureBatchAccountName,
+            [Parameter(typeof(AzureBatchAccountUri))] string azureBatchAccountUri,
+            [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId,
+            [Parameter(typeof(AzureStorageAccountKey))] string azureStorageAccountKey,
+            [Parameter(typeof(AzureStorageAccountName))] string azureStorageAccountName,
+            [Parameter(typeof(AzureStorageContainerName))] string azureStorageContainerName)
         {
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
+            _fileNames = fileNames;
+            _avroAzureBatchJobSubmissionParameters = new AvroAzureBatchJobSubmissionParameters();
+            _avroAzureBatchJobSubmissionParameters.AzureBatchAccountKey = azureBatchAccountKey;
+            _avroAzureBatchJobSubmissionParameters.AzureBatchAccountName = azureBatchAccountName;
+            _avroAzureBatchJobSubmissionParameters.AzureBatchAccountUri = azureBatchAccountUri;
+            _avroAzureBatchJobSubmissionParameters.AzureBatchPoolId = azureBatchPoolId;
+            _avroAzureBatchJobSubmissionParameters.AzureStorageAccountKey = azureStorageAccountKey;
+            _avroAzureBatchJobSubmissionParameters.AzureStorageAccountName = azureStorageAccountName;
+            _avroAzureBatchJobSubmissionParameters.AzureStorageContainerName = azureStorageContainerName;
+            _avroAzureBatchJobSubmissionParameters.AzureBatchIsWindows = true;
         }
 
         /// <summary>
@@ -48,14 +68,41 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// <returns>A string path to file.</returns>
         public string CreateJobSubmissionJAR(JobRequest jobRequest)
         {
+            var bootstrapJobArgs = new AvroJobSubmissionParameters
+            {
+                jobId = jobRequest.JobIdentifier,
+                //// This is dummy in Azure Batch, as it does not use jobSubmissionFolder in Azure Batch.
+                jobSubmissionFolder = Path.PathSeparator.ToString()
+            };
+            _avroAzureBatchJobSubmissionParameters.sharedJobSubmissionParameters = bootstrapJobArgs;
             string localDriverFolderPath = CreateDriverFolder(jobRequest.JobIdentifier);
             _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, localDriverFolderPath);
+            SerializeJobFile(localDriverFolderPath, _avroAzureBatchJobSubmissionParameters);
+
             return _resourceArchiveFileGenerator.CreateArchiveToUpload(localDriverFolderPath);
         }
 
         private string CreateDriverFolder(string jobId)
         {
-            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId)));
+            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId)) + Path.DirectorySeparatorChar);
+        }
+
+        private void SerializeJobFile(string localDriverFolderPath, AvroAzureBatchJobSubmissionParameters jobParameters)
+        {
+            var serializedArgs = AvroJsonSerializer<AvroAzureBatchJobSubmissionParameters>.ToBytes(jobParameters);
+
+            var submissionJobArgsFilePath = Path.Combine(
+                new string[]
+                {
+                    localDriverFolderPath,
+                    _fileNames.GetReefFolderName(),
+                    _fileNames.GetJobSubmissionParametersFile()
+                });
+
+            using (var jobArgsFileStream = new FileStream(submissionJobArgsFilePath, FileMode.CreateNew))
+            {
+                jobArgsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
+            }
         }
     }
 }

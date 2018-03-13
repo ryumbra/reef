@@ -22,12 +22,15 @@ using Microsoft.Azure.Batch;
 using Microsoft.Azure.Batch.Common;
 using Org.Apache.REEF.Client.AzureBatch.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 using BatchSharedKeyCredential = Microsoft.Azure.Batch.Auth.BatchSharedKeyCredentials;
 
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
     public class AzureBatchService : IDisposable
     {
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureBatchService));
+
         public BatchSharedKeyCredential Credentials { get; private set; }
         public string PoolId { get; private set; }
 
@@ -104,8 +107,10 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
                     new List<ResourceFile>()
             };
 
+            jobManager.RunExclusive = false;
             unboundJob.JobManagerTask = jobManager;
             unboundJob.Commit();
+            LOGGER.Log(Level.Info, "Submitted job {0}, commandLine {1} ", jobId, commandLine);
         }
 
         public CloudJob GetJob(string jobId, DetailLevel detailLevel)

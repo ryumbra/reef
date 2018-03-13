@@ -22,7 +22,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
     /// <summary>
     /// Build the launch command for Java REEF processes for Azure Batch.
     /// </summary>
-    [DefaultImplementation(typeof(LinuxCommandBuilder))]
+    [DefaultImplementation(typeof(WindowsCommandBuilder))]
     internal interface ICommandBuilder
     {
         /// <summary>

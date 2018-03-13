@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
         public static IConfiguration FromEnvironment()
         {
             string configurationPath =
-            Environment.GetEnvironmentVariable(AzureBatchClientConfiguration.AzBatchConfigurationFileEnvironmentVariable);
+            Environment.GetEnvironmentVariable(AzBatchConfigurationFileEnvironmentVariable);
 
             if (configurationPath == null)
             {

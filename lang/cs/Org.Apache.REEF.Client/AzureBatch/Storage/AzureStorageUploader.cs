@@ -19,6 +19,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.Client.AzureBatch.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -27,6 +28,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
 {
     internal class AzureStorageUploader : IStorageUploader
     {
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureStorageUploader));
         private static readonly string StorageConnectionStringFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}";
         private static readonly int SASTokenValidityMinutes = 30;
 
@@ -67,8 +69,9 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
 
             string sas = blob.GetSharedAccessSignature(CreateSASPolicy());
             string uri = blob.Uri.AbsoluteUri;
-
-            return new Uri(uri + sas);
+            Uri uploadedFile = new Uri(uri + sas);
+            LOGGER.Log(Level.Info, "Uploaded {0} jar file to {1}", new string[] { filePath, uploadedFile.ToString() });
+            return uploadedFile;
         }
 
         private CloudBlobClient GetCloudBlobClient()

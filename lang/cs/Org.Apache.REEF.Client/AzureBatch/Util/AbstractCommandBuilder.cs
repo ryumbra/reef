@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
+using System.IO;
 using System.Text;
 using Org.Apache.REEF.Common.Files;
 
@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         private const string JvmOptionsMaxMemoryAllocationPoolSizeFormat = @"-Xmx{0}m";
         private const string ClassPathToken = @"-classpath";
         private const string ProcReefProperty = @"-Dproc_reef";
-        private const string LauncherClassName = @"org.apache.reef.runtime.common.REEFLauncher";
+        private const string LauncherClassName = @"org.apache.reef.bridge.client.AzureBatchBootstrapREEFLauncher";
         protected readonly REEFFileNames _fileNames;
         protected readonly string _osCommandFormat;
         protected readonly string _commandPrefix;
@@ -50,7 +50,8 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         public string BuildDriverCommand(int driverMemory)
         {
             var sb = new StringBuilder();
-            sb.Append(" " + JavaExe)
+            sb.Append(_fileNames.GetBridgeExePath())
+              .Append(" " + JavaExe)
               .Append(" " + string.Format(JvmOptionsMaxMemoryAllocationPoolSizeFormat, driverMemory))
               .Append(" " + JvmOptionsPermSize)
               .Append(" " + JvmOptionsMaxPermSizeFormat)
@@ -58,7 +59,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
               .Append(" " + GetDriverClasspath())
               .Append(" " + ProcReefProperty)
               .Append(" " + LauncherClassName)
-              .Append(" " + _fileNames.GetDriverConfigurationPath()).Replace("\\", "/");
+              .Append(" " + Path.Combine(_fileNames.GetReefFolderName(), _fileNames.GetJobSubmissionParametersFile()));
             return string.Format(_osCommandFormat, _commandPrefix + sb.ToString());
         }
 
