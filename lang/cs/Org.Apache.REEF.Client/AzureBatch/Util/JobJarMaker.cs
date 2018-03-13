@@ -76,7 +76,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             };
             _avroAzureBatchJobSubmissionParameters.sharedJobSubmissionParameters = bootstrapJobArgs;
             string localDriverFolderPath = CreateDriverFolder(jobRequest.JobIdentifier);
-            _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, localDriverFolderPath);
+            _driverFolderPreparationHelper.PrepareDriverFolderWithGlobalBridgeJar(jobRequest.AppParameters, localDriverFolderPath);
             SerializeJobFile(localDriverFolderPath, _avroAzureBatchJobSubmissionParameters);
 
             return _resourceArchiveFileGenerator.CreateArchiveToUpload(localDriverFolderPath);
