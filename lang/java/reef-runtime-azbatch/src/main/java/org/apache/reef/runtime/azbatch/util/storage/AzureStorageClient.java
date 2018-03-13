@@ -20,6 +20,7 @@ package org.apache.reef.runtime.azbatch.util.storage;
 
 import com.microsoft.windowsazure.storage.StorageException;
 import com.microsoft.windowsazure.storage.blob.*;
+import org.apache.reef.runtime.azbatch.parameters.AzureStorageBlobSASTokenValidityHours;
 import org.apache.reef.runtime.azbatch.parameters.AzureStorageContainerName;
 import org.apache.reef.tang.annotations.Parameter;
 
@@ -40,22 +41,22 @@ import java.util.logging.Logger;
  * Azure storage utility to upload Driver and Evaluator jars to blob storage
  * and generate SAS URIs.
  */
-public class AzureStorageUtil {
-  private static final Logger LOG = Logger.getLogger(AzureStorageUtil.class.getName());
-
-  private static final int BLOB_SAS_TOKEN_VALIDITY_MINUTES = 30;
-  private static final int CONTAINER_SAS_TOKEN_VALIDITY_HOURS = 24;
+public class AzureStorageClient {
+  private static final Logger LOG = Logger.getLogger(AzureStorageClient.class.getName());
 
   private final ICloudBlobClientProvider cloudBlobClientProvider;
 
   private final String azureStorageContainerName;
+  private final int blobSASTokenValidityHours;
 
   @Inject
-  AzureStorageUtil(
+  AzureStorageClient(
       final ICloudBlobClientProvider cloudBlobClientProvider,
-      @Parameter(AzureStorageContainerName.class) final String azureStorageContainerName) {
+      @Parameter(AzureStorageContainerName.class) final String azureStorageContainerName,
+      @Parameter(AzureStorageBlobSASTokenValidityHours.class) final int blobSASTokenValidityHours) {
     this.cloudBlobClientProvider = cloudBlobClientProvider;
     this.azureStorageContainerName = azureStorageContainerName;
+    this.blobSASTokenValidityHours = blobSASTokenValidityHours;
   }
 
   public URI getJobSubmissionFolderUri(final String jobFolder) throws IOException {
@@ -115,33 +116,24 @@ public class AzureStorageUtil {
   }
 
   private SharedAccessBlobPolicy getSharedAccessBlobPolicy() {
-    Calendar calendar = Calendar.getInstance();
-    calendar.add(Calendar.MINUTE, BLOB_SAS_TOKEN_VALIDITY_MINUTES);
-    Date tokenExpirationDate = calendar.getTime();
-
-    return getSharedAccessBlobPolicy(Calendar.getInstance().getTime(), tokenExpirationDate, EnumSet.of(
-        SharedAccessBlobPermissions.READ));
+    return getSharedAccessBlobPolicy(EnumSet.of(SharedAccessBlobPermissions.READ));
   }
 
   private SharedAccessBlobPolicy getSharedAccessContainerPolicy() {
-    Calendar calendar = Calendar.getInstance();
-    calendar.add(Calendar.HOUR, CONTAINER_SAS_TOKEN_VALIDITY_HOURS);
-    Date tokenExpirationDate = calendar.getTime();
-
-    return getSharedAccessBlobPolicy(Calendar.getInstance().getTime(), tokenExpirationDate, EnumSet.of(
-        SharedAccessBlobPermissions.READ,
-        SharedAccessBlobPermissions.WRITE));
+    return getSharedAccessBlobPolicy(EnumSet.of(SharedAccessBlobPermissions.READ, SharedAccessBlobPermissions.WRITE));
   }
 
   private SharedAccessBlobPolicy getSharedAccessBlobPolicy(
-      final Date tokenValidityStartDate,
-      final Date tokenValidityEndDate,
       final EnumSet<SharedAccessBlobPermissions> permissions) {
+
+    Calendar calendar = Calendar.getInstance();
+    calendar.add(Calendar.HOUR, this.blobSASTokenValidityHours);
+    Date tokenExpirationDate = calendar.getTime();
 
     final SharedAccessBlobPolicy policy = new SharedAccessBlobPolicy();
     policy.setPermissions(permissions);
-    policy.setSharedAccessStartTime(tokenValidityStartDate);
-    policy.setSharedAccessExpiryTime(tokenValidityEndDate);
+    policy.setSharedAccessStartTime(Calendar.getInstance().getTime());
+    policy.setSharedAccessExpiryTime(tokenExpirationDate);
 
     return policy;
   }

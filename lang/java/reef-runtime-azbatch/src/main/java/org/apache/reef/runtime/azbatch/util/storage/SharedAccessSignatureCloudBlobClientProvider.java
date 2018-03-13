@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  */
 public class SharedAccessSignatureCloudBlobClientProvider implements ICloudBlobClientProvider {
 
-  private static final Logger LOG = Logger.getLogger(AzureStorageUtil.class.getName());
+  private static final Logger LOG = Logger.getLogger(AzureStorageClient.class.getName());
 
   public static final String AZURE_STORAGE_CONTAINER_SAS_TOKEN_ENV = "AZURE_STORAGE_CONTAINER_SAS_TOKEN_ENV";
 

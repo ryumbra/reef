@@ -21,7 +21,7 @@ package org.apache.reef.runtime.azbatch.client;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
 import org.apache.reef.runtime.azbatch.util.batch.AzureBatchHelper;
-import org.apache.reef.runtime.azbatch.util.storage.AzureStorageUtil;
+import org.apache.reef.runtime.azbatch.util.storage.AzureStorageClient;
 import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
@@ -52,7 +52,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
 
   private String applicationId;
 
-  private final AzureStorageUtil azureStorageUtil;
+  private final AzureStorageClient azureStorageClient;
   private final DriverConfigurationProvider driverConfigurationProvider;
   private final JobJarMaker jobJarMaker;
   private final CommandBuilder launchCommandBuilder;
@@ -61,13 +61,13 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
 
   @Inject
   AzureBatchJobSubmissionHandler(
-      final AzureStorageUtil azureStorageUtil,
+      final AzureStorageClient azureStorageClient,
       final DriverConfigurationProvider driverConfigurationProvider,
       final JobJarMaker jobJarMaker,
       final CommandBuilder launchCommandBuilder,
       final AzureBatchFileNames azureBatchFileNames,
       final AzureBatchHelper azureBatchHelper) {
-    this.azureStorageUtil = azureStorageUtil;
+    this.azureStorageClient = azureStorageClient;
     this.driverConfigurationProvider = driverConfigurationProvider;
     this.jobJarMaker = jobJarMaker;
     this.launchCommandBuilder = launchCommandBuilder;
@@ -110,10 +110,10 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
       final String folderName = this.azureBatchFileNames.getStorageJobFolder(this.applicationId);
 
       LOG.log(Level.FINE, "Creating a job folder on Azure at: {0}.", folderName);
-      final URI jobFolderURL = this.azureStorageUtil.getJobSubmissionFolderUri(folderName);
+      final URI jobFolderURL = this.azureStorageClient.getJobSubmissionFolderUri(folderName);
 
       LOG.log(Level.FINE, "Getting a shared access signature for {0}.", folderName);
-      final String storageContainerSAS = this.azureStorageUtil.createContainerSharedAccessSignature();
+      final String storageContainerSAS = this.azureStorageClient.createContainerSharedAccessSignature();
 
       LOG.log(Level.FINE, "Assembling Configuration for the Driver.");
       final Configuration driverConfiguration = makeDriverConfiguration(jobSubmissionEvent, this.applicationId,
@@ -124,7 +124,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
           this.jobJarMaker.createJobSubmissionJAR(jobSubmissionEvent, driverConfiguration);
 
       LOG.log(Level.FINE, "Uploading Job JAR to Azure.");
-      final URI jobJarSasUri = this.azureStorageUtil.uploadFile(folderName, jobSubmissionJarFile);
+      final URI jobJarSasUri = this.azureStorageClient.uploadFile(folderName, jobSubmissionJarFile);
 
       LOG.log(Level.FINE, "Assembling application submission.");
       final String command = this.launchCommandBuilder.buildDriverCommand(jobSubmissionEvent);
