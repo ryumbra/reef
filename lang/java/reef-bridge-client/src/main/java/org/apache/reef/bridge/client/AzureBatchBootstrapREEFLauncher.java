@@ -72,7 +72,7 @@ public final class AzureBatchBootstrapREEFLauncher {
       final AzureBatchBootstrapDriverConfigGenerator azureBatchBootstrapDriverConfigGenerator =
           Tang.Factory.getTang().newInjector(generateConfigurationFromJobSubmissionParameters(partialConfigFile))
               .getInstance(AzureBatchBootstrapDriverConfigGenerator.class);
-      REEFLauncher.main(new String[]{azureBatchBootstrapDriverConfigGenerator.writeDriverConfigurationFile(args[0])});
+      REEFLauncher.main(new String[]{azureBatchBootstrapDriverConfigGenerator.writeDriverConfigurationFileFromParams(args[0])});
     } catch (final Exception exception) {
       if (!(exception instanceof RuntimeException)) {
         throw fatal("Failed to initialize configurations.", exception);

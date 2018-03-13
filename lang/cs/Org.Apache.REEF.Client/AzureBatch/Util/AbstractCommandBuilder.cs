@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.IO;
 using System.Text;
 using Org.Apache.REEF.Common.Files;
 
@@ -58,7 +59,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
               .Append(" " + GetDriverClasspath())
               .Append(" " + ProcReefProperty)
               .Append(" " + LauncherClassName)
-              .Append(" " + string.Format("{0}/{1}", _fileNames.GetReefFolderName(), _fileNames.GetJobSubmissionParametersFile()));
+              .Append(" " + Path.Combine(_fileNames.GetReefFolderName(), _fileNames.GetJobSubmissionParametersFile()));
             return string.Format(_osCommandFormat, _commandPrefix + sb.ToString());
         }
 
