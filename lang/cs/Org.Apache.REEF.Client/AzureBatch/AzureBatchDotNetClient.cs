@@ -78,7 +78,8 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         public void Submit(JobRequest jobRequest)
         {
             var configModule = AzureBatchClientConfiguration.ConfigurationModule;
-            string jobId = jobRequest.JobIdentifier;
+            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+            string jobId = string.Join("-", jobRequest.JobIdentifier, timestamp);
             string commandLine = GetCommand(jobRequest.JobParameters);
             string jarPath = _jobJarMaker.CreateJobSubmissionJAR(jobRequest);
             Uri blobUri = _storageUploader.UploadFile(_azbatchFileNames.GetStorageJobFolder(jobId), jarPath).Result;
