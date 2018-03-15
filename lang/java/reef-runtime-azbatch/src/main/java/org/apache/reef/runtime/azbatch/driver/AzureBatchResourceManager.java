@@ -20,7 +20,7 @@ package org.apache.reef.runtime.azbatch.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.runtime.azbatch.util.CommandBuilder;
+import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
@@ -29,6 +29,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 
 import javax.inject.Inject;
+import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,23 +37,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A resource manager that uses threads to execute container requests.
+ * The Driver's view of all resources in Azure Batch pool.
  */
 @Private
 @DriverSide
 public final class AzureBatchResourceManager {
-
   private static final Logger LOG = Logger.getLogger(AzureBatchResourceManager.class.getName());
 
   private final Map<String, ResourceRequestEvent> containerRequests;
-  private final Set<String> activeContainerIds;
+  private final AtomicInteger containerCount;
+
   private final ConfigurationSerializer configurationSerializer;
+  private final CommandBuilder launchCommandBuilder;
   private final AzureBatchEvaluatorShimManager evaluatorShimManager;
   private final AzureBatchTaskStatusAlarmHandler azureBatchTaskStatusAlarmHandler;
 
   private final double jvmHeapFactor;
-  private final CommandBuilder launchCommandBuilder;
-  private final AtomicInteger containerCount;
 
   @Inject
   AzureBatchResourceManager(
@@ -66,29 +66,40 @@ public final class AzureBatchResourceManager {
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
     this.launchCommandBuilder = launchCommandBuilder;
     this.containerRequests = new ConcurrentHashMap<>();
-    this.activeContainerIds = Collections.synchronizedSet(new HashSet<String>());
     this.containerCount = new AtomicInteger(0);
     this.azureBatchTaskStatusAlarmHandler = azureBatchTaskStatusAlarmHandler;
   }
 
+  /**
+   * This method is invoked when a {@link ResourceRequestEvent} is triggered.
+   *
+   * @param resourceRequestEvent the resource request event.
+   */
   public void onResourceRequested(final ResourceRequestEvent resourceRequestEvent) {
     LOG.log(Level.FINEST, "Got ResourceRequestEvent in AzureBatchResourceManager,");
+    URI jarFileUri = this.evaluatorShimManager.generateShimJarFile();
     for (int r = 0; r < resourceRequestEvent.getResourceCount(); r++) {
       final String containerId = generateContainerId();
+      LOG.log(Level.FINE, "containerId in AzureBatchResourceManager {0}", containerId);
       this.containerRequests.put(containerId, resourceRequestEvent);
       this.containerCount.incrementAndGet();
+      this.evaluatorShimManager.onResourceRequested(resourceRequestEvent, containerId, jarFileUri);
+    }
+
+    int currentContainerCount = this.containerCount.get();
+    if (currentContainerCount > 0) {
       this.azureBatchTaskStatusAlarmHandler.enableAlarm();
-      this.evaluatorShimManager.onResourceRequested(containerId, resourceRequestEvent);
     }
   }
 
+  /**
+   * This method is invoked when a {@link ResourceReleaseEvent} is triggered.
+   *
+   * @param resourceReleaseEvent the resource release event.
+   */
   public void onResourceReleased(final ResourceReleaseEvent resourceReleaseEvent) {
     String id = resourceReleaseEvent.getIdentifier();
     LOG.log(Level.FINEST, "Got ResourceReleasedEvent for Id: {0} in AzureBatchResourceManager", id);
-    if (!this.activeContainerIds.remove(id)) {
-      LOG.log(Level.WARNING,
-          "Attempting to remove non-existent activeContainer for Id: {0} in AzureBatchResourceManager", id);
-    }
 
     ResourceRequestEvent removedEvent = this.containerRequests.remove(id);
     if (removedEvent == null) {
@@ -104,6 +115,11 @@ public final class AzureBatchResourceManager {
     this.evaluatorShimManager.onResourceReleased(resourceReleaseEvent);
   }
 
+  /**
+   * This method is called when the {@link ResourceLaunchEvent} is triggered.
+   *
+   * @param resourceLaunchEvent the resource launch event.
+   */
   public void onResourceLaunched(final ResourceLaunchEvent resourceLaunchEvent) {
     String id = resourceLaunchEvent.getIdentifier();
     LOG.log(Level.FINEST, "Got ResourceLaunchEvent for Id: {0} in AzureBatchResourceManager", id);
@@ -111,21 +127,7 @@ public final class AzureBatchResourceManager {
     String launchCommand = this.launchCommandBuilder.buildEvaluatorCommand(resourceLaunchEvent,
         evaluatorMemory, this.jvmHeapFactor);
     String evaluatorConfigurationString = this.configurationSerializer.toString(resourceLaunchEvent.getEvaluatorConf());
-    this.activeContainerIds.add(id);
-    // TODO[At this point we are only sending the evaluator config and launch command to the shim. AllocatedEvaluator]
-    // TODO[object also has "addFile" and "addLibrary" methods, so maybe we'll need to package the JAR for the]
-    // TODO[evaluator, too, and not assume that both Evaluator and Shim can share the same JAR.]
     this.evaluatorShimManager.onResourceLaunched(resourceLaunchEvent, launchCommand, evaluatorConfigurationString);
-  }
-
-  /**
-   * Whether or not a container is active.
-   *
-   * @param containerId the container ID.
-   * @return true if the container is active.
-   */
-  public boolean isContainerActive(final String containerId) {
-    return this.activeContainerIds.contains(containerId);
   }
 
   private String generateContainerId() {

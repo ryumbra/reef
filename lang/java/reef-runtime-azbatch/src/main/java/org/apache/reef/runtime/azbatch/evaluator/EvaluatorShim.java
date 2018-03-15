@@ -56,9 +56,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * This class sends a message back to the driver upon starting and listens for
- * commands to launch an evaluator. Once the evaluator completes, it will listen
- * for a command to terminate.
+ * The evaluator shim acts as a wrapper process around the Evaluator. Azure Batch starts this process on the evaluator
+ * node at the time that the resource is allocated. Once started, the evaluator shim process will send a status
+ * message back to the the Driver which triggers a
+ * {@link org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent} on the Driver side.
+ * The evaluator shim will then wait for a command from the Driver to start the Evaluator process.
+ * Upon receiving the command, the shim will launch the evaluator process and wait for it to exit. After receiving
+ * a terminate command, the evaluator shim will exit thus releasing the resource and completing the Azure Batch task.
  */
 @Private
 @EvaluatorSide
@@ -87,10 +91,8 @@ public final class EvaluatorShim
                 final AzureBatchFileNames azureBatchFileNames,
                 final ConfigurationSerializer configurationSerializer,
                 final RemoteManager remoteManager,
-                @Parameter(DriverRemoteIdentifier.class)
-                final String driverRemoteId,
-                @Parameter(ContainerIdentifier.class)
-                final String containerId) {
+                @Parameter(DriverRemoteIdentifier.class) final String driverRemoteId,
+                @Parameter(ContainerIdentifier.class) final String containerId) {
     this.reefFileNames = reefFileNames;
     this.azureBatchFileNames = azureBatchFileNames;
     this.configurationSerializer = configurationSerializer;
@@ -108,6 +110,9 @@ public final class EvaluatorShim
     this.threadPool = Executors.newCachedThreadPool();
   }
 
+  /**
+   * Starts the {@link EvaluatorShim}.
+   */
   public void run() {
     LOG.log(Level.FINEST, "Entering EvaluatorShim.run().");
     this.onStart();
@@ -121,6 +126,11 @@ public final class EvaluatorShim
     this.onStop();
   }
 
+  /**
+   * This method is invoked by the Remote Manager when a command message from the Driver is received.
+   *
+   * @param remoteMessage the message sent to the evaluator shim by the Driver.
+   */
   @Override
   public void onNext(final RemoteMessage<EvaluatorShimProtocol.EvaluatorShimControlProto> remoteMessage) {
     final EvaluatorShimProtocol.EvaluatorShimCommand command = remoteMessage.getMessage().getCommand();
@@ -137,7 +147,7 @@ public final class EvaluatorShim
       });
       break;
 
-    case TERMINATE :
+    case TERMINATE:
       LOG.log(Level.INFO, "Received a command to terminate the EvaluatorShim.");
       this.threadPool.submit(new Runnable() {
         @Override
@@ -206,7 +216,7 @@ public final class EvaluatorShim
         extractFiles(tmpFile);
       } catch (StorageException | IOException e) {
         LOG.log(Level.SEVERE, "Failed to download evaluator file resources: {0}. {1}",
-            new Object[] {fileResourcesUrl, e});
+            new Object[]{fileResourcesUrl, e});
         throw new RuntimeException(e);
       }
     } else {
@@ -269,13 +279,22 @@ public final class EvaluatorShim
       Enumeration<? extends ZipEntry> zipEntries = zipFileHandle.entries();
       while (zipEntries.hasMoreElements()) {
         ZipEntry zipEntry = zipEntries.nextElement();
-
-        if ((new File(zipEntry.getName())).exists()) {
+        File file = new File(this.reefFileNames.getREEFFolderName() + '/' + zipEntry.getName());
+        if (file.exists()) {
           LOG.log(Level.INFO, "Skipping entry {0} because the file already exists.", zipEntry.getName());
         } else {
-          try (InputStream inputStream = zipFileHandle.getInputStream(zipEntry)) {
-            LOG.log(Level.INFO, "Extracting {0}.", zipEntry.getName());
-            Files.copy(inputStream, Paths.get(zipEntry.getName()));
+          if (zipEntry.isDirectory()) {
+            if (file.mkdirs()) {
+              LOG.log(Level.INFO, "Creating directory {0}.", zipEntry.getName());
+            } else {
+              LOG.log(Level.INFO, "Directory {0} already exists. Ignoring.", zipEntry.getName());
+            }
+          } else {
+            try (InputStream inputStream = zipFileHandle.getInputStream(zipEntry)) {
+              LOG.log(Level.INFO, "Extracting {0}.", zipEntry.getName());
+              Files.copy(inputStream, Paths.get(this.reefFileNames.getREEFFolderName() + '/' + zipEntry.getName()));
+              LOG.log(Level.INFO, "Extracting {0} completed.", zipEntry.getName());
+            }
           }
         }
       }

@@ -80,7 +80,6 @@ public final class AzureBatchFileNames {
   }
 
   /**
-   * @return The name under which the evaluator shim configuration will be stored in REEF_BASE_FOLDER/LOCAL_FOLDER.
    * @return
    */
   public String getEvaluatorShimConfigurationName() {
