@@ -23,6 +23,7 @@ using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
+using System;
 using System.IO;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
@@ -84,7 +85,8 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
 
         private string CreateDriverFolder(string jobId)
         {
-            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId)) + Path.DirectorySeparatorChar);
+            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId, timestamp)) + Path.DirectorySeparatorChar);
         }
 
         private void SerializeJobFile(string localDriverFolderPath, AvroAzureBatchJobSubmissionParameters jobParameters)
