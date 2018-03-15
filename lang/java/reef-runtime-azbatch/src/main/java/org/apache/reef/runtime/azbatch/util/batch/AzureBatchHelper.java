@@ -16,17 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.azbatch.util;
+package org.apache.reef.runtime.azbatch.util.batch;
 
 import com.microsoft.azure.batch.BatchClient;
-import com.microsoft.azure.batch.auth.BatchSharedKeyCredentials;
 import com.microsoft.azure.batch.protocol.models.*;
 
 import org.apache.reef.runtime.azbatch.client.AzureBatchJobSubmissionHandler;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountKey;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountName;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountUri;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchPoolId;
+import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
+import org.apache.reef.runtime.azbatch.util.storage.SharedAccessSignatureCloudBlobClientProvider;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
@@ -45,58 +43,59 @@ public class AzureBatchHelper {
 
   private static final Logger LOG = Logger.getLogger(AzureBatchJobSubmissionHandler.class.getName());
 
-  private final AzureBatchFileNames azureBatchFileNames;
-
   /*
    * Environment variable that contains the Azure Batch jobId.
    */
   private static final String AZ_BATCH_JOB_ID_ENV = "AZ_BATCH_JOB_ID";
 
-  private final String azureBatchAccountUri;
-  private final String azureBatchAccountName;
-  private final String azureBatchAccountKey;
-  private final String azureBatchPoolId;
+  private final AzureBatchFileNames azureBatchFileNames;
+
   private final BatchClient client;
   private final PoolInformation poolInfo;
 
   @Inject
   public AzureBatchHelper(
       final AzureBatchFileNames azureBatchFileNames,
-      @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
-      @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
-      @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey,
+      final IAzureBatchCredentialProvider credentialProvider,
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId) {
     this.azureBatchFileNames = azureBatchFileNames;
-    this.azureBatchAccountUri = azureBatchAccountUri;
-    this.azureBatchAccountName = azureBatchAccountName;
-    this.azureBatchAccountKey = azureBatchAccountKey;
-    this.azureBatchPoolId = azureBatchPoolId;
 
-    BatchSharedKeyCredentials cred = new BatchSharedKeyCredentials(
-        this.azureBatchAccountUri, this.azureBatchAccountName, this.azureBatchAccountKey);
-    this.client = BatchClient.open(cred);
-
-    this.poolInfo = new PoolInformation();
-    poolInfo.withPoolId(this.azureBatchPoolId);
+    this.client = BatchClient.open(credentialProvider.getCredentials());
+    this.poolInfo = new PoolInformation().withPoolId(azureBatchPoolId);
   }
 
   /**
    * Create a job on Azure Batch.
    *
-   * @param applicationId the ID of the application.
-   * @param jobJarUri the publicly accessible uri to the job jar directory.
-   * @param command the commandline argument to execute the job.
+   * @param applicationId           the ID of the application.
+   * @param storageContainerSAS     the publicly accessible uri to the job container.
+   * @param jobJarUri               the publicly accessible uri to the job jar directory.
+   * @param command                 the commandline argument to execute the job.
    * @throws IOException
    */
-  public void submitJob(final String applicationId, final URI jobJarUri, final String command) throws IOException {
+  public void submitJob(final String applicationId, final String storageContainerSAS, final URI jobJarUri,
+                        final String command) throws IOException {
     ResourceFile jarResourceFile = new ResourceFile()
         .withBlobSource(jobJarUri.toString())
-        .withFilePath(this.azureBatchFileNames.getTaskJarFileName());
+        .withFilePath(AzureBatchFileNames.getTaskJarFileName());
+
+    // This setting will signal Batch to generate an access token and pass it to the Job Manager Task (aka the Driver)
+    // as an environment variable.
+    // See https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.batch.cloudtask.authenticationtokensettings
+    // for more info.
+    AuthenticationTokenSettings authenticationTokenSettings = new AuthenticationTokenSettings();
+    authenticationTokenSettings.withAccess(Collections.singletonList(AccessScope.JOB));
+
+    EnvironmentSetting environmentSetting = new EnvironmentSetting()
+        .withName(SharedAccessSignatureCloudBlobClientProvider.AZURE_STORAGE_CONTAINER_SAS_TOKEN_ENV)
+        .withValue(storageContainerSAS);
 
     JobManagerTask jobManagerTask = new JobManagerTask()
         .withRunExclusive(false)
         .withId(applicationId)
         .withResourceFiles(Collections.singletonList(jarResourceFile))
+        .withEnvironmentSettings(Collections.singletonList(environmentSetting))
+        .withAuthenticationTokenSettings(authenticationTokenSettings)
         .withCommandLine(command);
 
     LOG.log(Level.INFO, "Job Manager (aka driver) task command: " + command);
@@ -112,21 +111,28 @@ public class AzureBatchHelper {
   /**
    * Adds a single task to a job on Azure Batch.
    *
-   * @param jobId the ID of the job.
-   * @param taskId the ID of the task.
-   * @param jobJarUri the publicly accessible uri to the job jar directory.
-   * @param command the commandline argument to execute the job.
+   * @param jobId     the ID of the job.
+   * @param taskId    the ID of the task.
+   * @param jobJarUri the publicly accessible uri list to the job jar directory.
+   * @param confUri   the publicly accessible uri list to the job configuration directory.
+   * @param command   the commandline argument to execute the job.
    * @throws IOException
    */
-  public void submitTask(final String jobId, final String taskId, final URI jobJarUri, final String command)
+  public void submitTask(final String jobId, final String taskId, final URI jobJarUri,
+                         final URI confUri, final String command)
       throws IOException {
+
+    final List<ResourceFile> resources = new ArrayList<>();
 
     final ResourceFile jarSourceFile = new ResourceFile()
         .withBlobSource(jobJarUri.toString())
-        .withFilePath(this.azureBatchFileNames.getTaskJarFileName());
-
-    final List<ResourceFile> resources = new ArrayList<>();
+        .withFilePath(AzureBatchFileNames.getTaskJarFileName());
     resources.add(jarSourceFile);
+
+    final ResourceFile confSourceFile = new ResourceFile()
+        .withBlobSource(confUri.toString())
+        .withFilePath(this.azureBatchFileNames.getEvaluatorShimConfigurationPath());
+    resources.add(confSourceFile);
 
     LOG.log(Level.INFO, "Evaluator task command: " + command);
 
@@ -151,7 +157,7 @@ public class AzureBatchHelper {
       LOG.log(Level.INFO, "Task status for job: {0} returned {1} tasks", new Object[]{jobId, tasks.size()});
     } catch (IOException | BatchErrorException ex) {
       LOG.log(Level.SEVERE, "Exception when fetching Task status for job: {0}. Exception [{1}]:[2]",
-          new Object[] {jobId, ex.getMessage(), ex.getStackTrace()});
+          new Object[]{jobId, ex.getMessage(), ex.getStackTrace()});
     }
 
     return tasks;

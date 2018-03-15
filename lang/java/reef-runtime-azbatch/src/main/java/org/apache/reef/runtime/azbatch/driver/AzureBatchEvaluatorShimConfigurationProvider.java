@@ -26,7 +26,7 @@ import org.apache.reef.tang.Configuration;
 import javax.inject.Inject;
 
 /**
- * Configuration provider for the Azure Batch Evaluator Shim.
+ * Configuration provider for the Azure Batch evaluator shim.
  */
 @Private
 public class AzureBatchEvaluatorShimConfigurationProvider {
@@ -34,15 +34,21 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
   private final RemoteManager remoteManager;
 
   @Inject
-  AzureBatchEvaluatorShimConfigurationProvider(
-      final RemoteManager remoteManager) {
+  AzureBatchEvaluatorShimConfigurationProvider(final RemoteManager remoteManager) {
     this.remoteManager = remoteManager;
   }
 
-  public Configuration getConfiguration(final String azureBatchTaskId) {
+  /**
+   * Constructs a {@link Configuration} object which will be serialized and written to shim.config and
+   * used to launch the evaluator shim.
+   *
+   * @param containerId id of the container for which the shim is being launched.
+   * @return A {@link Configuration} object needed to launch the evaluator shim.
+   */
+  public Configuration getConfiguration(final String containerId) {
     return EvaluatorShimConfiguration.CONF
         .set(EvaluatorShimConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteManager.getMyIdentifier())
-        .set(EvaluatorShimConfiguration.CONTAINER_IDENTIFIER, azureBatchTaskId)
+        .set(EvaluatorShimConfiguration.CONTAINER_IDENTIFIER, containerId)
         .build();
   }
 }

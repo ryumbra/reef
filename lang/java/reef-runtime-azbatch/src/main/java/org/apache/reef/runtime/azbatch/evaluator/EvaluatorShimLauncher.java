@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The main entry point into the evaluator shim process.
+ * The main entry point into the {@link EvaluatorShim}.
  */
 @Private
 @EvaluatorSide
