@@ -34,6 +34,9 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureBatchDotNetClient));
 
+        /// Maximum number of characters allowed in Azure Batch job name. This limit is imposed by Azure Batch.
+        private static readonly int AzureBatchMaxCharsJobName = 64;
+
         private readonly IInjector _injector;
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
         private readonly REEFFileNames _fileNames;
@@ -79,10 +82,11 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         {
             var configModule = AzureBatchClientConfiguration.ConfigurationModule;
             string jobId = jobRequest.JobIdentifier;
+            string azureBatchjobId = CreateAzureJobId(jobId);
             string commandLine = GetCommand(jobRequest.JobParameters);
-            string jarPath = _jobJarMaker.CreateJobSubmissionJAR(jobRequest);
-            Uri blobUri = _storageUploader.UploadFile(_azbatchFileNames.GetStorageJobFolder(jobId), jarPath).Result;
-            _batchService.CreateJob(jobId, blobUri, commandLine);
+            string jarPath = _jobJarMaker.CreateJobSubmissionJAR(jobRequest, azureBatchjobId);
+            Uri blobUri = _storageUploader.UploadFile(_azbatchFileNames.GetStorageJobFolder(azureBatchjobId), jarPath).Result;
+            _batchService.CreateJob(azureBatchjobId, blobUri, commandLine);
         }
 
         private string GetCommand(JobParameters jobParameters)
@@ -120,6 +124,14 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
             // TODO[Azure Batch is not able to comminicate to client through driver end point. It now behaves the same as Submit(JobRequest jobRequest)]
             return null;
+        }
+
+        private string CreateAzureJobId(string jobId)
+        {
+            string guid = Guid.NewGuid().ToString();
+            string jobNameShort = jobId.Length + 1 + guid.Length < AzureBatchMaxCharsJobName ?
+                jobId : jobId.Substring(0, AzureBatchMaxCharsJobName - guid.Length - 1);
+            return jobNameShort + "-" + guid;
         }
     }
 }

@@ -23,6 +23,7 @@ using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
+using System;
 using System.IO;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
@@ -65,8 +66,9 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// Creates a JAR file for the job submission.
         /// </summary>
         /// <param name="jobRequest">Job request received from the client code.</param>
+        /// <param name="azureBatchjobId">Azure Batch job Id going to be launched.</param>
         /// <returns>A string path to file.</returns>
-        public string CreateJobSubmissionJAR(JobRequest jobRequest)
+        public string CreateJobSubmissionJAR(JobRequest jobRequest, string azureBatchjobId)
         {
             var bootstrapJobArgs = new AvroJobSubmissionParameters
             {
@@ -75,16 +77,16 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
                 jobSubmissionFolder = Path.PathSeparator.ToString()
             };
             _avroAzureBatchJobSubmissionParameters.sharedJobSubmissionParameters = bootstrapJobArgs;
-            string localDriverFolderPath = CreateDriverFolder(jobRequest.JobIdentifier);
+            string localDriverFolderPath = CreateDriverFolder(azureBatchjobId);
             _driverFolderPreparationHelper.PrepareDriverFolderWithGlobalBridgeJar(jobRequest.AppParameters, localDriverFolderPath);
             SerializeJobFile(localDriverFolderPath, _avroAzureBatchJobSubmissionParameters);
 
             return _resourceArchiveFileGenerator.CreateArchiveToUpload(localDriverFolderPath);
         }
 
-        private string CreateDriverFolder(string jobId)
+        private string CreateDriverFolder(string azureBatchjobId)
         {
-            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId)) + Path.DirectorySeparatorChar);
+            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), azureBatchjobId) + Path.DirectorySeparatorChar);
         }
 
         private void SerializeJobFile(string localDriverFolderPath, AvroAzureBatchJobSubmissionParameters jobParameters)
