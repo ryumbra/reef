@@ -63,7 +63,7 @@ public final class AzureBatchTestEnvironment extends TestEnvironmentBase impleme
 
   @Override
   public int getTestTimeout() {
-    return 5 * 60000; // 5 min.
+    return 60000; // 1 min.
   }
 
   @Override

@@ -19,19 +19,22 @@
 package org.apache.reef.runtime.azbatch.driver;
 
 import com.microsoft.azure.batch.protocol.models.CloudTask;
-import com.microsoft.azure.batch.protocol.models.TaskState;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchTaskStatusCheckPeriod;
-import org.apache.reef.runtime.azbatch.util.batch.AzureBatchHelper;
+import org.apache.reef.runtime.azbatch.util.AzureBatchHelper;
+import org.apache.reef.runtime.azbatch.util.TaskStatusMapper;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import org.apache.reef.runtime.common.driver.evaluator.Evaluators;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.Clock;
 import org.apache.reef.wake.time.event.Alarm;
+import org.apache.reef.runtime.common.driver.evaluator.pojos.State;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -41,22 +44,13 @@ import java.util.logging.Logger;
 /**
  * Class that gets that status of the tasks from Azure Batch for the job that is currently in progress
  * and notifies REEF of the status.
- * Unlike YARN, Azure Batch does not support Resource Manager callbacks. Therefore, we must periodically call
- * Azure Batch APIs to determine the status of tasks running inside our job.
  */
 @Private
 @DriverSide
 final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
 
-  /**
-   * A placeholder remote ID which is used for reporting failed containers when the
-   * failure occurs before Wake communication channel can be established and the real
-   * remote ID is unknown.
-   */
-  private static final String PLACEHOLDER_REMOTE_ID = "socket://0.0.0.0:0";
-
-  private final InjectionFuture<AzureBatchEvaluatorShimManager> evaluatorShimManager;
   private final AzureBatchHelper azureBatchHelper;
+  private final InjectionFuture<REEFEventHandlers> reefEventHandlers;
   private final int taskStatusCheckPeriod;
   private boolean isAlarmEnabled;
   private final Evaluators evaluators;
@@ -66,57 +60,48 @@ final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
 
   @Inject
   private AzureBatchTaskStatusAlarmHandler(
-      final InjectionFuture<AzureBatchEvaluatorShimManager> evaluatorShimManager,
+      final InjectionFuture<REEFEventHandlers> reefEventHandlers,
       final AzureBatchHelper azureBatchHelper,
       final Evaluators evaluators,
       final Clock clock,
       @Parameter(AzureBatchTaskStatusCheckPeriod.class) final int taskStatusCheckPeriod) {
-    this.evaluatorShimManager = evaluatorShimManager;
+    this.reefEventHandlers = reefEventHandlers;
     this.azureBatchHelper = azureBatchHelper;
     this.evaluators = evaluators;
     this.clock = clock;
     this.taskStatusCheckPeriod = taskStatusCheckPeriod;
   }
 
-  /**
-   * This method is periodically invoked by the Runtime Clock. It will call Azure Batch APIs to determine
-   * the status of tasks running inside the job and notify REEF of tasks statuses that correspond to running
-   * evaluators.
-   *
-   * @param alarm alarm object.
-   */
   @Override
   public void onNext(final Alarm alarm) {
     String jobId = this.azureBatchHelper.getAzureBatchJobId();
     List<CloudTask> allTasks = this.azureBatchHelper.getTaskStatusForJob(jobId);
 
+    if (this.isAlarmEnabled()) {
+      this.scheduleAlarm();
+    }
+
     // Report status if the task has an associated active container.
     LOG.log(Level.FINER, "Found {0} tasks from job id {1}", new Object[]{allTasks.size(), jobId});
     for (CloudTask task : allTasks) {
+      State reefTaskState = TaskStatusMapper.getReefTaskState(task);
+      LOG.log(Level.FINEST, "status for Task Id: {0} is [Azure Batch Status]:{1}, [REEF status]:{2}",
+          new Object[]{task.id(), task.state().toString(), reefTaskState});
+
       Optional<EvaluatorManager> optionalEvaluatorManager = this.evaluators.get(task.id());
-
-      if (!optionalEvaluatorManager.isPresent() && !TaskState.COMPLETED.equals(task.state())) {
-        // This usually means that the evaluator shim has started, but hasn't sent the status message
-        // back to the driver yet.
-        LOG.log(Level.FINE, "No Evaluator found for Azure Batch task id = {0}. Ignoring.", task.id());
-      } else if (!optionalEvaluatorManager.isPresent() && TaskState.COMPLETED.equals(task.state())) {
-        // This indicates that the evaluator shim exited prematurely. We inform REEF of resource allocation
-        // so it's possible to trigger an event signaling resource failure later.
-        LOG.log(Level.INFO, "Azure Batch task id = {0} is in 'COMPLETED' state, but it does not have " +
-            "an Evaluator associated with it. This indicates that the evaluator shim has failed before " +
-            "it could send a callback to the driver.", task.id());
-        this.evaluatorShimManager.get().onResourceAllocated(task.id(), PLACEHOLDER_REMOTE_ID, Optional.of(task));
+      if (!optionalEvaluatorManager.isPresent()) {
+        LOG.log(Level.FINE, "No Evaluator found for Azure Batch task id = {0}.", task.id());
       } else if (optionalEvaluatorManager.get().isClosedOrClosing()) {
-        LOG.log(Level.FINE, "Evaluator id = {0} is closed. Ignoring.", task.id());
+        LOG.log(Level.FINE, "Evaluator id = {0} is closed.", task.id());
       } else {
-        LOG.log(Level.FINE, "Reporting status for Task Id: {0} is [Azure Batch Status]:{1} ",
-            new Object[]{task.id(), task.state().toString()});
-        this.evaluatorShimManager.get().onAzureBatchTaskStatus(task);
+        LOG.log(Level.FINE, "Reporting status for Task Id: {0} is [Azure Batch Status]:{1}, [REEF status]:{2}",
+            new Object[]{task.id(), task.state().toString(), reefTaskState});
+        ResourceStatusEvent resourceStatusEvent = ResourceStatusEventImpl.newBuilder()
+            .setIdentifier(task.id())
+            .setState(reefTaskState)
+            .build();
+        this.reefEventHandlers.get().onResourceStatus(resourceStatusEvent);
       }
-    }
-
-    if (this.isAlarmEnabled()) {
-      this.scheduleAlarm();
     }
   }
 
@@ -124,13 +109,8 @@ final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
    * Enable the period alarm to send status updates.
    */
   public synchronized void enableAlarm() {
-    if (!this.isAlarmEnabled) {
-      LOG.log(Level.FINE, "Enabling the alarm and scheduling it to fire in {0} ms.", this.taskStatusCheckPeriod);
-      this.isAlarmEnabled = true;
-      this.scheduleAlarm();
-    } else {
-      LOG.log(Level.FINE, "Alarm is already enabled.");
-    }
+    this.isAlarmEnabled = true;
+    this.scheduleAlarm();
   }
 
   /**

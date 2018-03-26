@@ -16,11 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.azbatch.util.command;
+package org.apache.reef.runtime.azbatch.util;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.runtime.azbatch.evaluator.EvaluatorShimLauncher;
-import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
 import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;

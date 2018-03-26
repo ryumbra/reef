@@ -42,11 +42,6 @@ public final class AzureBatchResourceLaunchHandler implements ResourceLaunchHand
     this.azureBatchResourceManager = azureBatchResourceManager;
   }
 
-  /**
-   * This method is called when a new resource is requested.
-   *
-   * @param resourceLaunchEvent resource launch event.
-   */
   @Override
   public void onNext(final ResourceLaunchEvent resourceLaunchEvent) {
     LOG.log(Level.FINEST, "Got ResourceLaunchEvent in AzureBatchResourceLaunchHandler");

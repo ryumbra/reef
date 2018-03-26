@@ -16,11 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.azbatch.util.command;
+package org.apache.reef.runtime.azbatch.util;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.runtime.azbatch.evaluator.EvaluatorShimLauncher;
-import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
 import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
@@ -40,7 +39,7 @@ public class LinuxCommandBuilder extends AbstractCommandBuilder {
   private static final Class SHIM_LAUNCHER_CLASS = EvaluatorShimLauncher.class;
   private static final List<String> COMMAND_LIST_PREFIX =
       Collections.unmodifiableList(Arrays.asList(
-          "unzip " + AzureBatchFileNames.getTaskJarFileName() + " -d 'reef/'" + ";"));
+          "ln -sfn '.' 'reef';", "unzip " + AzureBatchFileNames.getTaskJarFileName() + ";"));
   private static final char CLASSPATH_SEPARATOR_CHAR = ':';
   private static final String OS_COMMAND_FORMAT = "/bin/sh -c \"%s\"";
 
