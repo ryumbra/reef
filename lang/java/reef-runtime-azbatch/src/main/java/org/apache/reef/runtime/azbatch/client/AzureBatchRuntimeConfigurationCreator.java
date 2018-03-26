@@ -23,9 +23,9 @@ import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountName;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountUri;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchPoolId;
-import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
-import org.apache.reef.runtime.azbatch.util.command.LinuxCommandBuilder;
-import org.apache.reef.runtime.azbatch.util.command.WindowsCommandBuilder;
+import org.apache.reef.runtime.azbatch.util.CommandBuilder;
+import org.apache.reef.runtime.azbatch.util.LinuxCommandBuilder;
+import org.apache.reef.runtime.azbatch.util.WindowsCommandBuilder;
 import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountKey;
 import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountName;
 import org.apache.reef.runtime.azbatch.parameters.AzureStorageContainerName;
@@ -46,10 +46,10 @@ public final class AzureBatchRuntimeConfigurationCreator {
   /**
    * Get or create a {@link ConfigurationModule} for the Azure Batch runtime.
    *
-   * @param isWindows true if Azure Batch pool nodes run Windows, false otherwise.
+   * @param isWindows whether or not the target OS is windows.
    * @return the configuration module object.
    */
-  public static ConfigurationModule getOrCreateAzureBatchRuntimeConfiguration(final boolean isWindows) {
+  public static ConfigurationModule getOrCreateAzureBatchRuntimeConfiguration(final Boolean isWindows) {
 
     if (AzureBatchRuntimeConfigurationCreator.conf == null) {
       ConfigurationModuleBuilder builder = AzureBatchRuntimeConfigurationStatic.CONF;
